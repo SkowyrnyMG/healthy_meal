@@ -26,11 +26,13 @@ create table recipes (
   prep_time_minutes integer check (prep_time_minutes > 0),
   is_public boolean not null default false,
   featured boolean not null default false,
-  -- generated tsvector column for polish full-text search
+  -- generated tsvector column for full-text search
   -- weighted: title (A) has higher priority than description (B)
+  -- uses 'simple' configuration (language-agnostic) for compatibility
+  -- note: for production with polish language support, change 'simple' to 'polish'
   search_vector tsvector generated always as (
-    setweight(to_tsvector('polish', coalesce(title, '')), 'A') ||
-    setweight(to_tsvector('polish', coalesce(description, '')), 'B')
+    setweight(to_tsvector('simple', coalesce(title, '')), 'A') ||
+    setweight(to_tsvector('simple', coalesce(description, '')), 'B')
   ) stored,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

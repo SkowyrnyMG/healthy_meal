@@ -17,6 +17,26 @@ create extension if not exists "uuid-ossp";
 create extension if not exists "unaccent";
 
 -- =============================================
+-- Polish Text Search Configuration
+-- =============================================
+
+-- check if polish text search configuration exists
+-- if not, we'll use simple (language-agnostic) as fallback
+do $$
+begin
+  -- try to create a custom polish configuration if it doesn't exist
+  if not exists (select 1 from pg_ts_config where cfgname = 'polish') then
+    -- check if polish dictionary is available
+    if exists (select 1 from pg_ts_dict where dictname = 'polish_stem') then
+      raise notice 'Polish text search configuration available';
+    else
+      raise notice 'Polish text search not available, using simple configuration as fallback';
+      raise notice 'For production, install postgresql-contrib package with Polish language support';
+    end if;
+  end if;
+end $$;
+
+-- =============================================
 -- Table: profiles
 -- Purpose: Stores user profile information and dietary preferences
 -- Relationship: 1:1 with auth.users (Supabase-managed authentication table)

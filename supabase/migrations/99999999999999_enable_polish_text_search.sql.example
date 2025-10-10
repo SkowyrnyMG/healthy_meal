@@ -1,0 +1,81 @@
+-- =============================================
+-- Migration: Enable Polish Text Search (OPTIONAL)
+-- Description: Switches text search from 'simple' to 'polish' configuration
+-- Status: EXAMPLE FILE - Rename to .sql and update timestamp when ready to apply
+-- Prerequisites: PostgreSQL server must have Polish language support installed
+-- =============================================
+
+-- =============================================
+-- Instructions
+-- =============================================
+
+-- This migration is optional and should only be applied when:
+-- 1. Your PostgreSQL server has Polish language support installed
+-- 2. You want to improve search quality for Polish language queries
+-- 3. You're ready to rebuild the search_vector column
+--
+-- To apply this migration:
+-- 1. Ensure Polish language support is installed on your PostgreSQL server
+-- 2. Rename this file with current UTC timestamp: YYYYMMDDHHmmss_enable_polish_text_search.sql
+-- 3. Run the migration via Supabase CLI or dashboard
+--
+-- To verify Polish support is available, run:
+-- SELECT cfgname FROM pg_ts_config WHERE cfgname = 'polish';
+
+-- =============================================
+-- Step 1: Drop existing search_vector column
+-- WARNING: This will temporarily disable full-text search
+-- =============================================
+
+alter table recipes drop column search_vector;
+
+-- =============================================
+-- Step 2: Recreate search_vector with Polish configuration
+-- =============================================
+
+alter table recipes add column search_vector tsvector generated always as (
+  setweight(to_tsvector('polish', coalesce(title, '')), 'A') ||
+  setweight(to_tsvector('polish', coalesce(description, '')), 'B')
+) stored;
+
+-- =============================================
+-- Step 3: Recreate GIN index on search_vector
+-- =============================================
+
+create index idx_recipes_search_vector on recipes using gin (search_vector);
+
+-- =============================================
+-- Step 4: Update search function to use Polish configuration
+-- =============================================
+
+create or replace function search_recipes(search_query text)
+returns table (
+  recipe_id uuid,
+  title varchar(255),
+  description text,
+  rank real
+) as $$
+begin
+  return query
+  select
+    r.id,
+    r.title,
+    r.description,
+    ts_rank(r.search_vector, to_tsquery('polish', search_query)) as rank
+  from recipes r
+  where r.search_vector @@ to_tsquery('polish', search_query)
+  order by rank desc;
+end;
+$$ language plpgsql stable;
+
+comment on function search_recipes is 'Full-text search for recipes using Polish language configuration. Returns results ranked by relevance.';
+
+-- =============================================
+-- Verification
+-- =============================================
+
+do $$
+begin
+  raise notice 'Polish text search configuration enabled successfully';
+  raise notice 'Test search with: SELECT * FROM search_recipes(''pierogi'')';
+end $$;

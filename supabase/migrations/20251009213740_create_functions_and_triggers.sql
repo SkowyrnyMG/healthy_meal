@@ -224,12 +224,13 @@ $$ language plpgsql stable;
 comment on function calculate_total_nutrition is 'Calculates total nutritional values for entire recipe (all servings combined)';
 
 -- =============================================
--- Helper Function: Search Recipes by Polish Text
--- Purpose: Helper function for Polish full-text search
--- Usage: select * from search_recipes_polish('pierogi')
+-- Helper Function: Search Recipes by Text
+-- Purpose: Helper function for full-text search
+-- Usage: select * from search_recipes('pierogi')
+-- Note: Uses 'simple' configuration for compatibility. Change to 'polish' in production.
 -- =============================================
 
-create or replace function search_recipes_polish(search_query text)
+create or replace function search_recipes(search_query text)
 returns table (
   recipe_id uuid,
   title varchar(255),
@@ -242,14 +243,14 @@ begin
     r.id,
     r.title,
     r.description,
-    ts_rank(r.search_vector, to_tsquery('polish', search_query)) as rank
+    ts_rank(r.search_vector, to_tsquery('simple', search_query)) as rank
   from recipes r
-  where r.search_vector @@ to_tsquery('polish', search_query)
+  where r.search_vector @@ to_tsquery('simple', search_query)
   order by rank desc;
 end;
 $$ language plpgsql stable;
 
-comment on function search_recipes_polish is 'Full-text search for recipes using Polish language configuration. Returns results ranked by relevance.';
+comment on function search_recipes is 'Full-text search for recipes. Returns results ranked by relevance. Uses simple configuration for compatibility.';
 
 -- =============================================
 -- Comments for documentation
