@@ -7,6 +7,7 @@ The GET /api/profile endpoint retrieves the current authenticated user's profile
 **Purpose**: Provide user profile data for display in the user interface, settings pages, and personalization features.
 
 **Authentication Strategy**:
+
 - **Development/Mock**: Use hardcoded userId for testing
 - **Production**: Supabase session authentication (to be uncommented later)
 
@@ -83,6 +84,7 @@ type DbProfile = Tables<"profiles">;
 ### Error Responses
 
 **401 Unauthorized** - User not authenticated
+
 ```json
 {
   "error": "Unauthorized",
@@ -91,6 +93,7 @@ type DbProfile = Tables<"profiles">;
 ```
 
 **404 Not Found** - Profile doesn't exist for authenticated user
+
 ```json
 {
   "error": "Not Found",
@@ -99,6 +102,7 @@ type DbProfile = Tables<"profiles">;
 ```
 
 **500 Internal Server Error** - Server-side error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -124,15 +128,13 @@ type DbProfile = Tables<"profiles">;
 **Table**: `profiles`
 
 **Query Pattern**:
+
 ```typescript
-const { data, error } = await supabase
-  .from('profiles')
-  .select('*')
-  .eq('user_id', userId)
-  .single();
+const { data, error } = await supabase.from("profiles").select("*").eq("user_id", userId).single();
 ```
 
 **Mapping Logic**:
+
 ```typescript
 // DbProfile (snake_case) -> ProfileDTO (camelCase)
 {
@@ -154,6 +156,7 @@ const { data, error } = await supabase
 **File**: `src/lib/services/profile.service.ts`
 
 **Methods**:
+
 - `getProfileByUserId(userId: string): Promise<ProfileDTO | null>`
   - Queries profiles table
   - Maps database entity to DTO
@@ -165,11 +168,13 @@ const { data, error } = await supabase
 ### Authentication
 
 **Mock Implementation (Current)**:
+
 - Hardcoded userId for development testing
 - Comment clearly indicates this is temporary
 - Easy to toggle to production authentication
 
 **Production Implementation (Commented)**:
+
 ```typescript
 // Production: Uncomment this block
 // const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
@@ -194,35 +199,37 @@ const userId = "550e8400-e29b-41d4-a716-446655440000"; // Mock user ID
 ### Data Validation
 
 **Input**:
+
 - No user-provided input to validate
 - userId from session is trusted (validated by Supabase)
 
 **Output**:
+
 - ProfileDTO structure is type-safe via TypeScript
 - All fields properly typed (string, number, null)
 - ISO 8601 timestamp format for dates
 
 ### Security Threats & Mitigations
 
-| Threat | Mitigation |
-|--------|------------|
-| **Unauthorized Access** | Require valid Supabase session (production) |
-| **Session Hijacking** | Rely on Supabase HTTP-only cookies and secure tokens |
-| **Data Leakage** | Only return data for authenticated user's profile |
-| **SQL Injection** | Use Supabase SDK parameterized queries (not raw SQL) |
-| **XSS** | Return JSON with proper Content-Type header |
+| Threat                  | Mitigation                                           |
+| ----------------------- | ---------------------------------------------------- |
+| **Unauthorized Access** | Require valid Supabase session (production)          |
+| **Session Hijacking**   | Rely on Supabase HTTP-only cookies and secure tokens |
+| **Data Leakage**        | Only return data for authenticated user's profile    |
+| **SQL Injection**       | Use Supabase SDK parameterized queries (not raw SQL) |
+| **XSS**                 | Return JSON with proper Content-Type header          |
 
 ## 7. Error Handling
 
 ### Error Scenarios
 
-| Scenario | Status Code | Response | Logging |
-|----------|-------------|----------|---------|
-| No authentication session | 401 | `{ error: "Unauthorized", message: "Authentication required" }` | No log (expected) |
-| Profile not found | 404 | `{ error: "Not Found", message: "Profile not found" }` | No log (expected) |
-| Database connection error | 500 | `{ error: "Internal Server Error", message: "An unexpected error occurred" }` | Log full error |
-| Supabase SDK error | 500 | `{ error: "Internal Server Error", message: "An unexpected error occurred" }` | Log full error |
-| Service layer exception | 500 | `{ error: "Internal Server Error", message: "An unexpected error occurred" }` | Log full error |
+| Scenario                  | Status Code | Response                                                                      | Logging           |
+| ------------------------- | ----------- | ----------------------------------------------------------------------------- | ----------------- |
+| No authentication session | 401         | `{ error: "Unauthorized", message: "Authentication required" }`               | No log (expected) |
+| Profile not found         | 404         | `{ error: "Not Found", message: "Profile not found" }`                        | No log (expected) |
+| Database connection error | 500         | `{ error: "Internal Server Error", message: "An unexpected error occurred" }` | Log full error    |
+| Supabase SDK error        | 500         | `{ error: "Internal Server Error", message: "An unexpected error occurred" }` | Log full error    |
+| Service layer exception   | 500         | `{ error: "Internal Server Error", message: "An unexpected error occurred" }` | Log full error    |
 
 ### Error Handling Pattern
 
@@ -232,20 +239,20 @@ try {
   // Service invocation
   // Success response
 } catch (error) {
-  console.error('[GET /api/profile] Error:', {
+  console.error("[GET /api/profile] Error:", {
     userId,
-    error: error instanceof Error ? error.message : 'Unknown error',
-    stack: error instanceof Error ? error.stack : undefined
+    error: error instanceof Error ? error.message : "Unknown error",
+    stack: error instanceof Error ? error.stack : undefined,
   });
 
   return new Response(
     JSON.stringify({
       error: "Internal Server Error",
-      message: "An unexpected error occurred"
+      message: "An unexpected error occurred",
     }),
     {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { "Content-Type": "application/json" },
     }
   );
 }
@@ -254,10 +261,12 @@ try {
 ### Logging Strategy
 
 **Development**:
+
 - Log to console with structured format
 - Include userId, error message, stack trace
 
 **Production**:
+
 - Log to error tracking service (e.g., Sentry, LogRocket)
 - Include request context (userId, timestamp, endpoint)
 - Do not log sensitive data (passwords, tokens)
@@ -282,11 +291,13 @@ try {
 ### Optimization Strategies
 
 **Current Implementation**:
+
 - Use `.single()` to fetch only one row
 - Select only necessary columns (or use `*` for simplicity since table is small)
 - No JOINs needed (profiles table is standalone)
 
 **Future Optimizations** (if needed):
+
 - **Caching**: Cache ProfileDTO in Redis with TTL (e.g., 5 minutes)
 - **CDN Edge Caching**: Not applicable (user-specific data)
 - **Database Indexing**: Ensure `profiles.user_id` has index (should be primary key)
@@ -304,6 +315,7 @@ try {
 **File**: `src/lib/services/profile.service.ts`
 
 **Tasks**:
+
 1. Create new file with TypeScript types imported
 2. Import Supabase client type: `SupabaseClient` from `src/db/supabase.client.ts`
 3. Import types: `ProfileDTO`, `DbProfile` from `src/types.ts`
@@ -316,9 +328,10 @@ try {
 5. Add JSDoc comments for documentation
 
 **Example Implementation**:
+
 ```typescript
-import type { SupabaseClient } from '../db/supabase.client';
-import type { ProfileDTO, DbProfile } from '../types';
+import type { SupabaseClient } from "../db/supabase.client";
+import type { ProfileDTO, DbProfile } from "../types";
 
 export class ProfileService {
   /**
@@ -328,19 +341,12 @@ export class ProfileService {
    * @returns ProfileDTO or null if not found
    * @throws Error if database query fails
    */
-  static async getProfileByUserId(
-    supabase: SupabaseClient,
-    userId: string
-  ): Promise<ProfileDTO | null> {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+  static async getProfileByUserId(supabase: SupabaseClient, userId: string): Promise<ProfileDTO | null> {
+    const { data, error } = await supabase.from("profiles").select("*").eq("user_id", userId).single();
 
     if (error) {
       // Not found is acceptable (return null)
-      if (error.code === 'PGRST116') {
+      if (error.code === "PGRST116") {
         return null;
       }
       // Other errors should throw
@@ -379,6 +385,7 @@ export class ProfileService {
 **File**: `src/pages/api/profile.ts`
 
 **Tasks**:
+
 1. Create new file with Astro API route structure
 2. Add `export const prerender = false` directive
 3. Import ProfileService
@@ -395,9 +402,10 @@ export class ProfileService {
 7. Add JSDoc comments
 
 **Example Implementation**:
+
 ```typescript
-import type { APIRoute } from 'astro';
-import { ProfileService } from '../../lib/services/profile.service';
+import type { APIRoute } from "astro";
+import { ProfileService } from "../../lib/services/profile.service";
 
 export const prerender = false;
 
@@ -434,50 +442,43 @@ export const GET: APIRoute = async (context) => {
     // FETCH PROFILE
     // ========================================
 
-    const profile = await ProfileService.getProfileByUserId(
-      context.locals.supabase,
-      userId
-    );
+    const profile = await ProfileService.getProfileByUserId(context.locals.supabase, userId);
 
     // Handle not found
     if (!profile) {
       return new Response(
         JSON.stringify({
           error: "Not Found",
-          message: "Profile not found"
+          message: "Profile not found",
         }),
         {
           status: 404,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
 
     // Success response
-    return new Response(
-      JSON.stringify(profile),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
+    return new Response(JSON.stringify(profile), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     // Log error with context
-    console.error('[GET /api/profile] Error:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+    console.error("[GET /api/profile] Error:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
     });
 
     // Return generic error response
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",
-        message: "An unexpected error occurred"
+        message: "An unexpected error occurred",
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
@@ -489,12 +490,14 @@ export const GET: APIRoute = async (context) => {
 **File**: `src/middleware/index.ts`
 
 **Tasks**:
+
 1. Read existing middleware file
 2. Verify that Supabase client is injected into `context.locals.supabase`
 3. Ensure middleware runs before API routes
 4. No changes needed (just verification)
 
 **Expected Middleware Structure**:
+
 ```typescript
 // Should already exist and inject supabase into context.locals
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -507,17 +510,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
 ### Step 4: Test the Endpoint
 
 **Development Server**:
+
 1. Run `npm run dev`
 2. Server starts on http://localhost:3000
 
 **Manual Testing**:
 
 **Test 1: Success Case (Mock User)**
+
 ```bash
 curl http://localhost:3000/api/profile
 ```
 
 Expected Response (200):
+
 ```json
 {
   "userId": "550e8400-e29b-41d4-a716-446655440000",
@@ -534,8 +540,10 @@ Expected Response (200):
 ```
 
 **Test 2: Profile Not Found**
+
 - Change mock userId to non-existent UUID
 - Expected Response (404):
+
 ```json
 {
   "error": "Not Found",
@@ -544,8 +552,10 @@ Expected Response (200):
 ```
 
 **Test 3: Database Error**
+
 - Temporarily break database connection
 - Expected Response (500):
+
 ```json
 {
   "error": "Internal Server Error",
@@ -556,10 +566,12 @@ Expected Response (200):
 ### Step 5: Prepare Test Data in Database
 
 **Prerequisites**:
+
 1. Ensure Supabase project is set up
 2. Ensure `profiles` table exists with schema matching DbProfile type
 
 **Create Test Profile**:
+
 ```sql
 INSERT INTO profiles (
   user_id,
@@ -587,6 +599,7 @@ INSERT INTO profiles (
 ```
 
 **Verification Query**:
+
 ```sql
 SELECT * FROM profiles WHERE user_id = '550e8400-e29b-41d4-a716-446655440000';
 ```
@@ -615,21 +628,25 @@ SELECT * FROM profiles WHERE user_id = '550e8400-e29b-41d4-a716-446655440000';
 ### Step 7: Code Quality Checks
 
 **Linting**:
+
 ```bash
 npm run lint
 ```
 
 **Formatting**:
+
 ```bash
 npm run format
 ```
 
 **Type Checking**:
+
 ```bash
 npx tsc --noEmit
 ```
 
 **Pre-commit Hooks**:
+
 - Husky runs lint-staged automatically
 - ESLint checks .ts files
 - Prettier formats code
@@ -637,12 +654,14 @@ npx tsc --noEmit
 ### Step 8: Documentation
 
 **Add API Documentation** (if applicable):
+
 - Update API documentation with endpoint details
 - Include request/response examples
 - Document authentication requirements
 - Note that mock authentication is used in development
 
 **Code Comments**:
+
 - Service methods have JSDoc comments
 - API route has descriptive comments
 - Mock authentication clearly marked with TODO
@@ -685,11 +704,13 @@ npx tsc --noEmit
 ### Caching
 
 **Implementation**:
+
 - Add Redis caching layer in ProfileService
 - Cache ProfileDTO with TTL (5-10 minutes)
 - Invalidate cache on profile updates
 
 **Benefits**:
+
 - Reduce database load
 - Improve response times
 - Scale to higher traffic
@@ -697,11 +718,13 @@ npx tsc --noEmit
 ### Extended Profile Data
 
 **Potential Additions**:
+
 - Include user allergens in response
 - Include disliked ingredients
 - Add computed fields (BMI, calorie targets)
 
 **Changes Required**:
+
 - Extend ProfileDTO interface
 - Add JOINs to query user_allergens and user_disliked_ingredients
 - Update mapping logic
@@ -709,11 +732,13 @@ npx tsc --noEmit
 ### Rate Limiting
 
 **Implementation**:
+
 - Add rate limiting middleware
 - Limit to 100 requests/minute per user
 - Return 429 Too Many Requests when exceeded
 
 **Benefits**:
+
 - Prevent abuse
 - Protect database from excessive queries
 - Improve overall system stability

@@ -150,39 +150,46 @@
 ## Database Planning Summary
 
 ### Overview
+
 The HealthyMeal database schema is designed for a Polish-language MVP application that uses AI to modify recipes according to dietary needs. The schema leverages PostgreSQL via Supabase with a focus on flexibility, performance, and security.
 
 ### Key Architectural Decisions
 
 **1. Data Modeling Philosophy**
+
 - **Semi-structured approach**: Core entities normalized, flexible data (ingredients, nutrition) stored as JSONB for MVP speed
 - **UUID-based**: All primary keys use UUIDs for security and alignment with Supabase auth
 - **Future-proof**: Design supports future enhancements (meal_type enum, public recipes) without schema changes
 
 **2. User Management**
+
 - Separation of authentication (`auth.users`) and application data (`profiles`)
 - Minimal activity tracking for MVP (`created_at` only)
 - Hybrid preference storage: direct columns for simple data, normalized tables for many-to-many relationships
 
 **3. Recipe Architecture**
+
 - **Original recipes**: Stored in `recipes` table with JSONB for ingredients and nutrition
 - **Modifications**: Separate `recipe_modifications` table preserves change history
 - **Public recipes**: `is_public` flag enables recipe sharing while maintaining ownership
 - **Versioning**: Users can access original + all their modifications independently
 
 **4. Search & Discovery**
+
 - Polish language full-text search with `unaccent` extension
 - Multi-dimensional filtering: tags, calories, prep time, title search
 - Efficient indexing strategy: GIN for text, B-tree for numeric/foreign keys
 - Predefined tag system (15-20 categories) with automatic assignment
 
 **5. Performance Optimization**
+
 - **Materialized views** for admin dashboard (refreshed periodically)
 - Strategic indexing on high-query columns
 - JSONB indexing support for ingredient searches
 - Designed for future partitioning (meal_plans by date, if needed)
 
 **6. Security Model**
+
 - Row-Level Security on all user tables
 - Users isolated to their own data by default
 - Public recipes: visible to all, editable only by owner
@@ -190,12 +197,14 @@ The HealthyMeal database schema is designed for a Polish-language MVP applicatio
 - Restrictive deletes for reference data (tags, allergens)
 
 **7. Data Integrity**
+
 - Foreign key constraints with appropriate cascade rules
 - Check constraints for Polish demographic data (weight, age ranges)
 - Unique constraints prevent duplicates (favorites, ratings)
 - Auto-updating timestamps via triggers
 
 **8. AI Integration Support**
+
 - `ingredient_substitutions` knowledge base reduces AI API calls
 - `modification_type` enum tracks AI usage patterns
 - JSONB storage facilitates AI-generated content storage
@@ -204,6 +213,7 @@ The HealthyMeal database schema is designed for a Polish-language MVP applicatio
 ### Entity Relationships
 
 **Core Entities:**
+
 - **User** (1) → (M) **Recipes** (can own multiple recipes)
 - **User** (1) → (M) **RecipeModifications** (can modify multiple recipes)
 - **Recipe** (1) → (M) **RecipeModifications** (original can have multiple versions)
@@ -215,6 +225,7 @@ The HealthyMeal database schema is designed for a Polish-language MVP applicatio
 - **User** (M) ↔ (M) **Allergens** (via user_allergens)
 
 **Key Characteristics:**
+
 - Most relationships cascade on user deletion (GDPR compliance)
 - Reference data (tags, allergens) protected with RESTRICT
 - Junction tables enable efficient many-to-many queries
@@ -223,18 +234,21 @@ The HealthyMeal database schema is designed for a Polish-language MVP applicatio
 ### Scalability Considerations
 
 **Immediate (MVP):**
+
 - No partitioning required
 - Standard indexing sufficient
 - Hard deletes keep schema simple
 - Materialized views handle admin analytics load
 
 **Future Growth Path:**
+
 - `meal_plans` can be partitioned by `planned_date` (monthly/yearly)
 - Consider soft deletes for `recipes` if recovery becomes important
 - Activity logging table can be added for detailed retention analysis
 - Read replicas for scaling SELECT queries
 
 ### Polish Language Support
+
 - PostgreSQL `polish` text search configuration
 - `unaccent` extension handles diacritics (ą, ć, ę, ł, ń, ó, ś, ź, ż)
 - Generated tsvector column for efficient search
@@ -242,6 +256,7 @@ The HealthyMeal database schema is designed for a Polish-language MVP applicatio
 - All content stored in UTF-8
 
 ### Migration Strategy
+
 1. Create base tables (profiles, recipes, tags, allergens)
 2. Create junction tables (recipe_tags, user_allergens, favorites, collections, collection_recipes)
 3. Create dependent tables (recipe_modifications, meal_plans, recipe_ratings, ingredient_substitutions)

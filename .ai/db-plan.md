@@ -5,9 +5,11 @@
 ### 1.0 Supabase-Managed Authentication
 
 #### auth.users (Managed by Supabase)
+
 **IMPORTANT**: This table is automatically created and managed by Supabase Auth. Do NOT create or modify this table directly.
 
 The `auth.users` table is part of the `auth` schema and contains:
+
 - `id` (UUID) - Primary key, used as foreign key in `profiles.user_id`
 - `email` (VARCHAR) - User's email address
 - `encrypted_password` (VARCHAR) - Hashed password
@@ -18,6 +20,7 @@ The `auth.users` table is part of the `auth` schema and contains:
 - Additional Supabase Auth metadata fields
 
 **Key Points**:
+
 - Supabase handles all authentication logic (signup, login, password reset, email verification)
 - Use Supabase Auth SDK for all authentication operations
 - The `profiles` table extends user data with application-specific fields
@@ -26,6 +29,7 @@ The `auth.users` table is part of the `auth` schema and contains:
 ### 1.1 User Management
 
 #### profiles
+
 Stores user profile information and dietary preferences.
 
 ```sql
@@ -44,6 +48,7 @@ CREATE TABLE profiles (
 ```
 
 #### allergens
+
 Reference table for predefined allergens.
 
 ```sql
@@ -55,6 +60,7 @@ CREATE TABLE allergens (
 ```
 
 #### user_allergens
+
 Junction table for user allergen preferences (many-to-many).
 
 ```sql
@@ -67,6 +73,7 @@ CREATE TABLE user_allergens (
 ```
 
 #### user_disliked_ingredients
+
 Stores user's disliked ingredients as free text.
 
 ```sql
@@ -82,6 +89,7 @@ CREATE TABLE user_disliked_ingredients (
 ### 1.2 Recipe Management
 
 #### tags
+
 Predefined recipe categories (15-20 tags).
 
 ```sql
@@ -94,6 +102,7 @@ CREATE TABLE tags (
 ```
 
 #### recipes
+
 Core recipe data with JSONB for flexible storage.
 
 ```sql
@@ -128,6 +137,7 @@ CREATE TABLE recipes (
 ```
 
 #### recipe_tags
+
 Junction table for recipe-tag relationship (many-to-many).
 
 ```sql
@@ -140,6 +150,7 @@ CREATE TABLE recipe_tags (
 ```
 
 #### recipe_modifications
+
 Stores AI-generated modifications of recipes.
 
 ```sql
@@ -163,6 +174,7 @@ CREATE TABLE recipe_modifications (
 ### 1.3 User Interactions
 
 #### favorites
+
 Stores user's favorite recipes.
 
 ```sql
@@ -175,6 +187,7 @@ CREATE TABLE favorites (
 ```
 
 #### collections
+
 User-created recipe collections.
 
 ```sql
@@ -188,6 +201,7 @@ CREATE TABLE collections (
 ```
 
 #### collection_recipes
+
 Junction table for collections and recipes (many-to-many).
 
 ```sql
@@ -200,6 +214,7 @@ CREATE TABLE collection_recipes (
 ```
 
 #### recipe_ratings
+
 User ratings and cooking status for recipes.
 
 ```sql
@@ -216,6 +231,7 @@ CREATE TABLE recipe_ratings (
 ```
 
 #### meal_plans
+
 Meal planning calendar.
 
 ```sql
@@ -233,6 +249,7 @@ CREATE TABLE meal_plans (
 ### 1.4 AI Support
 
 #### ingredient_substitutions
+
 Knowledge base for common ingredient substitutions.
 
 ```sql
@@ -250,54 +267,67 @@ CREATE TABLE ingredient_substitutions (
 ## 2. Relationships Between Tables
 
 ### User → Profile (1:1)
+
 - `profiles.user_id` → `auth.users.id` (CASCADE on delete)
 
 ### User ↔ Allergens (M:M via user_allergens)
+
 - `user_allergens.user_id` → `profiles.user_id` (CASCADE on delete)
 - `user_allergens.allergen_id` → `allergens.id` (RESTRICT on delete)
 
 ### User → Disliked Ingredients (1:M)
+
 - `user_disliked_ingredients.user_id` → `profiles.user_id` (CASCADE on delete)
 
 ### User → Recipes (1:M)
+
 - `recipes.user_id` → `profiles.user_id` (CASCADE on delete)
 
 ### Recipe ↔ Tags (M:M via recipe_tags)
+
 - `recipe_tags.recipe_id` → `recipes.id` (CASCADE on delete)
 - `recipe_tags.tag_id` → `tags.id` (RESTRICT on delete)
 
 ### Recipe → Modifications (1:M)
+
 - `recipe_modifications.original_recipe_id` → `recipes.id` (CASCADE on delete)
 - `recipe_modifications.user_id` → `profiles.user_id` (CASCADE on delete)
 
 ### User ↔ Recipes (M:M via favorites)
+
 - `favorites.user_id` → `profiles.user_id` (CASCADE on delete)
 - `favorites.recipe_id` → `recipes.id` (CASCADE on delete)
 
 ### User → Collections → Recipes (1:M:M)
+
 - `collections.user_id` → `profiles.user_id` (CASCADE on delete)
 - `collection_recipes.collection_id` → `collections.id` (CASCADE on delete)
 - `collection_recipes.recipe_id` → `recipes.id` (CASCADE on delete)
 
 ### User ↔ Recipes (M:M via recipe_ratings)
+
 - `recipe_ratings.user_id` → `profiles.user_id` (CASCADE on delete)
 - `recipe_ratings.recipe_id` → `recipes.id` (CASCADE on delete)
 
 ### User ↔ Recipes (M:M via meal_plans)
+
 - `meal_plans.user_id` → `profiles.user_id` (CASCADE on delete)
 - `meal_plans.recipe_id` → `recipes.id` (CASCADE on delete)
 
 ## 3. Indexes
 
 ### Primary Key Indexes (automatically created)
+
 All tables have UUID primary keys which automatically create unique indexes.
 
 ### Full-Text Search
+
 ```sql
 CREATE INDEX idx_recipes_search_vector ON recipes USING GIN (search_vector);
 ```
 
 ### Foreign Key Indexes (for performance)
+
 ```sql
 -- User relationships
 CREATE INDEX idx_recipes_user_id ON recipes(user_id);
@@ -323,6 +353,7 @@ CREATE INDEX idx_user_allergens_allergen_id ON user_allergens(allergen_id);
 ```
 
 ### Filter Indexes
+
 ```sql
 -- Numeric filters for recipe search
 CREATE INDEX idx_recipes_prep_time ON recipes(prep_time_minutes) WHERE prep_time_minutes IS NOT NULL;
@@ -337,6 +368,7 @@ CREATE INDEX idx_recipes_nutrition ON recipes USING GIN (nutrition_per_serving);
 ```
 
 ### Composite Indexes
+
 ```sql
 -- Recipe search by user and public status
 CREATE INDEX idx_recipes_user_public ON recipes(user_id, is_public);
@@ -348,6 +380,7 @@ CREATE INDEX idx_meal_plans_user_date ON meal_plans(user_id, planned_date);
 ## 4. PostgreSQL Policies (Row-Level Security)
 
 ### Enable RLS on all user-facing tables
+
 ```sql
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_allergens ENABLE ROW LEVEL SECURITY;
@@ -363,6 +396,7 @@ ALTER TABLE meal_plans ENABLE ROW LEVEL SECURITY;
 ```
 
 ### Profiles Policies
+
 ```sql
 -- Users can view only their own profile
 CREATE POLICY profiles_select_own ON profiles
@@ -387,6 +421,7 @@ CREATE POLICY profiles_delete_own ON profiles
 ```
 
 ### User Allergens Policies
+
 ```sql
 CREATE POLICY user_allergens_all ON user_allergens
   FOR ALL
@@ -395,6 +430,7 @@ CREATE POLICY user_allergens_all ON user_allergens
 ```
 
 ### User Disliked Ingredients Policies
+
 ```sql
 CREATE POLICY user_disliked_ingredients_all ON user_disliked_ingredients
   FOR ALL
@@ -403,6 +439,7 @@ CREATE POLICY user_disliked_ingredients_all ON user_disliked_ingredients
 ```
 
 ### Recipes Policies
+
 ```sql
 -- Users can view public recipes OR their own recipes
 CREATE POLICY recipes_select ON recipes
@@ -427,6 +464,7 @@ CREATE POLICY recipes_delete_own ON recipes
 ```
 
 ### Recipe Tags Policies
+
 ```sql
 -- Users can view tags for public recipes or their own recipes
 CREATE POLICY recipe_tags_select ON recipe_tags
@@ -459,6 +497,7 @@ CREATE POLICY recipe_tags_modify ON recipe_tags
 ```
 
 ### Recipe Modifications Policies
+
 ```sql
 CREATE POLICY recipe_modifications_all ON recipe_modifications
   FOR ALL
@@ -467,6 +506,7 @@ CREATE POLICY recipe_modifications_all ON recipe_modifications
 ```
 
 ### Favorites Policies
+
 ```sql
 CREATE POLICY favorites_all ON favorites
   FOR ALL
@@ -475,6 +515,7 @@ CREATE POLICY favorites_all ON favorites
 ```
 
 ### Collections Policies
+
 ```sql
 CREATE POLICY collections_all ON collections
   FOR ALL
@@ -483,6 +524,7 @@ CREATE POLICY collections_all ON collections
 ```
 
 ### Collection Recipes Policies
+
 ```sql
 CREATE POLICY collection_recipes_all ON collection_recipes
   FOR ALL
@@ -503,6 +545,7 @@ CREATE POLICY collection_recipes_all ON collection_recipes
 ```
 
 ### Recipe Ratings Policies
+
 ```sql
 -- Users can view all ratings
 CREATE POLICY recipe_ratings_select_all ON recipe_ratings
@@ -527,6 +570,7 @@ CREATE POLICY recipe_ratings_delete_own ON recipe_ratings
 ```
 
 ### Meal Plans Policies
+
 ```sql
 CREATE POLICY meal_plans_all ON meal_plans
   FOR ALL
@@ -535,6 +579,7 @@ CREATE POLICY meal_plans_all ON meal_plans
 ```
 
 ### Reference Tables (Public Read Access)
+
 ```sql
 -- Allergens are publicly readable
 ALTER TABLE allergens ENABLE ROW LEVEL SECURITY;
@@ -558,6 +603,7 @@ CREATE POLICY ingredient_substitutions_select_all ON ingredient_substitutions
 ## 5. Database Functions and Triggers
 
 ### Auto-update updated_at timestamp
+
 ```sql
 CREATE OR REPLACE FUNCTION auto_update_updated_at()
 RETURNS TRIGGER AS $$
@@ -587,6 +633,7 @@ CREATE TRIGGER recipe_ratings_updated_at
 ## 6. Materialized Views for Admin Dashboard
 
 ### User Statistics
+
 ```sql
 CREATE MATERIALIZED VIEW mv_user_statistics AS
 SELECT
@@ -606,6 +653,7 @@ CREATE UNIQUE INDEX ON mv_user_statistics ((true));
 ```
 
 ### Recipe Statistics
+
 ```sql
 CREATE MATERIALIZED VIEW mv_recipe_statistics AS
 SELECT
@@ -627,6 +675,7 @@ CREATE UNIQUE INDEX ON mv_recipe_statistics (modification_type);
 ```
 
 ### Rating Statistics
+
 ```sql
 CREATE MATERIALIZED VIEW mv_rating_statistics AS
 SELECT
@@ -646,6 +695,7 @@ CREATE UNIQUE INDEX ON mv_rating_statistics ((true));
 ```
 
 ### Refresh Schedule
+
 ```sql
 -- Function to refresh all materialized views
 CREATE OR REPLACE FUNCTION refresh_admin_statistics()
@@ -663,6 +713,7 @@ $$ LANGUAGE plpgsql;
 ## 7. Additional Notes and Design Decisions
 
 ### Polish Language Support
+
 - **Extension Required**: Enable `unaccent` extension to handle Polish diacritics (ą, ć, ę, ł, ń, ó, ś, ź, ż)
   ```sql
   CREATE EXTENSION IF NOT EXISTS unaccent;
@@ -674,6 +725,7 @@ $$ LANGUAGE plpgsql;
 ### JSONB Design Decisions
 
 #### Ingredients Structure
+
 ```json
 [
   {
@@ -688,10 +740,12 @@ $$ LANGUAGE plpgsql;
   }
 ]
 ```
+
 - Flexible for MVP, allows varied ingredient formats
 - Future: Consider normalization if advanced ingredient search needed
 
 #### Steps Structure
+
 ```json
 [
   {
@@ -704,10 +758,12 @@ $$ LANGUAGE plpgsql;
   }
 ]
 ```
+
 - Structured format supports AI modifications
 - `step_number` enables reordering and insertion
 
 #### Nutrition Per Serving Structure
+
 ```json
 {
   "calories": 450,
@@ -718,11 +774,13 @@ $$ LANGUAGE plpgsql;
   "salt": 2
 }
 ```
+
 - All values in standard units (kcal, grams)
 - CHECK constraint ensures all required fields present
 - Easy to extend with vitamins, minerals later
 
 #### Modified Data Structure (recipe_modifications)
+
 ```json
 {
   "ingredients": [...],
@@ -732,10 +790,12 @@ $$ LANGUAGE plpgsql;
   "modification_notes": "Zmniejszono kalorie przez zastąpienie masła oliwą"
 }
 ```
+
 - Complete snapshot of modified recipe
 - Preserves original recipe integrity
 
 ### Security Considerations
+
 1. **RLS Enabled**: All user-facing tables protected
 2. **User Isolation**: Users can only access their own data
 3. **Public Recipes**: Special policy allows viewing public recipes while restricting modifications
@@ -743,6 +803,7 @@ $$ LANGUAGE plpgsql;
 5. **Reference Data Protection**: Tags and allergens use RESTRICT to prevent accidental deletion
 
 ### Performance Considerations
+
 1. **Strategic Indexing**: Balance between query performance and write overhead
 2. **Materialized Views**: Reduce load on admin dashboard queries
 3. **JSONB Indexing**: GIN indexes enable efficient JSONB queries
@@ -750,6 +811,7 @@ $$ LANGUAGE plpgsql;
 5. **Composite Indexes**: Optimize common multi-column queries
 
 ### Scalability Path
+
 1. **Immediate MVP**: Current schema handles thousands of users efficiently
 2. **Growth Phase** (10k+ users):
    - Add read replicas for SELECT queries
@@ -761,11 +823,13 @@ $$ LANGUAGE plpgsql;
    - Implement caching layer (Redis) for frequently accessed data
 
 ### Data Validation
+
 - **Database Level**: CHECK constraints enforce business rules at the lowest level
 - **Application Level**: Additional validation in TypeScript/Zod for user-friendly error messages
 - **JSONB Schemas**: CHECK constraints validate JSONB structure
 
 ### Migration Strategy
+
 1. **Phase 1**: Create extensions and base tables
 2. **Phase 2**: Create indexes
 3. **Phase 3**: Create functions and triggers
@@ -776,6 +840,7 @@ $$ LANGUAGE plpgsql;
 ### Seed Data Examples
 
 #### Tags (15-20 categories)
+
 ```sql
 INSERT INTO tags (name, slug) VALUES
   ('Śniadanie', 'sniadanie'),
@@ -800,6 +865,7 @@ INSERT INTO tags (name, slug) VALUES
 ```
 
 #### Allergens (common Polish allergens)
+
 ```sql
 INSERT INTO allergens (name_pl) VALUES
   ('Gluten'),
@@ -819,6 +885,7 @@ INSERT INTO allergens (name_pl) VALUES
 ```
 
 ### Admin Access
+
 For admin dashboard access, use Supabase custom claims or create admin check function:
 
 ```sql
@@ -843,6 +910,7 @@ CREATE POLICY mv_user_statistics_admin ON mv_user_statistics
 ```
 
 ### Monitoring Recommendations
+
 1. **Query Performance**: Monitor slow queries, especially full-text search
 2. **Index Usage**: Track unused indexes, consider removal
 3. **Table Bloat**: Regular VACUUM ANALYZE on high-write tables
@@ -850,6 +918,7 @@ CREATE POLICY mv_user_statistics_admin ON mv_user_statistics
 5. **Connection Pool**: Monitor connection usage and wait times
 
 ### Future Enhancements (Post-MVP)
+
 1. **Soft Deletes**: Add `deleted_at` column for recipe recovery
 2. **Version Control**: Implement full recipe versioning system
 3. **Activity Logging**: Detailed user activity tracking for retention analysis

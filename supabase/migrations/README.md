@@ -42,6 +42,7 @@ The migrations use the **'simple'** text search configuration for compatibility 
 To enable proper Polish language support:
 
 1. **Verify Polish support is available:**
+
    ```sql
    SELECT cfgname FROM pg_ts_config WHERE cfgname = 'polish';
    ```
@@ -49,6 +50,7 @@ To enable proper Polish language support:
 2. **If Polish is not available, install it:**
    - For managed Supabase: Contact support or check if it's available
    - For self-hosted PostgreSQL:
+
      ```bash
      # Ubuntu/Debian
      sudo apt-get install postgresql-contrib-XX  # XX = your PostgreSQL version
@@ -58,6 +60,7 @@ To enable proper Polish language support:
      ```
 
 3. **Apply the Polish migration:**
+
    ```bash
    # Rename the example file
    mv 99999999999999_enable_polish_text_search.sql.example $(date -u +%Y%m%d%H%M%S)_enable_polish_text_search.sql
@@ -75,23 +78,27 @@ To enable proper Polish language support:
 ## Key Features
 
 ### Security
+
 - Row-Level Security (RLS) enabled on all tables
 - Separate policies for `anon` and `authenticated` roles
 - Admin-only access to materialized views
 
 ### Performance
+
 - GIN indexes for full-text search and JSONB queries
 - B-tree indexes for foreign keys and filtering
 - Partial indexes for sparse data
 - Composite indexes for multi-column queries
 
 ### Data Integrity
+
 - CHECK constraints for validation
 - Foreign key CASCADE/RESTRICT rules
 - Auto-updating timestamps via triggers
 - JSONB structure validation
 
 ### Polish Language
+
 - `unaccent` extension for diacritics (ą, ć, ę, ł, ń, ó, ś, ź, ż)
 - Full-text search ready for Polish configuration
 - Polish-specific validation ranges
@@ -147,6 +154,7 @@ For detailed schema documentation, see `.ai/db-plan.md`.
 ## Support
 
 For issues or questions:
+
 - Check Supabase docs: https://supabase.com/docs
 - Review migration logs in Supabase dashboard
 - Verify prerequisites and dependencies

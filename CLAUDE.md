@@ -9,6 +9,7 @@ HealthyMeal is an AI-powered web application that helps users modify recipes acc
 ## Development Commands
 
 ### Essential Commands
+
 - `npm run dev` - Start development server (port 3000)
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
@@ -17,11 +18,13 @@ HealthyMeal is an AI-powered web application that helps users modify recipes acc
 - `npm run format` - Format code with Prettier
 
 ### Node Version
+
 - Required: Node.js 22.14.0 (use `nvm use` to switch)
 
 ## Architecture
 
 ### Framework Configuration
+
 - **Astro**: Configured with server-side rendering (`output: "server"`)
 - **Server Port**: 3000 (configured in astro.config.mjs)
 - **Adapter**: Node.js standalone mode for Docker deployment
@@ -29,6 +32,7 @@ HealthyMeal is an AI-powered web application that helps users modify recipes acc
 - **Path Aliases**: `@/*` maps to `./src/*`
 
 ### Directory Structure
+
 ```
 src/
 ├── layouts/          # Astro layouts
@@ -47,6 +51,7 @@ src/
 ### Key Technical Patterns
 
 #### Astro-Specific
+
 - Use `.astro` components for static content and layouts
 - React components should be used only for interactivity
 - API routes use `export const prerender = false`
@@ -57,16 +62,19 @@ src/
 - Use import.meta.env for environment variables
 
 #### React-Specific
+
 - Never use "use client" or Next.js directives (this is Astro + React, not Next.js)
 - Custom hooks go in `src/components/hooks`
 - Use functional components with hooks only
 
 #### Backend & Data
+
 - Supabase provides PostgreSQL, authentication, and SDK
 - Use Zod schemas for all API input validation
 - Extract business logic into services in `src/lib/services`
 
 #### Styling
+
 - Tailwind 4 via Vite plugin
 - Shadcn/ui configured with New York style, neutral base color
 - Global styles in `src/styles/global.css`
@@ -75,6 +83,7 @@ src/
 ### Code Quality Standards
 
 #### Error Handling
+
 - Handle errors and edge cases at the beginning of functions
 - Use early returns for error conditions (guard clauses)
 - Avoid unnecessary else statements (if-return pattern)
@@ -82,12 +91,14 @@ src/
 - Implement proper error logging with user-friendly messages
 
 #### Linting & Formatting
+
 - Husky pre-commit hooks are configured
 - lint-staged runs on commit:
   - ESLint for .ts, .tsx, .astro files
   - Prettier for .json, .css, .md files
 
 #### Accessibility
+
 - Use ARIA landmarks and roles appropriately
 - Implement proper aria-expanded, aria-controls, aria-live regions
 - Use aria-label/aria-labelledby for elements without visible labels
@@ -96,6 +107,7 @@ src/
 ## Environment Variables
 
 Required environment variables (see .env.example):
+
 - `PUBLIC_SUPABASE_URL` - Supabase project URL
 - `PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
 - `OPENROUTER_API_KEY` - OpenRouter API key for AI integration
