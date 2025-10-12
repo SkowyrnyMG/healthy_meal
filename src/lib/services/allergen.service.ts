@@ -27,6 +27,16 @@ export class AllergenAlreadyExistsError extends Error {
   }
 }
 
+/**
+ * Error thrown when allergen is not in user's profile
+ */
+export class AllergenNotInUserListError extends Error {
+  constructor(allergenId: string) {
+    super(`Allergen not in user's list: ${allergenId}`);
+    this.name = "AllergenNotInUserListError";
+  }
+}
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
@@ -190,4 +200,31 @@ export async function addAllergenToUser(
   }
 
   return mapToDTO(data as UserAllergenQueryResult);
+}
+
+/**
+ * Remove allergen from user's profile
+ * @param supabase - Supabase client instance from context.locals
+ * @param userId - User ID from authentication session
+ * @param allergenId - Allergen ID to remove
+ * @throws AllergenNotInUserListError if user doesn't have this allergen
+ * @throws Error if database operation fails
+ */
+export async function removeAllergenFromUser(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  allergenId: string
+): Promise<void> {
+  // Check if user has this allergen
+  const userHasAllergen = await checkUserHasAllergen(supabase, userId, allergenId);
+  if (!userHasAllergen) {
+    throw new AllergenNotInUserListError(allergenId);
+  }
+
+  // Delete allergen from user's profile
+  const { error } = await supabase.from("user_allergens").delete().eq("user_id", userId).eq("allergen_id", allergenId);
+
+  if (error) {
+    throw error;
+  }
 }
