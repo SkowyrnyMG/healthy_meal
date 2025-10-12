@@ -1,6 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-
-import type { Database } from "../../db/database.types";
+import type { SupabaseClient } from "../../db/supabase.client";
 import type { UserAllergenDTO } from "../../types";
 
 // ============================================================================
@@ -48,7 +46,7 @@ export class AllergenNotInUserListError extends Error {
  * @returns true if exists, false otherwise
  * @throws Error if database query fails
  */
-async function checkAllergenExists(supabase: SupabaseClient<Database>, allergenId: string): Promise<boolean> {
+async function checkAllergenExists(supabase: SupabaseClient, allergenId: string): Promise<boolean> {
   const { data, error } = await supabase.from("allergens").select("id").eq("id", allergenId).single();
 
   if (error) {
@@ -70,11 +68,7 @@ async function checkAllergenExists(supabase: SupabaseClient<Database>, allergenI
  * @returns true if user has allergen, false otherwise
  * @throws Error if database query fails
  */
-async function checkUserHasAllergen(
-  supabase: SupabaseClient<Database>,
-  userId: string,
-  allergenId: string
-): Promise<boolean> {
+async function checkUserHasAllergen(supabase: SupabaseClient, userId: string, allergenId: string): Promise<boolean> {
   const { data, error } = await supabase
     .from("user_allergens")
     .select("allergen_id")
@@ -103,10 +97,7 @@ async function checkUserHasAllergen(
  * @returns Array of UserAllergenDTO (empty array if no allergens)
  * @throws Error if database query fails
  */
-export async function getUserAllergensByUserId(
-  supabase: SupabaseClient<Database>,
-  userId: string
-): Promise<UserAllergenDTO[]> {
+export async function getUserAllergensByUserId(supabase: SupabaseClient, userId: string): Promise<UserAllergenDTO[]> {
   const { data, error } = await supabase
     .from("user_allergens")
     .select("allergen_id, created_at, allergens(id, name_pl)")
@@ -161,7 +152,7 @@ function mapToDTO(dbUserAllergen: UserAllergenQueryResult): UserAllergenDTO {
  * @throws Error if database operation fails
  */
 export async function addAllergenToUser(
-  supabase: SupabaseClient<Database>,
+  supabase: SupabaseClient,
   userId: string,
   allergenId: string
 ): Promise<UserAllergenDTO> {
@@ -211,7 +202,7 @@ export async function addAllergenToUser(
  * @throws Error if database operation fails
  */
 export async function removeAllergenFromUser(
-  supabase: SupabaseClient<Database>,
+  supabase: SupabaseClient,
   userId: string,
   allergenId: string
 ): Promise<void> {

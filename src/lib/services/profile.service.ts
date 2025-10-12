@@ -1,6 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-
-import type { Database } from "../../db/database.types";
+import type { SupabaseClient } from "../../db/supabase.client";
 import type { DbProfile, ProfileDTO } from "../../types";
 
 /**
@@ -10,10 +8,7 @@ import type { DbProfile, ProfileDTO } from "../../types";
  * @returns ProfileDTO or null if not found
  * @throws Error if database query fails
  */
-export async function getProfileByUserId(
-  supabase: SupabaseClient<Database>,
-  userId: string
-): Promise<ProfileDTO | null> {
+export async function getProfileByUserId(supabase: SupabaseClient, userId: string): Promise<ProfileDTO | null> {
   const { data, error } = await supabase.from("profiles").select("*").eq("user_id", userId).single();
 
   if (error) {
