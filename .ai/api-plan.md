@@ -123,7 +123,7 @@
     {
       "id": "uuid",
       "namePl": "Gluten",
-      "addedAt": "2025-10-11T12:00:00Z"
+      "createdAt": "2025-10-11T12:00:00Z"
     }
   ]
 }
@@ -156,7 +156,7 @@
   "allergen": {
     "id": "uuid",
     "namePl": "Gluten",
-    "addedAt": "2025-10-11T12:00:00Z"
+    "createdAt": "2025-10-11T12:00:00Z"
   }
 }
 ```
@@ -839,7 +839,7 @@
         "nutritionPerServing": {...},
         "prepTimeMinutes": 30
       },
-      "addedAt": "2025-10-11T12:00:00Z"
+      "createdAt": "2025-10-11T12:00:00Z"
     }
   ],
   "pagination": {
@@ -880,7 +880,7 @@
   "success": true,
   "favorite": {
     "recipeId": "uuid",
-    "addedAt": "2025-10-11T12:00:00Z"
+    "createdAt": "2025-10-11T12:00:00Z"
   }
 }
 ```
@@ -1009,7 +1009,7 @@
         "description": "...",
         "nutritionPerServing": {...}
       },
-      "addedAt": "2025-10-11T12:00:00Z"
+      "createdAt": "2025-10-11T12:00:00Z"
     }
   ],
   "pagination": {
@@ -1103,7 +1103,7 @@
   "collectionRecipe": {
     "collectionId": "uuid",
     "recipeId": "uuid",
-    "addedAt": "2025-10-11T12:00:00Z"
+    "createdAt": "2025-10-11T12:00:00Z"
   }
 }
 ```

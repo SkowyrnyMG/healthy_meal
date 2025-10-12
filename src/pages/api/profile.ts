@@ -37,7 +37,7 @@ export const GET: APIRoute = async (context) => {
     // const userId = user.id;
 
     // MOCK: Remove this in production
-    const userId = "550e8400-e29b-41d4-a716-446655440000"; // Mock user ID for development
+    const userId = "c4afdcfc-d36b-4f19-b62d-0de187151b87"; // Mock user ID for development
 
     // ========================================
     // FETCH PROFILE

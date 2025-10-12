@@ -38,7 +38,7 @@ export interface AllergenDTO {
 export interface UserAllergenDTO {
   id: string;
   name: string;
-  addedAt: string;
+  createdAt: string;
 }
 
 /**
@@ -265,7 +265,7 @@ export interface FavoriteDTO {
     nutritionPerServing: NutritionDTO;
     prepTimeMinutes: number | null;
   };
-  addedAt: string;
+  createdAt: string;
 }
 
 // ============================================================================
@@ -296,7 +296,7 @@ export interface CollectionRecipeDTO {
     description: string | null;
     nutritionPerServing: NutritionDTO;
   };
-  addedAt: string;
+  createdAt: string;
 }
 
 /**

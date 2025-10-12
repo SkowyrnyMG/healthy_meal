@@ -29,7 +29,7 @@ This endpoint retrieves the list of allergens that the authenticated user has se
 export interface UserAllergenDTO {
   id: string;
   name: string; // Using 'name' instead of 'namePl' from API spec
-  addedAt: string;
+  createdAt: string;
 }
 ```
 
@@ -56,7 +56,7 @@ export interface UserAllergenDTO {
     {
       "id": "uuid",
       "name": "Gluten",
-      "addedAt": "2025-10-11T12:00:00Z"
+      "createdAt": "2025-10-11T12:00:00Z"
     }
   ]
 }
@@ -226,7 +226,7 @@ console.error("[GET /api/profile/allergens] Error:", {
 
 3. Implement `mapToDTO()` helper function:
    - Convert snake_case database fields to camelCase DTO fields
-   - Map: `allergen_id` → `id`, `name_pl` → `name`, `added_at` → `addedAt`
+   - Map: `allergen_id` → `id`, `name_pl` → `name`, `created_at` → `createdAt`
    - Handle nested allergen data from join
 
 4. Handle errors:
@@ -279,7 +279,7 @@ function mapToDTO(dbUserAllergen: any): UserAllergenDTO {
   return {
     id: dbUserAllergen.allergens.id,
     name: dbUserAllergen.allergens.name_pl,
-    addedAt: dbUserAllergen.added_at,
+    createdAt: dbUserAllergen.created_at,
   };
 }
 ```
@@ -409,7 +409,7 @@ export const GET: APIRoute = async (context) => {
 - ✅ Unauthenticated request returns 401 (when auth is enabled)
 - ✅ Response structure matches spec
 - ✅ Timestamps are properly formatted (ISO 8601)
-- ✅ Allergens ordered by `addedAt` descending
+- ✅ Allergens ordered by `createdAt` descending
 
 **Expected Responses**:
 
@@ -421,12 +421,12 @@ User with allergens:
     {
       "id": "123e4567-e89b-12d3-a456-426614174000",
       "name": "Gluten",
-      "addedAt": "2025-10-11T12:00:00Z"
+      "createdAt": "2025-10-11T12:00:00Z"
     },
     {
       "id": "223e4567-e89b-12d3-a456-426614174001",
       "name": "Lactose",
-      "addedAt": "2025-10-10T10:30:00Z"
+      "createdAt": "2025-10-10T10:30:00Z"
     }
   ]
 }

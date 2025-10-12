@@ -5,32 +5,38 @@ Before we begin, review the following information:
 1. Route API specification:
    <route_api_specification>
 
-#### GET /api/profile/allergens
+#### POST /api/profile/allergens
 
-**Description**: Get user's selected allergens
+**Description**: Add allergen to user profile
 
 **Authentication**: Required
 
-**Response** (200 OK):
+**Request Payload**:
 
 ```json
 {
-  "allergens": [
-    {
-      "id": "uuid",
-      "namePl": "Gluten",
-      "createdAt": "2025-10-11T12:00:00Z"
-    }
-  ]
+  "allergenId": "uuid"
+}
+```
+
+**Response** (201 Created):
+
+```json
+{
+  "success": true,
+  "allergen": {
+    "id": "uuid",
+    "namePl": "Gluten",
+    "createdAt": "2025-10-11T12:00:00Z"
+  }
 }
 ```
 
 **Error Responses**:
 
-- 404 Not Found: Allergen not found
-- 401 Unauthorized: Not authenticated
-
-</route_api_specification>
+- 400 Bad Request: Invalid allergen ID
+- 409 Conflict: Allergen already added
+  </route_api_specification>
 
 2. Related database resources:
    <related_db_resources>
@@ -191,5 +197,5 @@ The final output should be a well-organized implementation plan in markdown form
 
 The final output should consist solely of the implementation plan in markdown format and should not duplicate or repeat any work done in the analysis section.
 
-Remember to save your implementation plan as .ai/view-implementation-plan.md. Ensure the plan is detailed, clear, and provides comprehensive guidance for the development team.
+Remember to save your implementation plan as .ai/2_2_post_api_profile_allergens_view_implementation_plan. Ensure the plan is detailed, clear, and provides comprehensive guidance for the development team.
 ```
