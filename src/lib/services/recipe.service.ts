@@ -1,12 +1,22 @@
 import type { SupabaseClient } from "../../db/supabase.client";
-import type { RecipeListItemDTO, TagDTO, NutritionDTO, PaginationDTO, RecipeQueryParams } from "../../types";
+import type {
+  RecipeListItemDTO,
+  RecipeDetailDTO,
+  TagDTO,
+  NutritionDTO,
+  PaginationDTO,
+  RecipeQueryParams,
+  CreateRecipeCommand,
+  DbRecipeInsert,
+  DbRecipeTagInsert,
+} from "../../types";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 /**
- * Database query result interface for recipes with tags
+ * Database query result interface for recipes with tags (list view)
  */
 interface RecipeQueryResult {
   id: string;
@@ -25,6 +35,48 @@ interface RecipeQueryResult {
     fiber: number;
     salt: number;
   };
+  created_at: string;
+  updated_at: string;
+  recipe_tags: {
+    tag_id: string;
+    tags: {
+      id: string;
+      name: string;
+      slug: string;
+      created_at: string;
+    } | null;
+  }[];
+}
+
+/**
+ * Database query result interface for recipe detail with full data
+ */
+interface RecipeDetailQueryResult {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  ingredients: {
+    name: string;
+    amount: number;
+    unit: string;
+  }[];
+  steps: {
+    stepNumber: number;
+    instruction: string;
+  }[];
+  servings: number;
+  nutrition_per_serving: {
+    calories: number;
+    protein: number;
+    fat: number;
+    carbs: number;
+    fiber: number;
+    salt: number;
+  };
+  prep_time_minutes: number | null;
+  is_public: boolean;
+  featured: boolean;
   created_at: string;
   updated_at: string;
   recipe_tags: {
@@ -306,6 +358,124 @@ export async function getPublicRecipes(
   return { recipes, pagination };
 }
 
+/**
+ * Create a new recipe for a user
+ * @param supabase - Supabase client instance from context.locals
+ * @param userId - ID of the user creating the recipe
+ * @param command - CreateRecipeCommand with validated recipe data
+ * @returns RecipeDetailDTO with complete recipe information including tags
+ * @throws Error if tag validation fails or database operation fails
+ */
+export async function createRecipe(
+  supabase: SupabaseClient,
+  userId: string,
+  command: CreateRecipeCommand
+): Promise<RecipeDetailDTO> {
+  // ========================================
+  // VALIDATE TAGS (if provided)
+  // ========================================
+
+  if (command.tagIds && command.tagIds.length > 0) {
+    const { data: existingTags, error: tagError } = await supabase.from("tags").select("id").in("id", command.tagIds);
+
+    if (tagError) {
+      throw tagError;
+    }
+
+    if (!existingTags || existingTags.length !== command.tagIds.length) {
+      throw new Error("One or more tag IDs are invalid");
+    }
+  }
+
+  // ========================================
+  // INSERT RECIPE
+  // ========================================
+
+  const recipeInsert: DbRecipeInsert = {
+    user_id: userId,
+    title: command.title,
+    description: command.description || null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ingredients: command.ingredients as any, // JSONB field - type assertion required for Supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    steps: command.steps as any, // JSONB field - type assertion required for Supabase
+    servings: command.servings,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    nutrition_per_serving: command.nutritionPerServing as any, // JSONB field - type assertion required for Supabase
+    prep_time_minutes: command.prepTimeMinutes || null,
+    is_public: command.isPublic ?? false,
+    featured: false, // Default value - only admins can feature recipes
+  };
+
+  const { data: recipe, error: recipeError } = await supabase.from("recipes").insert(recipeInsert).select().single();
+
+  if (recipeError || !recipe) {
+    throw recipeError || new Error("Failed to create recipe");
+  }
+
+  // ========================================
+  // INSERT RECIPE-TAG ASSOCIATIONS (if tags provided)
+  // ========================================
+
+  if (command.tagIds && command.tagIds.length > 0) {
+    const recipeTagInserts: DbRecipeTagInsert[] = command.tagIds.map((tagId) => ({
+      recipe_id: recipe.id,
+      tag_id: tagId,
+    }));
+
+    const { error: tagAssocError } = await supabase.from("recipe_tags").insert(recipeTagInserts);
+
+    if (tagAssocError) {
+      throw tagAssocError;
+    }
+  }
+
+  // ========================================
+  // FETCH COMPLETE RECIPE WITH TAGS
+  // ========================================
+
+  const { data: completeRecipe, error: fetchError } = await supabase
+    .from("recipes")
+    .select(
+      `
+      id,
+      user_id,
+      title,
+      description,
+      ingredients,
+      steps,
+      servings,
+      nutrition_per_serving,
+      prep_time_minutes,
+      is_public,
+      featured,
+      created_at,
+      updated_at,
+      recipe_tags (
+        tag_id,
+        tags (
+          id,
+          name,
+          slug,
+          created_at
+        )
+      )
+    `
+    )
+    .eq("id", recipe.id)
+    .single();
+
+  if (fetchError || !completeRecipe) {
+    throw fetchError || new Error("Failed to fetch created recipe");
+  }
+
+  // ========================================
+  // MAP TO DTO AND RETURN
+  // ========================================
+
+  return mapToRecipeDetailDTO(completeRecipe as RecipeDetailQueryResult);
+}
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
@@ -359,6 +529,49 @@ function mapToRecipeListItemDTO(dbRecipe: RecipeQueryResult): RecipeListItemDTO 
     isPublic: dbRecipe.is_public,
     featured: dbRecipe.featured,
     nutritionPerServing,
+    tags,
+    createdAt: dbRecipe.created_at,
+    updatedAt: dbRecipe.updated_at,
+  };
+}
+
+/**
+ * Map database recipe detail result to RecipeDetailDTO
+ * Converts snake_case to camelCase, extracts JSONB fields, and flattens recipe_tags
+ */
+function mapToRecipeDetailDTO(dbRecipe: RecipeDetailQueryResult): RecipeDetailDTO {
+  // Extract and map tags from recipe_tags junction table
+  const tags: TagDTO[] = dbRecipe.recipe_tags
+    .filter((rt): rt is { tag_id: string; tags: NonNullable<typeof rt.tags> } => rt.tags !== null)
+    .map((rt) => ({
+      id: rt.tags.id,
+      name: rt.tags.name,
+      slug: rt.tags.slug,
+      createdAt: rt.tags.created_at,
+    }));
+
+  // Map nutrition data (already in correct format from JSONB)
+  const nutritionPerServing: NutritionDTO = {
+    calories: dbRecipe.nutrition_per_serving.calories,
+    protein: dbRecipe.nutrition_per_serving.protein,
+    fat: dbRecipe.nutrition_per_serving.fat,
+    carbs: dbRecipe.nutrition_per_serving.carbs,
+    fiber: dbRecipe.nutrition_per_serving.fiber,
+    salt: dbRecipe.nutrition_per_serving.salt,
+  };
+
+  return {
+    id: dbRecipe.id,
+    userId: dbRecipe.user_id,
+    title: dbRecipe.title,
+    description: dbRecipe.description,
+    ingredients: dbRecipe.ingredients,
+    steps: dbRecipe.steps,
+    servings: dbRecipe.servings,
+    nutritionPerServing,
+    prepTimeMinutes: dbRecipe.prep_time_minutes,
+    isPublic: dbRecipe.is_public,
+    featured: dbRecipe.featured,
     tags,
     createdAt: dbRecipe.created_at,
     updatedAt: dbRecipe.updated_at,
