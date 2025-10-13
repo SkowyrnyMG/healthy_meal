@@ -122,7 +122,7 @@
   "allergens": [
     {
       "id": "uuid",
-      "namePl": "Gluten",
+      "name": "Gluten",
       "createdAt": "2025-10-11T12:00:00Z"
     }
   ]
@@ -155,7 +155,7 @@
   "success": true,
   "allergen": {
     "id": "uuid",
-    "namePl": "Gluten",
+    "name": "Gluten",
     "createdAt": "2025-10-11T12:00:00Z"
   }
 }
@@ -291,7 +291,7 @@
   "allergens": [
     {
       "id": "uuid",
-      "namePl": "Gluten",
+      "name": "Gluten",
       "createdAt": "2025-10-11T12:00:00Z"
     }
   ]

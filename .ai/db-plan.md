@@ -54,7 +54,7 @@ Reference table for predefined allergens.
 ```sql
 CREATE TABLE allergens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name_pl VARCHAR(100) NOT NULL UNIQUE,
+  name VARCHAR(100) NOT NULL UNIQUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
@@ -867,7 +867,7 @@ INSERT INTO tags (name, slug) VALUES
 #### Allergens (common Polish allergens)
 
 ```sql
-INSERT INTO allergens (name_pl) VALUES
+INSERT INTO allergens (name) VALUES
   ('Gluten'),
   ('Jaja'),
   ('Mleko'),

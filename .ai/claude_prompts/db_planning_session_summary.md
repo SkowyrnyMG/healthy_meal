@@ -39,7 +39,7 @@
    - Junction table for user allergen preferences
 
 3. **allergens** table
-   - Reference table: `id`, `name_pl`
+   - Reference table: `id`, `name`
    - Predefined allergen list
 
 4. **user_disliked_ingredients** table

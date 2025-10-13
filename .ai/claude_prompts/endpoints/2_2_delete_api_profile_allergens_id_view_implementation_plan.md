@@ -91,7 +91,7 @@ export class AllergenNotInUserListError extends Error {
 ## 5. Data Flow
 
 1. **Request Reception**: Astro API route receives DELETE request
-2. **Authentication**: Verify user session via `context.locals.supabase.auth.getUser()` (mocked during development with userId: "c4afdcfc-d36b-4f19-b62d-0de187151b87")
+2. **Authentication**: Verify user session via `context.locals.supabase.auth.getUser()` (mocked during development with userId: "a85d6d6c-b7d4-4605-9cc4-3743401b67a0")
 3. **Path Parameter Extraction**: Extract allergenId from `context.params.id`
 4. **Validation**: Validate allergenId format using Zod (must be valid UUID)
 5. **Service Layer Call**: Call `removeAllergenFromUser(supabase, userId, allergenId)`
@@ -315,7 +315,7 @@ export const DELETE: APIRoute = async (context) => {
   // const userId = user.id;
 
   // MOCK: Remove this in production
-  const userId = "c4afdcfc-d36b-4f19-b62d-0de187151b87";
+  const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 
   try {
     // ========================================
@@ -403,7 +403,7 @@ export const DELETE: APIRoute = async (context) => {
 **Manual Testing Checklist**:
 
 0. **Setup** - provide exisingn allergens for the mocked user in the database
-   - User ID: `c4afdcfc-d36b-4f19-b62d-0de187151b87`
+   - User ID: `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
    - Allergens: Query existing allergens from `allergens` table and add a few to `user_allergens`, e.g. `e631c0d4-9723-4e09-bb1a-0e7bdb3805a4` it's a valid allergen ID from the database that points to "Orzeszki ziemne"
 
 1. **Valid deletion** - allergen exists in user's list
@@ -433,7 +433,7 @@ export const DELETE: APIRoute = async (context) => {
 
 **Test Data**:
 
-- Mock user ID: `c4afdcfc-d36b-4f19-b62d-0de187151b87`
+- Mock user ID: `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - Valid allergen IDs: Query from `allergens` table or use existing ones from GET response
 - Invalid UUIDs: `"not-a-uuid"`, `"12345"`, `""`, `"invalid-format"`
 

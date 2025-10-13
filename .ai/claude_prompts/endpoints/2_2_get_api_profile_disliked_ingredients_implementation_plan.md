@@ -93,7 +93,7 @@ interface DislikedIngredientQueryResult {
 1. **Request Reception**: Astro API route receives GET request at `/api/profile/disliked-ingredients`
 
 2. **Authentication** (Development vs Production):
-   - Development: Use mock user ID (`c4afdcfc-d36b-4f19-b62d-0de187151b87`)
+   - Development: Use mock user ID (`a85d6d6c-b7d4-4605-9cc4-3743401b67a0`)
    - Production: Extract user from `context.locals.supabase.auth.getUser()`
    - Return 401 if authentication fails (production only)
 

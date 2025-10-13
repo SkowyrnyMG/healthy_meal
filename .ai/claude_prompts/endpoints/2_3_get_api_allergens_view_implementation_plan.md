@@ -35,10 +35,10 @@ export interface AllergenDTO {
 }
 ```
 
-**Note**: The API specification shows `namePl` in the response, but the existing DTO uses `name`. The database field is `name_pl`. The service layer should map `name_pl` to `name` in the DTO to maintain consistency with existing code.
+**Note**: The API specification shows `namePl` in the response, but the existing DTO uses `name`. The database field is `name`. The service layer should map `name` to `name` in the DTO to maintain consistency with existing code.
 In the response, the field will be `name` (not `namePl`).
 Update the API documentation to reflect this change.
-Prepare Supabase migration to rename `name_pl` to `name` in the `allergens` table in the future.
+Prepare Supabase migration to rename `name` to `name` in the `allergens` table in the future.
 
 ### Response Structure
 
@@ -89,10 +89,10 @@ Prepare Supabase migration to rename `name_pl` to `name` in the `allergens` tabl
 1. **Request Reception**: Astro API route handler receives GET request
 2. **Service Invocation**: Call `getAllAllergens(supabase)` from allergen.service.ts
 3. **Database Query**: Service queries `allergens` table via Supabase client
-   - Select: `id, name_pl, created_at`
+   - Select: `id, name, created_at`
    - Order by: `created_at DESC` (newest first)
 4. **Data Mapping**: Transform database entities to AllergenDTO format
-   - Map `name_pl` → `name`
+   - Map `name` → `name`
    - Map `created_at` → `createdAt`
 5. **Response**: Return JSON with allergens array wrapped in object
 6. **Error Handling**: Catch any errors, log with context, return 500 status
@@ -100,7 +100,7 @@ Prepare Supabase migration to rename `name_pl` to `name` in the `allergens` tabl
 ### Database Interaction
 
 **Table**: `allergens`
-**Fields**: `id`, `name_pl`, `created_at`
+**Fields**: `id`, `name`, `created_at`
 **Query Type**: SELECT (read-only)
 **Ordering**: By `created_at` descending
 
@@ -219,7 +219,7 @@ Add new function to the PUBLIC FUNCTIONS section:
 export async function getAllAllergens(supabase: SupabaseClient): Promise<AllergenDTO[]> {
   const { data, error } = await supabase
     .from("allergens")
-    .select("id, name_pl, created_at")
+    .select("id, name, created_at")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -242,7 +242,7 @@ Add helper type and mapping function:
  */
 interface AllergenQueryResult {
   id: string;
-  name_pl: string;
+  name: string;
   created_at: string;
 }
 
@@ -253,7 +253,7 @@ interface AllergenQueryResult {
 function mapAllergenToDTO(dbAllergen: AllergenQueryResult): AllergenDTO {
   return {
     id: dbAllergen.id,
-    name: dbAllergen.name_pl,
+    name: dbAllergen.name,
     createdAt: dbAllergen.created_at,
   };
 }

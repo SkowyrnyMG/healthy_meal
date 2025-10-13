@@ -80,4 +80,4 @@ end $$;
 
 comment on column tags.name is 'Human-readable tag name in Polish (displayed in UI)';
 comment on column tags.slug is 'URL-friendly slug for tag (used in routes and filters)';
-comment on column allergens.name_pl is 'Allergen name in Polish based on EU food labeling regulations';
+comment on column allergens.name_pl is 'Allergen name based on EU food labeling regulations (renamed to name in later migration)';

@@ -109,7 +109,7 @@ const AddDislikedIngredientSchema = z.object({
 ## 5. Data Flow
 
 1. **Request Reception**: Astro API route receives POST request
-2. **Authentication**: Verify user session via `context.locals.supabase.auth.getUser()` (currently mocked with userId: `c4afdcfc-d36b-4f19-b62d-0de187151b87`)
+2. **Authentication**: Verify user session via `context.locals.supabase.auth.getUser()` (currently mocked with userId: `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`)
 3. **JSON Parsing**: Parse request body, handle parse errors
 4. **Validation**: Validate with Zod schema (trim, length checks)
 5. **Service Layer Call**: Call `addDislikedIngredientToUser(supabase, userId, ingredientName)`
@@ -331,7 +331,7 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
    - **Authentication Section**: Use mocked userId for development
      ```typescript
      // MOCK: Remove this in production
-     const userId = "c4afdcfc-d36b-4f19-b62d-0de187151b87";
+     const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
      ```
    - **JSON Parsing**: Try-catch with 400 error
    - **Validation**: Zod parse with error handling
@@ -400,7 +400,7 @@ This endpoint follows the established pattern from `POST /api/profile/allergens`
 
 **Authentication Strategy**:
 Currently using mocked authentication following the pattern from existing endpoints:
-- Mock userId: `c4afdcfc-d36b-4f19-b62d-0de187151b87`
+- Mock userId: `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - TODO comments for production authentication
 - Same structure as `src/pages/api/profile/allergens/[id].ts:48-49`
 

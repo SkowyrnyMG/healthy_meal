@@ -22,12 +22,12 @@ export interface ProfileDTO {
 }
 
 /**
- * Allergen DTO with Polish name
+ * Allergen DTO
  * Mapped from allergens table
  */
 export interface AllergenDTO {
   id: string;
-  namePl: string;
+  name: string;
   createdAt: string;
 }
 
@@ -37,7 +37,7 @@ export interface AllergenDTO {
  */
 export interface UserAllergenDTO {
   id: string;
-  namePl: string;
+  name: string;
   createdAt: string;
 }
 

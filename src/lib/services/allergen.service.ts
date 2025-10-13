@@ -100,7 +100,7 @@ async function checkUserHasAllergen(supabase: SupabaseClient, userId: string, al
 export async function getUserAllergensByUserId(supabase: SupabaseClient, userId: string): Promise<UserAllergenDTO[]> {
   const { data, error } = await supabase
     .from("user_allergens")
-    .select("allergen_id, created_at, allergens(id, name_pl)")
+    .select("allergen_id, created_at, allergens(id, name)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
@@ -123,7 +123,7 @@ interface UserAllergenQueryResult {
   created_at: string;
   allergens: {
     id: string;
-    name_pl: string;
+    name: string;
   };
 }
 
@@ -136,7 +136,7 @@ interface UserAllergenQueryResult {
 function mapToDTO(dbUserAllergen: UserAllergenQueryResult): UserAllergenDTO {
   return {
     id: dbUserAllergen.allergens.id,
-    namePl: dbUserAllergen.allergens.name_pl,
+    name: dbUserAllergen.allergens.name,
     createdAt: dbUserAllergen.created_at,
   };
 }
@@ -181,7 +181,7 @@ export async function addAllergenToUser(
   // Fetch the newly added allergen with complete data
   const { data, error: fetchError } = await supabase
     .from("user_allergens")
-    .select("allergen_id, created_at, allergens(id, name_pl)")
+    .select("allergen_id, created_at, allergens(id, name)")
     .eq("user_id", userId)
     .eq("allergen_id", allergenId)
     .single();
@@ -229,7 +229,7 @@ export async function removeAllergenFromUser(
 export async function getAllAllergens(supabase: SupabaseClient): Promise<AllergenDTO[]> {
   const { data, error } = await supabase
     .from("allergens")
-    .select("id, name_pl, created_at")
+    .select("id, name, created_at")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -248,7 +248,7 @@ export async function getAllAllergens(supabase: SupabaseClient): Promise<Allerge
  */
 interface AllergenQueryResult {
   id: string;
-  name_pl: string;
+  name: string;
   created_at: string;
 }
 
@@ -259,7 +259,7 @@ interface AllergenQueryResult {
 function mapAllergenToDTO(dbAllergen: AllergenQueryResult): AllergenDTO {
   return {
     id: dbAllergen.id,
-    namePl: dbAllergen.name_pl,
+    name: dbAllergen.name,
     createdAt: dbAllergen.created_at,
   };
 }

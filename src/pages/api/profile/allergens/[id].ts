@@ -46,7 +46,7 @@ export const DELETE: APIRoute = async (context) => {
   // const userId = user.id;
 
   // MOCK: Remove this in production
-  const userId = "c4afdcfc-d36b-4f19-b62d-0de187151b87";
+  const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 
   try {
     // ========================================

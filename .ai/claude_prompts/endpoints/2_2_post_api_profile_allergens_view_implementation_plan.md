@@ -155,7 +155,7 @@ const AddAllergenSchema = z.object({
    ```
 8. **Fetch Complete Data** → Join with `allergens` table to get allergen name:
    ```sql
-   SELECT ua.allergen_id, a.id, a.name_pl, ua.created_at
+   SELECT ua.allergen_id, a.id, a.name, ua.created_at
    FROM user_allergens ua
    INNER JOIN allergens a ON ua.allergen_id = a.id
    WHERE ua.user_id = $1 AND ua.allergen_id = $2
@@ -525,7 +525,7 @@ export class AllergenAlreadyExistsError extends Error {
      // Fetch the newly added allergen with complete data
      const { data, error: fetchError } = await supabase
        .from("user_allergens")
-       .select("allergen_id, created_at, allergens(id, name_pl)")
+       .select("allergen_id, created_at, allergens(id, name)")
        .eq("user_id", userId)
        .eq("allergen_id", allergenId)
        .single();

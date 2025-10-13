@@ -94,7 +94,7 @@ export interface TagDTO {
 1. **Request Reception**: Astro API route receives GET request at `/api/tags`
 2. **Service Invocation**: Route handler calls `getAllTags(supabase)` from tag service
 3. **Database Query**: Service queries `tags` table via Supabase client
-   - `SELECT id, name_pl, slug, created_at FROM tags`
+   - `SELECT id, name, slug, created_at FROM tags`
    - Ordered by `created_at` (descending) for consistent ordering
 4. **Data Mapping**: Service maps database snake_case fields to camelCase DTOs
 5. **Response**: Route handler wraps DTOs in response object and returns JSON
@@ -102,7 +102,7 @@ export interface TagDTO {
 **Database Schema Reference**:
 
 - Table: `tags`
-- Fields: `id`, `name_pl`, `slug`, `created_at`
+- Fields: `id`, `name`, `slug`, `created_at`
 - Relationships: Used in M:M relationship with recipes via `recipe_tags` junction table
 
 ## 6. Security Considerations
@@ -203,7 +203,7 @@ import type { TagDTO } from "../../types";
 export async function getAllTags(supabase: SupabaseClient): Promise<TagDTO[]> {
   const { data, error } = await supabase
     .from("tags")
-    .select("id, name_pl, slug, created_at")
+    .select("id, name, slug, created_at")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -222,7 +222,7 @@ export async function getAllTags(supabase: SupabaseClient): Promise<TagDTO[]> {
  */
 interface TagQueryResult {
   id: string;
-  name_pl: string;
+  name: string;
   slug: string;
   created_at: string;
 }
@@ -234,7 +234,7 @@ interface TagQueryResult {
 function mapToDTO(dbTag: TagQueryResult): TagDTO {
   return {
     id: dbTag.id,
-    name: dbTag.name_pl,
+    name: dbTag.name,
     slug: dbTag.slug,
     createdAt: dbTag.created_at,
   };

@@ -18,7 +18,7 @@ Before we begin, review the following information:
   "allergens": [
     {
       "id": "uuid",
-      "namePl": "Gluten",
+      "name": "Gluten",
       "createdAt": "2025-10-11T12:00:00Z"
     }
   ]

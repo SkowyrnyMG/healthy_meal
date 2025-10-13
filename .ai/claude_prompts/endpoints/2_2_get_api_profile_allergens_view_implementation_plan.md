@@ -28,7 +28,7 @@ This endpoint retrieves the list of allergens that the authenticated user has se
 // Line 38-42 in types.ts
 export interface UserAllergenDTO {
   id: string;
-  name: string; // Using 'name' instead of 'namePl' from API spec
+  name: string;
   createdAt: string;
 }
 ```
@@ -93,7 +93,7 @@ Developer note: I agree with note above. Returning 200 with an empty array is th
 3. **Service Call** → Call `getUserAllergensByUserId(supabase, userId)` from allergen service
 4. **Database Query** → Service joins `user_allergens` with `allergens` table:
    ```sql
-   SELECT ua.allergen_id, a.id, a.name_pl, ua.added_at
+   SELECT ua.allergen_id, a.id, a.name, ua.added_at
    FROM user_allergens ua
    INNER JOIN allergens a ON ua.allergen_id = a.id
    WHERE ua.user_id = $1
@@ -186,7 +186,7 @@ console.error("[GET /api/profile/allergens] Error:", {
 
 ```typescript
 // Efficient: Select only needed fields
-.select('allergen_id, added_at, allergens(id, name_pl)')
+.select('allergen_id, added_at, allergens(id, name)')
 
 // Avoid: Select all fields with wildcards
 .select('*, allergens(*)')
@@ -226,7 +226,7 @@ console.error("[GET /api/profile/allergens] Error:", {
 
 3. Implement `mapToDTO()` helper function:
    - Convert snake_case database fields to camelCase DTO fields
-   - Map: `allergen_id` → `id`, `name_pl` → `name`, `created_at` → `createdAt`
+   - Map: `allergen_id` → `id`, `name` → `name`, `created_at` → `createdAt`
    - Handle nested allergen data from join
 
 4. Handle errors:
@@ -254,7 +254,7 @@ export async function getUserAllergensByUserId(
 ): Promise<UserAllergenDTO[]> {
   const { data, error } = await supabase
     .from("user_allergens")
-    .select("allergen_id, added_at, allergens(id, name_pl)")
+    .select("allergen_id, added_at, allergens(id, name)")
     .eq("user_id", userId)
     .order("added_at", { ascending: false });
 
@@ -278,7 +278,7 @@ export async function getUserAllergensByUserId(
 function mapToDTO(dbUserAllergen: any): UserAllergenDTO {
   return {
     id: dbUserAllergen.allergens.id,
-    name: dbUserAllergen.allergens.name_pl,
+    name: dbUserAllergen.allergens.name,
     createdAt: dbUserAllergen.created_at,
   };
 }
