@@ -15,6 +15,16 @@ export class IngredientAlreadyExistsError extends Error {
   }
 }
 
+/**
+ * Error thrown when ingredient is not in user's disliked list
+ */
+export class IngredientNotInUserListError extends Error {
+  constructor(ingredientId: string) {
+    super(`Ingredient not in user's disliked list: ${ingredientId}`);
+    this.name = "IngredientNotInUserListError";
+  }
+}
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -151,4 +161,37 @@ export async function addDislikedIngredientToUser(
   }
 
   return mapToDTO(data);
+}
+
+/**
+ * Remove disliked ingredient from user's profile
+ * @param supabase - Supabase client instance from context.locals
+ * @param userId - User ID from authentication session
+ * @param ingredientId - Disliked ingredient ID to remove
+ * @throws IngredientNotInUserListError if ingredient is not in user's disliked list
+ * @throws Error if database operation fails
+ */
+export async function removeDislikedIngredientFromUser(
+  supabase: SupabaseClient,
+  userId: string,
+  ingredientId: string
+): Promise<void> {
+  const { data, error } = await supabase
+    .from("user_disliked_ingredients")
+    .delete()
+    .eq("id", ingredientId)
+    .eq("user_id", userId)
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      throw new IngredientNotInUserListError(ingredientId);
+    }
+    throw error;
+  }
+
+  if (!data) {
+    throw new IngredientNotInUserListError(ingredientId);
+  }
 }
