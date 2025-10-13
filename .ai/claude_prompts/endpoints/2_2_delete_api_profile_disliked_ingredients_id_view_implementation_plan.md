@@ -5,6 +5,7 @@
 This endpoint removes a specific disliked ingredient from the authenticated user's profile. The endpoint requires authentication and validates that the ingredient exists in the user's disliked list before removing it. The implementation follows the established pattern from the allergens DELETE endpoint (`src/pages/api/profile/allergens/[id].ts`).
 
 **Key characteristics:**
+
 - Authenticated endpoint requiring valid user session
 - Idempotent operation (DELETE method)
 - Returns 204 No Content on successful deletion
@@ -23,6 +24,7 @@ This endpoint removes a specific disliked ingredient from the authenticated user
 - **Authentication**: Required via Supabase session
 
 **Path Parameter Validation:**
+
 ```typescript
 const DislikedIngredientIdSchema = z.string().uuid("Invalid disliked ingredient ID format");
 ```
@@ -32,6 +34,7 @@ const DislikedIngredientIdSchema = z.string().uuid("Invalid disliked ingredient 
 ### Existing DTOs (from `src/types.ts`)
 
 **DislikedIngredientDTO** (lines 48-52):
+
 ```typescript
 export interface DislikedIngredientDTO {
   id: string;
@@ -43,6 +46,7 @@ export interface DislikedIngredientDTO {
 ### Database Types
 
 **DbDislikedIngredient** (line 595):
+
 ```typescript
 export type DbDislikedIngredient = Tables<"user_disliked_ingredients">;
 ```
@@ -75,6 +79,7 @@ export class IngredientNotInUserListError extends Error {
 ### Error Responses
 
 **400 Bad Request** - Invalid UUID format:
+
 ```json
 {
   "error": "Bad Request",
@@ -83,6 +88,7 @@ export class IngredientNotInUserListError extends Error {
 ```
 
 **401 Unauthorized** - Authentication required:
+
 ```json
 {
   "error": "Unauthorized",
@@ -91,6 +97,7 @@ export class IngredientNotInUserListError extends Error {
 ```
 
 **404 Not Found** - Ingredient not in user's list:
+
 ```json
 {
   "error": "Not Found",
@@ -99,6 +106,7 @@ export class IngredientNotInUserListError extends Error {
 ```
 
 **500 Internal Server Error** - Unexpected error:
+
 ```json
 {
   "error": "Internal Server Error",
@@ -124,6 +132,7 @@ export class IngredientNotInUserListError extends Error {
 **Table**: `user_disliked_ingredients`
 
 **DELETE Query Pattern**:
+
 ```typescript
 const { data, error } = await supabase
   .from("user_disliked_ingredients")
@@ -135,6 +144,7 @@ const { data, error } = await supabase
 ```
 
 **Relationship Considerations** (from database resources):
+
 - Foreign key: `user_disliked_ingredients.user_id` → `profiles.user_id` (CASCADE on delete)
 - No dependent relationships to consider for deletion
 
@@ -153,11 +163,13 @@ const { data, error } = await supabase
 ### Authentication & Authorization
 
 **Authentication**:
+
 - Verify user session via `context.locals.supabase.auth.getUser()`
 - Return 401 if no valid session or authentication error
 - Extract `userId` from authenticated session
 
 **Authorization**:
+
 - Implicit authorization through query filtering (`.eq("user_id", userId)`)
 - Users can only delete ingredients from their own list
 - Database RLS policies should enforce user isolation
@@ -165,11 +177,13 @@ const { data, error } = await supabase
 ### Input Validation
 
 **UUID Validation**:
+
 - Use Zod schema to validate UUID format
 - Prevents malformed input from reaching database
 - Returns 400 with clear error message for invalid format
 
 **Path Parameter Sanitization**:
+
 - Supabase parameterized queries prevent SQL injection
 - UUID validation provides additional input sanitization
 
@@ -221,6 +235,7 @@ const { data, error } = await supabase
 ### Error Logging Strategy
 
 **Info-Level Logging** (business errors):
+
 ```typescript
 console.info("[DELETE /api/profile/disliked-ingredients/{id}] Ingredient not in list:", {
   userId,
@@ -230,6 +245,7 @@ console.info("[DELETE /api/profile/disliked-ingredients/{id}] Ingredient not in 
 ```
 
 **Error-Level Logging** (unexpected errors):
+
 ```typescript
 console.error("[DELETE /api/profile/disliked-ingredients/{id}] Error:", {
   userId,
@@ -242,26 +258,30 @@ console.error("[DELETE /api/profile/disliked-ingredients/{id}] Error:", {
 ### Error Response Format
 
 All error responses follow consistent structure:
+
 ```typescript
 {
-  error: string;      // Error category
-  message: string;    // Human-readable error message
+  error: string; // Error category
+  message: string; // Human-readable error message
 }
 ```
 
 ### Handling Specific Errors
 
 **IngredientNotInUserListError**:
+
 - Catch in endpoint try-catch block
 - Log as info (expected business error)
 - Return 404 with user-friendly message
 
 **Zod Validation Errors**:
+
 - Catch in nested try-catch around validation
 - Extract first error message
 - Return 400 with validation error
 
 **Supabase Errors**:
+
 - Handle PGRST116 (not found) in service layer
 - Propagate unexpected errors to endpoint handler
 - Log with full context for debugging
@@ -271,11 +291,13 @@ All error responses follow consistent structure:
 ### Database Query Optimization
 
 **Single Query Operation**:
+
 - DELETE with composite filter (`id` AND `user_id`)
 - Uses `.single()` for immediate error if no match
 - No additional SELECT query needed
 
 **Index Considerations**:
+
 - Primary key index on `id` (automatic)
 - Foreign key index on `user_id` (automatic)
 - Composite filter benefits from both indexes
@@ -283,11 +305,13 @@ All error responses follow consistent structure:
 ### Potential Bottlenecks
 
 **Authentication Check**:
+
 - Supabase `auth.getUser()` makes network request
 - Cached at middleware level in Astro
 - Minimal overhead per request
 
 **Database Connection**:
+
 - Supabase client pooled via `context.locals`
 - No connection overhead per endpoint
 
@@ -311,7 +335,9 @@ All error responses follow consistent structure:
 **File**: `src/lib/services/disliked-ingredient.service.ts`
 
 **Changes**:
+
 1. Add custom error class `IngredientNotInUserListError`:
+
    ```typescript
    export class IngredientNotInUserListError extends Error {
      constructor(ingredientId: string) {
@@ -322,6 +348,7 @@ All error responses follow consistent structure:
    ```
 
 2. Add removal function `removeDislikedIngredientFromUser()`:
+
    ```typescript
    export async function removeDislikedIngredientFromUser(
      supabase: SupabaseClient,
@@ -358,21 +385,24 @@ All error responses follow consistent structure:
 **Implementation Structure**:
 
 1. **Imports**:
+
    ```typescript
    import type { APIRoute } from "astro";
    import { z } from "zod";
    import {
      removeDislikedIngredientFromUser,
-     IngredientNotInUserListError
+     IngredientNotInUserListError,
    } from "../../../../lib/services/disliked-ingredient.service";
    ```
 
 2. **Configuration**:
+
    ```typescript
    export const prerender = false;
    ```
 
 3. **Validation Schema**:
+
    ```typescript
    const DislikedIngredientIdSchema = z.string().uuid("Invalid disliked ingredient ID format");
    ```
@@ -416,6 +446,7 @@ All error responses follow consistent structure:
    - Test with very long string ID
 
 **Automated Testing Considerations**:
+
 - Unit tests for service function
 - Integration tests for endpoint
 - Mock Supabase client for testing
@@ -426,6 +457,7 @@ All error responses follow consistent structure:
 **Update**: API documentation if it exists
 
 **Include**:
+
 - Endpoint URL and method
 - Authentication requirements
 - Request parameters
@@ -455,12 +487,14 @@ All error responses follow consistent structure:
 ### Alignment with Existing Patterns
 
 This implementation follows the exact pattern established by:
+
 - `src/pages/api/profile/allergens/[id].ts` (DELETE endpoint)
 - `src/lib/services/disliked-ingredient.service.ts` (service layer)
 
 ### Development vs Production
 
 The endpoint should include a mock userId for development (similar to allergens endpoint):
+
 ```typescript
 // MOCK: Remove this in production
 const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
@@ -471,6 +505,7 @@ Include TODO comment to uncomment authentication block for production.
 ### Future Enhancements
 
 Potential improvements for future iterations:
+
 1. Rate limiting middleware
 2. Request logging middleware
 3. Audit trail for deletions

@@ -18,6 +18,7 @@ This endpoint allows authenticated users to add ingredients they dislike to thei
   ```
 
 ### Request Body Schema
+
 - `ingredientName`: string, required
   - Min length: 1 character (after trimming)
   - Max length: 100 characters
@@ -27,7 +28,9 @@ This endpoint allows authenticated users to add ingredients they dislike to thei
 ## 3. Used Types
 
 ### From `src/types.ts`:
+
 - **DislikedIngredientDTO** (lines 48-52): Response DTO
+
   ```typescript
   interface DislikedIngredientDTO {
     id: string;
@@ -44,6 +47,7 @@ This endpoint allows authenticated users to add ingredients they dislike to thei
   ```
 
 ### New Zod Schema Required:
+
 ```typescript
 const AddDislikedIngredientSchema = z.object({
   ingredientName: z
@@ -55,12 +59,14 @@ const AddDislikedIngredientSchema = z.object({
 ```
 
 ### Database Types:
+
 - `DbDislikedIngredientInsert` (src/types.ts:596) - for insert operations
 - `user_disliked_ingredients` table columns: `id`, `user_id`, `ingredient_name`, `created_at`
 
 ## 4. Response Details
 
 ### Success Response (201 Created)
+
 ```json
 {
   "success": true,
@@ -75,6 +81,7 @@ const AddDislikedIngredientSchema = z.object({
 ### Error Responses
 
 **400 Bad Request** - Invalid input
+
 ```json
 {
   "error": "Bad Request",
@@ -83,6 +90,7 @@ const AddDislikedIngredientSchema = z.object({
 ```
 
 **401 Unauthorized** - Not authenticated
+
 ```json
 {
   "error": "Unauthorized",
@@ -91,6 +99,7 @@ const AddDislikedIngredientSchema = z.object({
 ```
 
 **409 Conflict** - Duplicate ingredient
+
 ```json
 {
   "error": "Conflict",
@@ -99,6 +108,7 @@ const AddDislikedIngredientSchema = z.object({
 ```
 
 **500 Internal Server Error** - Unexpected error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -122,6 +132,7 @@ const AddDislikedIngredientSchema = z.object({
 8. **Response Return**: Return 201 with success payload
 
 ### Database Interaction
+
 - **Table**: `user_disliked_ingredients`
 - **Relationship**: User → Disliked Ingredients (1:M)
 - **Foreign Key**: `user_id` → `profiles.user_id` (CASCADE on delete)
@@ -131,6 +142,7 @@ const AddDislikedIngredientSchema = z.object({
 ## 6. Security Considerations
 
 ### Authentication & Authorization
+
 - Verify user session before processing request
 - Use `context.locals.supabase` (not direct imports) - per `.ai/claude_rules/backend.md:6`
 - Users can only add ingredients to their own profile
@@ -138,24 +150,28 @@ const AddDislikedIngredientSchema = z.object({
 - **Current**: Mocked authentication with TODO comments for production
 
 ### Input Validation
+
 - Trim whitespace to prevent spacing attacks
 - Limit length to 100 characters (DoS prevention)
 - Validate string type (prevent type confusion)
 - Sanitize input through Zod validation
 
 ### Data Security
+
 - Use Supabase parameterized queries (SQL injection prevention)
 - No user-provided table/column names
 - Store ingredient names as-is (preserve user intent)
 - Case-insensitive duplicate checking prevents variations
 
 ### Rate Limiting
+
 - Consider adding rate limiting at API gateway level
 - Not implemented at endpoint level (future enhancement)
 
 ## 7. Error Handling
 
 ### Error Handling Flow
+
 Following the guard clause pattern (`.ai/claude_rules/shared.md:38-39`):
 
 1. **Authentication Errors** (401) - Currently commented for development
@@ -186,6 +202,7 @@ Following the guard clause pattern (`.ai/claude_rules/shared.md:38-39`):
    - Return generic 500 error
 
 ### Error Logging Pattern
+
 ```typescript
 // For business logic errors
 console.info("[POST /api/profile/disliked-ingredients] Duplicate ingredient:", {
@@ -204,16 +221,19 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
 ## 8. Performance Considerations
 
 ### Database Queries
+
 - Single duplicate check query (using `.ilike()` for case-insensitive)
 - Single insert operation with `.select()` to get inserted record
 - Total: 2 queries per request (optimized with `.insert().select()`)
 
 ### Optimization Opportunities
+
 - Database index on `user_id` (already exists via foreign key)
 - Consider adding GIN index on `LOWER(ingredient_name)` for faster case-insensitive lookups
 - Consider caching user's disliked ingredients list for read-heavy operations
 
 ### Scalability
+
 - Stateless endpoint design
 - No in-memory state
 - Horizontal scaling friendly
@@ -222,9 +242,11 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
 ## 9. Implementation Steps
 
 ### Step 1: Extend Disliked Ingredient Service
+
 **File**: `src/lib/services/disliked-ingredient.service.ts`
 
 1. **Create custom error class**:
+
    ```typescript
    export class IngredientAlreadyExistsError extends Error {
      constructor(ingredientName: string) {
@@ -235,6 +257,7 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
    ```
 
 2. **Create helper function** `checkUserHasIngredient()`:
+
    ```typescript
    async function checkUserHasIngredient(
      supabase: SupabaseClient,
@@ -260,6 +283,7 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
    ```
 
 3. **Implement** `addDislikedIngredientToUser()`:
+
    ```typescript
    export async function addDislikedIngredientToUser(
      supabase: SupabaseClient,
@@ -301,9 +325,11 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
    - Converts snake_case to camelCase
 
 ### Step 2: Create API Endpoint
+
 **File**: `src/pages/api/profile/disliked-ingredients.ts`
 
 1. **Add required imports**:
+
    ```typescript
    import type { APIRoute } from "astro";
    import { z } from "zod";
@@ -317,6 +343,7 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
 2. **Add** `export const prerender = false` (per `.ai/claude_rules/astro.md:7`)
 
 3. **Create Zod validation schema**:
+
    ```typescript
    const AddDislikedIngredientSchema = z.object({
      ingredientName: z
@@ -343,6 +370,7 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
      - Log appropriately with structured logging
 
 ### Step 3: Testing Preparation
+
 **Create test scenarios**:
 
 1. **Success Case**:
@@ -369,13 +397,16 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
    - Leading/trailing spaces → 201 (trimmed automatically)
 
 ### Step 4: Documentation
+
 **Update**:
+
 - Add JSDoc comments to all functions
 - Document error classes
 - Add usage examples in service file
 - Update API documentation if exists
 
 ### Step 5: Code Review Checklist
+
 - [ ] Follows Astro guidelines (`.ai/claude_rules/astro.md`)
 - [ ] Follows backend guidelines (`.ai/claude_rules/backend.md`)
 - [ ] Uses `context.locals.supabase` (not direct import)
@@ -394,12 +425,14 @@ console.error("[POST /api/profile/disliked-ingredients] Error:", {
 
 **Consistency with Existing Code**:
 This endpoint follows the established pattern from `POST /api/profile/allergens` (src/pages/api/profile/allergens.ts:100-233) with these key differences:
+
 1. No lookup table (ingredients are free-text, not predefined from `allergens` table)
 2. Simpler validation (just string length, no UUID validation)
 3. Case-insensitive duplicate checking using `.ilike()` instead of exact match
 
 **Authentication Strategy**:
 Currently using mocked authentication following the pattern from existing endpoints:
+
 - Mock userId: `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - TODO comments for production authentication
 - Same structure as `src/pages/api/profile/allergens/[id].ts:48-49`
@@ -407,6 +440,7 @@ Currently using mocked authentication following the pattern from existing endpoi
 **Estimated Complexity**: Low-Medium (similar to existing allergens endpoint, well-established patterns)
 
 **Dependencies**:
+
 - Existing service: `src/lib/services/disliked-ingredient.service.ts` (needs extension)
 - Existing types: `src/types.ts` (already has required DTOs)
 - Existing endpoint file: `src/pages/api/profile/disliked-ingredients.ts` (has GET, needs POST)
