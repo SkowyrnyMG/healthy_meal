@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "../../db/supabase.client";
-import type { UserAllergenDTO } from "../../types";
+import type { AllergenDTO, UserAllergenDTO } from "../../types";
 
 // ============================================================================
 // CUSTOM ERROR CLASSES
@@ -136,7 +136,7 @@ interface UserAllergenQueryResult {
 function mapToDTO(dbUserAllergen: UserAllergenQueryResult): UserAllergenDTO {
   return {
     id: dbUserAllergen.allergens.id,
-    name: dbUserAllergen.allergens.name_pl,
+    namePl: dbUserAllergen.allergens.name_pl,
     createdAt: dbUserAllergen.created_at,
   };
 }
@@ -218,4 +218,48 @@ export async function removeAllergenFromUser(
   if (error) {
     throw error;
   }
+}
+
+/**
+ * Get all allergens
+ * @param supabase - Supabase client instance from context.locals
+ * @returns Array of AllergenDTO (empty array if no allergens)
+ * @throws Error if database query fails
+ */
+export async function getAllAllergens(supabase: SupabaseClient): Promise<AllergenDTO[]> {
+  const { data, error } = await supabase
+    .from("allergens")
+    .select("id, name_pl, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  return data.map(mapAllergenToDTO);
+}
+
+/**
+ * Type for allergen query result from database
+ */
+interface AllergenQueryResult {
+  id: string;
+  name_pl: string;
+  created_at: string;
+}
+
+/**
+ * Map database allergen entity to DTO
+ * Converts snake_case to camelCase
+ */
+function mapAllergenToDTO(dbAllergen: AllergenQueryResult): AllergenDTO {
+  return {
+    id: dbAllergen.id,
+    namePl: dbAllergen.name_pl,
+    createdAt: dbAllergen.created_at,
+  };
 }

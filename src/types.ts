@@ -27,7 +27,7 @@ export interface ProfileDTO {
  */
 export interface AllergenDTO {
   id: string;
-  name: string;
+  namePl: string;
   createdAt: string;
 }
 
@@ -37,7 +37,7 @@ export interface AllergenDTO {
  */
 export interface UserAllergenDTO {
   id: string;
-  name: string;
+  namePl: string;
   createdAt: string;
 }
 
