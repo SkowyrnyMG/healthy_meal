@@ -154,7 +154,7 @@ export async function getUserRecipes(
   }
 
   const count = countResult.count || 0;
-  const data = dataResult.data || [];
+  const data = (dataResult.data || []) as RecipeQueryResult[];
 
   if (data.length === 0) {
     return {
