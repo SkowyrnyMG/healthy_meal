@@ -178,6 +178,134 @@ export async function getUserRecipes(
   return { recipes, pagination };
 }
 
+/**
+ * Get public recipes from all users with filtering, searching, sorting, and pagination
+ * @param supabase - Supabase client instance from context.locals
+ * @param params - Query parameters for filtering, sorting, and pagination
+ * @returns Object containing array of RecipeListItemDTO and pagination metadata
+ * @throws Error if database query fails
+ */
+export async function getPublicRecipes(
+  supabase: SupabaseClient,
+  params: RecipeQueryParams
+): Promise<{ recipes: RecipeListItemDTO[]; pagination: PaginationDTO }> {
+  // Apply parameter defaults
+  const {
+    search,
+    tags,
+    maxCalories,
+    maxPrepTime,
+    page = 1,
+    limit = 20,
+    sortBy = "createdAt",
+    sortOrder = "desc",
+  } = params;
+
+  // Build base query for count (separate from data query to avoid Supabase pagination issues)
+  let countQuery = supabase.from("recipes").select("*", { count: "exact", head: true }).eq("is_public", true); // Hardcoded - only public recipes
+
+  // Build data query
+  let dataQuery = supabase
+    .from("recipes")
+    .select(
+      `
+      id,
+      user_id,
+      title,
+      description,
+      servings,
+      prep_time_minutes,
+      is_public,
+      featured,
+      nutrition_per_serving,
+      created_at,
+      updated_at,
+      recipe_tags (
+        tag_id,
+        tags (
+          id,
+          name,
+          slug,
+          created_at
+        )
+      )
+    `
+    )
+    .eq("is_public", true); // Hardcoded - only public recipes
+
+  // Apply filters to both queries
+  if (search) {
+    const searchConfig = {
+      type: "plain" as const,
+      config: "simple",
+    };
+    countQuery = countQuery.textSearch("search_vector", `'${search}'`, searchConfig);
+    dataQuery = dataQuery.textSearch("search_vector", `'${search}'`, searchConfig);
+  }
+
+  if (tags) {
+    const tagUuids = tags.split(",").map((s) => s.trim());
+    countQuery = countQuery.in("recipe_tags.tag_id", tagUuids);
+    dataQuery = dataQuery.in("recipe_tags.tag_id", tagUuids);
+  }
+
+  if (maxCalories !== undefined) {
+    countQuery = countQuery.lte("nutrition_per_serving->calories", maxCalories);
+    dataQuery = dataQuery.lte("nutrition_per_serving->calories", maxCalories);
+  }
+
+  if (maxPrepTime !== undefined) {
+    countQuery = countQuery.lte("prep_time_minutes", maxPrepTime);
+    dataQuery = dataQuery.lte("prep_time_minutes", maxPrepTime);
+  }
+
+  // Apply sorting to data query only
+  const sortColumn = mapSortByToColumn(sortBy);
+  dataQuery = dataQuery.order(sortColumn, {
+    ascending: sortOrder === "asc",
+    nullsFirst: false,
+  });
+
+  // Apply pagination to data query only
+  const offset = (page - 1) * limit;
+  dataQuery = dataQuery.range(offset, offset + limit - 1);
+
+  // Execute both queries in parallel
+  const [countResult, dataResult] = await Promise.all([countQuery, dataQuery]);
+
+  if (countResult.error) {
+    throw countResult.error;
+  }
+
+  if (dataResult.error) {
+    throw dataResult.error;
+  }
+
+  const count = countResult.count || 0;
+  const data = (dataResult.data || []) as RecipeQueryResult[];
+
+  if (data.length === 0) {
+    return {
+      recipes: [],
+      pagination: { page, limit, total: count, totalPages: Math.ceil(count / limit) },
+    };
+  }
+
+  // Map to DTOs
+  const recipes = data.map(mapToRecipeListItemDTO);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(count / limit);
+  const pagination: PaginationDTO = {
+    page,
+    limit,
+    total: count,
+    totalPages,
+  };
+
+  return { recipes, pagination };
+}
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
