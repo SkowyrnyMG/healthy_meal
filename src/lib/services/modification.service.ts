@@ -249,6 +249,61 @@ export async function getModificationById(
   return mapToModificationDetailDTO(modification);
 }
 
+/**
+ * Delete a recipe modification
+ * Implements authorization check to prevent IDOR attacks
+ *
+ * @param supabase - Supabase client instance from context.locals
+ * @param modificationId - UUID of the modification to delete
+ * @param userId - ID of the authenticated user
+ * @throws Error if modification not found or user not authorized
+ */
+export async function deleteModification(
+  supabase: SupabaseClient,
+  modificationId: string,
+  userId: string
+): Promise<void> {
+  // ========================================
+  // QUERY MODIFICATION TO VERIFY EXISTENCE AND OWNERSHIP
+  // ========================================
+
+  const { data, error } = await supabase
+    .from("recipe_modifications")
+    .select("id, user_id")
+    .eq("id", modificationId)
+    .single();
+
+  // ========================================
+  // HANDLE NOT FOUND
+  // ========================================
+
+  if (error || !data) {
+    throw new Error("Modification not found");
+  }
+
+  // ========================================
+  // VERIFY OWNERSHIP (IDOR PROTECTION)
+  // ========================================
+
+  if (data.user_id !== userId) {
+    throw new Error("You don't have permission to delete this modification");
+  }
+
+  // ========================================
+  // DELETE MODIFICATION
+  // ========================================
+
+  const { error: deleteError } = await supabase
+    .from("recipe_modifications")
+    .delete()
+    .eq("id", modificationId)
+    .eq("user_id", userId); // Additional safety check
+
+  if (deleteError) {
+    throw deleteError;
+  }
+}
+
 // ============================================================================
 // MOCK DATA GENERATION
 // ============================================================================
