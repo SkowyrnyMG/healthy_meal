@@ -7,7 +7,9 @@ import type {
   PaginationDTO,
   RecipeQueryParams,
   CreateRecipeCommand,
+  UpdateRecipeCommand,
   DbRecipeInsert,
+  DbRecipeUpdate,
   DbRecipeTagInsert,
 } from "../../types";
 
@@ -521,6 +523,138 @@ export async function createRecipe(
 
   if (fetchError || !completeRecipe) {
     throw fetchError || new Error("Failed to fetch created recipe");
+  }
+
+  // ========================================
+  // MAP TO DTO AND RETURN
+  // ========================================
+
+  return mapToRecipeDetailDTO(completeRecipe as RecipeDetailQueryResult);
+}
+
+/**
+ * Update an existing recipe for a user
+ * @param supabase - Supabase client instance from context.locals
+ * @param recipeId - UUID of the recipe to update
+ * @param userId - ID of the user updating the recipe (for validation)
+ * @param command - UpdateRecipeCommand with validated recipe data
+ * @returns RecipeDetailDTO with complete updated recipe information including tags
+ * @throws Error if tag validation fails or database operation fails
+ */
+export async function updateRecipe(
+  supabase: SupabaseClient,
+  recipeId: string,
+  userId: string,
+  command: UpdateRecipeCommand
+): Promise<RecipeDetailDTO> {
+  // ========================================
+  // VALIDATE TAGS (if provided)
+  // ========================================
+
+  if (command.tagIds && command.tagIds.length > 0) {
+    const { data: existingTags, error: tagError } = await supabase.from("tags").select("id").in("id", command.tagIds);
+
+    if (tagError) {
+      throw tagError;
+    }
+
+    if (!existingTags || existingTags.length !== command.tagIds.length) {
+      throw new Error("One or more tag IDs are invalid");
+    }
+  }
+
+  // ========================================
+  // UPDATE RECIPE
+  // ========================================
+
+  const recipeUpdate: DbRecipeUpdate = {
+    title: command.title,
+    description: command.description || null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ingredients: command.ingredients as any, // JSONB field - type assertion required for Supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    steps: command.steps as any, // JSONB field - type assertion required for Supabase
+    servings: command.servings,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    nutrition_per_serving: command.nutritionPerServing as any, // JSONB field - type assertion required for Supabase
+    prep_time_minutes: command.prepTimeMinutes || null,
+    is_public: command.isPublic ?? false,
+    // Note: featured field is intentionally excluded - only admins can modify
+  };
+
+  const { data: recipe, error: recipeError } = await supabase
+    .from("recipes")
+    .update(recipeUpdate)
+    .eq("id", recipeId)
+    .select()
+    .single();
+
+  if (recipeError || !recipe) {
+    throw recipeError || new Error("Failed to update recipe");
+  }
+
+  // ========================================
+  // UPDATE RECIPE-TAG ASSOCIATIONS
+  // ========================================
+
+  // Delete all existing recipe-tag associations
+  const { error: deleteError } = await supabase.from("recipe_tags").delete().eq("recipe_id", recipeId);
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  // Insert new recipe-tag associations (if tags provided)
+  if (command.tagIds && command.tagIds.length > 0) {
+    const recipeTagInserts: DbRecipeTagInsert[] = command.tagIds.map((tagId) => ({
+      recipe_id: recipeId,
+      tag_id: tagId,
+    }));
+
+    const { error: tagAssocError } = await supabase.from("recipe_tags").insert(recipeTagInserts);
+
+    if (tagAssocError) {
+      throw tagAssocError;
+    }
+  }
+
+  // ========================================
+  // FETCH COMPLETE RECIPE WITH TAGS
+  // ========================================
+
+  const { data: completeRecipe, error: fetchError } = await supabase
+    .from("recipes")
+    .select(
+      `
+      id,
+      user_id,
+      title,
+      description,
+      ingredients,
+      steps,
+      servings,
+      nutrition_per_serving,
+      prep_time_minutes,
+      is_public,
+      featured,
+      created_at,
+      updated_at,
+      recipe_tags (
+        tag_id,
+        tags (
+          id,
+          name,
+          slug,
+          created_at
+        )
+      )
+    `
+    )
+    .eq("id", recipeId)
+    .single();
+
+  if (fetchError || !completeRecipe) {
+    throw fetchError || new Error("Failed to fetch updated recipe");
   }
 
   // ========================================
