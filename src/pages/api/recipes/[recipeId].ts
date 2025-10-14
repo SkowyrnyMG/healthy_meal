@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { getRecipeById, updateRecipe } from "../../../lib/services/recipe.service";
+import { getRecipeById, updateRecipe, deleteRecipe } from "../../../lib/services/recipe.service";
 import type { UpdateRecipeCommand } from "../../../types";
 
 export const prerender = false;
@@ -393,6 +393,128 @@ export const PUT: APIRoute = async (context) => {
 
     // Log error with context
     console.error("[PUT /api/recipes/[recipeId]] Error:", {
+      recipeId: context.params.recipeId,
+      userId: user?.id,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
+    // Return generic error response
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: "An unexpected error occurred",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
+
+/**
+ * DELETE /api/recipes/:recipeId
+ * Deletes a recipe (owner only)
+ *
+ * Path Parameters:
+ * - recipeId: UUID of the recipe to delete
+ *
+ * Authorization:
+ * - User must be the recipe owner
+ *
+ * Returns:
+ * - 204: Recipe successfully deleted
+ * - 400: Invalid recipeId format
+ * - 401: Authentication required (production only)
+ * - 403: Forbidden - User is not the owner
+ * - 404: Recipe not found
+ * - 500: Internal server error
+ */
+export const DELETE: APIRoute = async (context) => {
+  // ========================================
+  // AUTHENTICATION (MOCK FOR DEVELOPMENT)
+  // ========================================
+
+  // TODO: Production - Uncomment this block for real authentication
+  // const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
+  // if (authError || !user) {
+  //   return new Response(
+  //     JSON.stringify({
+  //       error: "Unauthorized",
+  //       message: "Authentication required"
+  //     }),
+  //     { status: 401, headers: { "Content-Type": "application/json" } }
+  //   );
+  // }
+
+  // MOCK: Remove this in production
+  const user = { id: "a85d6d6c-b7d4-4605-9cc4-3743401b67a0" };
+
+  try {
+    // ========================================
+    // EXTRACT AND VALIDATE PATH PARAMETER
+    // ========================================
+
+    const rawParams = {
+      recipeId: context.params.recipeId,
+    };
+
+    let validatedParams: ValidatedRecipeIdParam;
+    try {
+      validatedParams = RecipeIdParamSchema.parse(rawParams);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({
+            error: "Bad Request",
+            message: error.errors[0].message,
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      throw error;
+    }
+
+    // ========================================
+    // DELETE RECIPE
+    // ========================================
+
+    await deleteRecipe(context.locals.supabase, validatedParams.recipeId, user.id);
+
+    // ========================================
+    // SUCCESS RESPONSE
+    // ========================================
+
+    return new Response(null, {
+      status: 204, // No Content
+    });
+  } catch (error) {
+    // Handle specific business logic errors
+    if (error instanceof Error) {
+      if (error.message === "Recipe not found") {
+        return new Response(
+          JSON.stringify({
+            error: "Not Found",
+            message: "Recipe not found",
+          }),
+          { status: 404, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      if (error.message === "You don't have permission to delete this recipe") {
+        return new Response(
+          JSON.stringify({
+            error: "Forbidden",
+            message: "You don't have permission to delete this recipe",
+          }),
+          { status: 403, headers: { "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // Log error with context
+    console.error("[DELETE /api/recipes/[recipeId]] Error:", {
       recipeId: context.params.recipeId,
       userId: user?.id,
       error: error instanceof Error ? error.message : "Unknown error",

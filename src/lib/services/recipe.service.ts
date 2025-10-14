@@ -664,6 +664,43 @@ export async function updateRecipe(
   return mapToRecipeDetailDTO(completeRecipe as RecipeDetailQueryResult);
 }
 
+/**
+ * Delete a recipe by ID (owner only)
+ * @param supabase - Supabase client instance from context.locals
+ * @param recipeId - UUID of the recipe to delete
+ * @param userId - ID of the user attempting to delete (for ownership verification)
+ * @throws Error if recipe not found or user is not the owner
+ */
+export async function deleteRecipe(supabase: SupabaseClient, recipeId: string, userId: string): Promise<void> {
+  // ========================================
+  // FETCH RECIPE TO VERIFY EXISTENCE AND OWNERSHIP
+  // ========================================
+
+  const recipe = await getRecipeById(supabase, recipeId);
+
+  if (!recipe) {
+    throw new Error("Recipe not found");
+  }
+
+  // ========================================
+  // VERIFY OWNERSHIP (IDOR PROTECTION)
+  // ========================================
+
+  if (recipe.userId !== userId) {
+    throw new Error("You don't have permission to delete this recipe");
+  }
+
+  // ========================================
+  // DELETE RECIPE (CASCADE CONSTRAINTS HANDLE RELATED DATA)
+  // ========================================
+
+  const { error } = await supabase.from("recipes").delete().eq("id", recipeId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
