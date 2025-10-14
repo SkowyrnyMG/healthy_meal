@@ -359,6 +359,60 @@ export async function getPublicRecipes(
 }
 
 /**
+ * Get recipe by ID with complete details including ingredients, steps, and tags
+ * @param supabase - Supabase client instance from context.locals
+ * @param recipeId - UUID of the recipe to retrieve
+ * @returns RecipeDetailDTO with complete recipe information or null if not found
+ * @throws Error if database query fails (except for not found)
+ */
+export async function getRecipeById(supabase: SupabaseClient, recipeId: string): Promise<RecipeDetailDTO | null> {
+  const { data, error } = await supabase
+    .from("recipes")
+    .select(
+      `
+      id,
+      user_id,
+      title,
+      description,
+      ingredients,
+      steps,
+      servings,
+      nutrition_per_serving,
+      prep_time_minutes,
+      is_public,
+      featured,
+      created_at,
+      updated_at,
+      recipe_tags (
+        tag_id,
+        tags (
+          id,
+          name,
+          slug,
+          created_at
+        )
+      )
+    `
+    )
+    .eq("id", recipeId)
+    .single();
+
+  // Handle not found gracefully (PGRST116 is PostgreSQL "not found" error)
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null;
+    }
+    throw error;
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return mapToRecipeDetailDTO(data as RecipeDetailQueryResult);
+}
+
+/**
  * Create a new recipe for a user
  * @param supabase - Supabase client instance from context.locals
  * @param userId - ID of the user creating the recipe
