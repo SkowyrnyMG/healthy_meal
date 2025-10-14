@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "../../db/supabase.client";
 import type {
   ModificationDTO,
+  ModificationDetailDTO,
   CreateModificationCommand,
   ModificationDataDTO,
   RecipeDetailDTO,
@@ -31,6 +32,25 @@ interface ModificationQueryResult {
     modificationNotes?: string;
   };
   created_at: string;
+}
+
+/**
+ * Database query result interface for modification detail with recipe join
+ */
+interface ModificationDetailQueryResult {
+  id: string;
+  original_recipe_id: string;
+  user_id: string;
+  modification_type: string;
+  modified_data: ModificationDataDTO;
+  created_at: string;
+  recipes: {
+    id: string;
+    title: string;
+    user_id: string;
+    is_public: boolean;
+    nutrition_per_serving: NutritionDTO;
+  };
 }
 
 // ============================================================================
@@ -153,6 +173,80 @@ export async function getModificationsByRecipeId(
   };
 
   return { modifications, pagination };
+}
+
+/**
+ * Get modification by ID with original recipe information
+ * Implements authorization check - user must own modification OR recipe must be public
+ * @param supabase - Supabase client instance from context.locals
+ * @param modificationId - UUID of the modification to fetch
+ * @param userId - ID of the authenticated user
+ * @returns ModificationDetailDTO if found and authorized, null otherwise
+ * @throws Error if database query fails
+ */
+export async function getModificationById(
+  supabase: SupabaseClient,
+  modificationId: string,
+  userId: string
+): Promise<ModificationDetailDTO | null> {
+  // ========================================
+  // QUERY MODIFICATION WITH RECIPE JOIN
+  // ========================================
+
+  const { data, error } = await supabase
+    .from("recipe_modifications")
+    .select(
+      `
+      id,
+      original_recipe_id,
+      user_id,
+      modification_type,
+      modified_data,
+      created_at,
+      recipes:original_recipe_id (
+        id,
+        title,
+        user_id,
+        is_public,
+        nutrition_per_serving
+      )
+    `
+    )
+    .eq("id", modificationId)
+    .single();
+
+  // ========================================
+  // HANDLE ERRORS AND NOT FOUND
+  // ========================================
+
+  if (error || !data) {
+    // Not found or query error - return null (404 will be returned)
+    return null;
+  }
+
+  const modification = data as unknown as ModificationDetailQueryResult;
+
+  // ========================================
+  // AUTHORIZATION CHECK
+  // ========================================
+
+  // User can access modification if:
+  // 1. User owns the modification, OR
+  // 2. Recipe is public
+  const isOwner = modification.user_id === userId;
+  const isPublicRecipe = modification.recipes.is_public;
+
+  if (!isOwner && !isPublicRecipe) {
+    // User doesn't own modification AND recipe is private
+    // Return null (will result in 404 for security - don't reveal existence)
+    return null;
+  }
+
+  // ========================================
+  // MAP TO DTO AND RETURN
+  // ========================================
+
+  return mapToModificationDetailDTO(modification);
 }
 
 // ============================================================================
@@ -466,6 +560,25 @@ function mapToModificationDTO(dbModification: ModificationQueryResult): Modifica
     userId: dbModification.user_id,
     modificationType: dbModification.modification_type,
     modifiedData: dbModification.modified_data,
+    createdAt: dbModification.created_at,
+  };
+}
+
+/**
+ * Map database modification detail result to ModificationDetailDTO
+ * Converts snake_case to camelCase and structures nested recipe data
+ */
+function mapToModificationDetailDTO(dbModification: ModificationDetailQueryResult): ModificationDetailDTO {
+  return {
+    id: dbModification.id,
+    originalRecipeId: dbModification.original_recipe_id,
+    modificationType: dbModification.modification_type,
+    modifiedData: dbModification.modified_data,
+    originalRecipe: {
+      id: dbModification.recipes.id,
+      title: dbModification.recipes.title,
+      nutritionPerServing: dbModification.recipes.nutrition_per_serving,
+    },
     createdAt: dbModification.created_at,
   };
 }
