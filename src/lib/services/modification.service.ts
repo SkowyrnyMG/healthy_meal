@@ -8,6 +8,7 @@ import type {
   RecipeStepDTO,
   NutritionDTO,
   DbModificationInsert,
+  PaginationDTO,
 } from "../../types";
 
 // ============================================================================
@@ -80,6 +81,78 @@ export async function createModification(
   // ========================================
 
   return mapToModificationDTO(data as ModificationQueryResult);
+}
+
+/**
+ * Get paginated list of modifications for a specific recipe
+ * @param supabase - Supabase client instance from context.locals
+ * @param recipeId - UUID of the recipe to fetch modifications for
+ * @param page - Page number (1-indexed)
+ * @param limit - Number of results per page
+ * @returns Object containing array of ModificationDTO and pagination metadata
+ * @throws Error if database query fails
+ */
+export async function getModificationsByRecipeId(
+  supabase: SupabaseClient,
+  recipeId: string,
+  page: number,
+  limit: number
+): Promise<{ modifications: ModificationDTO[]; pagination: PaginationDTO }> {
+  // ========================================
+  // BUILD QUERIES
+  // ========================================
+
+  // Count query - get total number of modifications for this recipe
+  const countQuery = supabase
+    .from("recipe_modifications")
+    .select("*", { count: "exact", head: true })
+    .eq("original_recipe_id", recipeId);
+
+  // Data query - get paginated modifications ordered by creation date (newest first)
+  const offset = (page - 1) * limit;
+  const dataQuery = supabase
+    .from("recipe_modifications")
+    .select("*")
+    .eq("original_recipe_id", recipeId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  // ========================================
+  // EXECUTE QUERIES IN PARALLEL
+  // ========================================
+
+  const [countResult, dataResult] = await Promise.all([countQuery, dataQuery]);
+
+  if (countResult.error) {
+    throw countResult.error;
+  }
+
+  if (dataResult.error) {
+    throw dataResult.error;
+  }
+
+  const total = countResult.count || 0;
+  const data = (dataResult.data || []) as ModificationQueryResult[];
+
+  // ========================================
+  // MAP TO DTOS
+  // ========================================
+
+  const modifications = data.map(mapToModificationDTO);
+
+  // ========================================
+  // CALCULATE PAGINATION METADATA
+  // ========================================
+
+  const totalPages = Math.ceil(total / limit);
+  const pagination: PaginationDTO = {
+    page,
+    limit,
+    total,
+    totalPages,
+  };
+
+  return { modifications, pagination };
 }
 
 // ============================================================================
