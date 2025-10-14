@@ -246,6 +246,25 @@ export const GET: APIRoute = async (context) => {
  * - 500: Internal server error
  */
 export const PUT: APIRoute = async (context) => {
+  // ========================================
+  // AUTHENTICATION
+  // ========================================
+
+  // TODO: Production - Uncomment this block for real authentication
+  // const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
+  // if (authError || !user) {
+  //   return new Response(
+  //     JSON.stringify({
+  //       error: "Unauthorized",
+  //       message: "Authentication required"
+  //     }),
+  //     { status: 401, headers: { "Content-Type": "application/json" } }
+  //   );
+  // }
+
+  // MOCK: Remove this in production
+  const user = { id: "a85d6d6c-b7d4-4605-9cc4-3743401b67a0" };
+
   try {
     // ========================================
     // EXTRACT AND VALIDATE PATH PARAMETER
@@ -270,25 +289,6 @@ export const PUT: APIRoute = async (context) => {
       }
       throw error;
     }
-
-    // ========================================
-    // AUTHENTICATION
-    // ========================================
-
-    // TODO: Production - Uncomment this block for real authentication
-    // const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
-    // if (authError || !user) {
-    //   return new Response(
-    //     JSON.stringify({
-    //       error: "Unauthorized",
-    //       message: "Authentication required"
-    //     }),
-    //     { status: 401, headers: { "Content-Type": "application/json" } }
-    //   );
-    // }
-
-    // MOCK: Remove this in production
-    const user = { id: "a85d6d6c-b7d4-4605-9cc4-3743401b67a0" };
 
     // ========================================
     // PARSE AND VALIDATE REQUEST BODY
