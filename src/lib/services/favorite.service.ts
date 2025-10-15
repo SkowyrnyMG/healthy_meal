@@ -2,6 +2,40 @@ import type { SupabaseClient } from "../../db/supabase.client";
 import type { FavoriteDTO, PaginationDTO, NutritionDTO } from "../../types";
 
 // ============================================================================
+// CUSTOM ERROR CLASSES
+// ============================================================================
+
+/**
+ * Error thrown when recipe is not found in the recipes table
+ */
+export class RecipeNotFoundError extends Error {
+  constructor(recipeId: string) {
+    super(`Recipe not found: ${recipeId}`);
+    this.name = "RecipeNotFoundError";
+  }
+}
+
+/**
+ * Error thrown when recipe is private and belongs to another user
+ */
+export class RecipeNotAccessibleError extends Error {
+  constructor(recipeId: string) {
+    super(`Recipe not accessible: ${recipeId}`);
+    this.name = "RecipeNotAccessibleError";
+  }
+}
+
+/**
+ * Error thrown when recipe is already in user's favorites
+ */
+export class RecipeAlreadyFavoritedError extends Error {
+  constructor(recipeId: string) {
+    super(`Recipe already favorited: ${recipeId}`);
+    this.name = "RecipeAlreadyFavoritedError";
+  }
+}
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -104,6 +138,106 @@ export async function getUserFavorites(
   };
 
   return { favorites, pagination };
+}
+
+/**
+ * Add a recipe to user's favorites list
+ * @param supabase - Supabase client instance from context.locals
+ * @param userId - ID of the authenticated user
+ * @param recipeId - ID of the recipe to add to favorites
+ * @returns Object containing recipeId and createdAt timestamp
+ * @throws RecipeNotFoundError if recipe doesn't exist
+ * @throws RecipeNotAccessibleError if recipe is private and belongs to another user
+ * @throws RecipeAlreadyFavoritedError if recipe is already in favorites
+ * @throws Error if database query fails
+ */
+export async function addRecipeToFavorites(
+  supabase: SupabaseClient,
+  userId: string,
+  recipeId: string
+): Promise<{ recipeId: string; createdAt: string }> {
+  // ========================================
+  // STEP 1: CHECK RECIPE EXISTS AND GET ACCESSIBILITY INFO
+  // ========================================
+
+  const { data: recipe, error: recipeError } = await supabase
+    .from("recipes")
+    .select("id, user_id, is_public")
+    .eq("id", recipeId)
+    .single();
+
+  if (recipeError) {
+    // PGRST116 = "not found" error code
+    if (recipeError.code === "PGRST116") {
+      throw new RecipeNotFoundError(recipeId);
+    }
+    throw recipeError;
+  }
+
+  if (!recipe) {
+    throw new RecipeNotFoundError(recipeId);
+  }
+
+  // ========================================
+  // STEP 2: CHECK RECIPE ACCESSIBILITY
+  // ========================================
+
+  // Recipe is accessible if it's public OR belongs to the user
+  const isAccessible = recipe.is_public || recipe.user_id === userId;
+  if (!isAccessible) {
+    throw new RecipeNotAccessibleError(recipeId);
+  }
+
+  // ========================================
+  // STEP 3: CHECK IF ALREADY FAVORITED
+  // ========================================
+
+  const { data: existing, error: existingError } = await supabase
+    .from("favorites")
+    .select("user_id, recipe_id")
+    .eq("user_id", userId)
+    .eq("recipe_id", recipeId)
+    .single();
+
+  if (existingError && existingError.code !== "PGRST116") {
+    // Throw error unless it's a "not found" error (which is expected)
+    throw existingError;
+  }
+
+  if (existing) {
+    throw new RecipeAlreadyFavoritedError(recipeId);
+  }
+
+  // ========================================
+  // STEP 4: INSERT FAVORITE
+  // ========================================
+
+  const { data: favorite, error: insertError } = await supabase
+    .from("favorites")
+    .insert({
+      user_id: userId,
+      recipe_id: recipeId,
+    })
+    .select("recipe_id, created_at")
+    .single();
+
+  if (insertError) {
+    throw insertError;
+  }
+
+  if (!favorite) {
+    throw new Error("Failed to create favorite");
+  }
+
+  // ========================================
+  // STEP 5: RETURN FAVORITE METADATA
+  // ========================================
+
+  // Convert snake_case to camelCase
+  return {
+    recipeId: favorite.recipe_id,
+    createdAt: favorite.created_at,
+  };
 }
 
 // ============================================================================
