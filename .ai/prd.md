@@ -85,6 +85,8 @@ HealthyMeal rozwiązuje te problemy, automatyzując proces modyfikacji przepisó
 - Funkcje offline
 - Obsługa wielu języków
 - System płatności i monetyzacji
+- Dashboard Admina
+- Meal Planner
 
 ### 4.2 Plany rozwojowe po MVP
 
