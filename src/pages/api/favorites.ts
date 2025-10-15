@@ -228,11 +228,7 @@ export const POST: APIRoute = async (context) => {
     // ADD RECIPE TO FAVORITES
     // ========================================
 
-    const favorite = await addRecipeToFavorites(
-      context.locals.supabase,
-      userId,
-      validatedData.recipeId
-    );
+    const favorite = await addRecipeToFavorites(context.locals.supabase, userId, validatedData.recipeId);
 
     // Success response
     return new Response(

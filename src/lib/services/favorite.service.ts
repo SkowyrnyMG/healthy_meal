@@ -35,6 +35,16 @@ export class RecipeAlreadyFavoritedError extends Error {
   }
 }
 
+/**
+ * Error thrown when recipe is not in user's favorites
+ */
+export class RecipeNotInFavoritesError extends Error {
+  constructor(recipeId: string) {
+    super(`Recipe not in favorites: ${recipeId}`);
+    this.name = "RecipeNotInFavoritesError";
+  }
+}
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -238,6 +248,89 @@ export async function addRecipeToFavorites(
     recipeId: favorite.recipe_id,
     createdAt: favorite.created_at,
   };
+}
+
+/**
+ * Remove a recipe from user's favorites list
+ * @param supabase - Supabase client instance from context.locals
+ * @param userId - ID of the authenticated user
+ * @param recipeId - ID of the recipe to remove from favorites
+ * @returns void
+ * @throws RecipeNotFoundError if recipe doesn't exist
+ * @throws RecipeNotAccessibleError if recipe is private and belongs to another user
+ * @throws RecipeNotInFavoritesError if recipe is not in user's favorites
+ * @throws Error if database query fails
+ */
+export async function removeRecipeFromFavorites(
+  supabase: SupabaseClient,
+  userId: string,
+  recipeId: string
+): Promise<void> {
+  // ========================================
+  // STEP 1: CHECK RECIPE EXISTS AND GET ACCESSIBILITY INFO
+  // ========================================
+
+  const { data: recipe, error: recipeError } = await supabase
+    .from("recipes")
+    .select("id, user_id, is_public")
+    .eq("id", recipeId)
+    .single();
+
+  if (recipeError) {
+    // PGRST116 = "not found" error code
+    if (recipeError.code === "PGRST116") {
+      throw new RecipeNotFoundError(recipeId);
+    }
+    throw recipeError;
+  }
+
+  if (!recipe) {
+    throw new RecipeNotFoundError(recipeId);
+  }
+
+  // ========================================
+  // STEP 2: CHECK RECIPE ACCESSIBILITY
+  // ========================================
+
+  // Recipe is accessible if it's public OR belongs to the user
+  const isAccessible = recipe.is_public || recipe.user_id === userId;
+  if (!isAccessible) {
+    throw new RecipeNotAccessibleError(recipeId);
+  }
+
+  // ========================================
+  // STEP 3: CHECK IF RECIPE IS IN FAVORITES
+  // ========================================
+
+  const { data: existing, error: existingError } = await supabase
+    .from("favorites")
+    .select("user_id, recipe_id")
+    .eq("user_id", userId)
+    .eq("recipe_id", recipeId)
+    .single();
+
+  if (existingError && existingError.code !== "PGRST116") {
+    // Throw error unless it's a "not found" error
+    throw existingError;
+  }
+
+  if (!existing) {
+    throw new RecipeNotInFavoritesError(recipeId);
+  }
+
+  // ========================================
+  // STEP 4: DELETE FAVORITE
+  // ========================================
+
+  const { error: deleteError } = await supabase
+    .from("favorites")
+    .delete()
+    .eq("user_id", userId)
+    .eq("recipe_id", recipeId);
+
+  if (deleteError) {
+    throw deleteError;
+  }
 }
 
 // ============================================================================
