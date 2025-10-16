@@ -399,6 +399,62 @@ export async function getCollectionWithRecipes(
   return mapToCollectionDetailDTO(collection, validRecipes, pagination);
 }
 
+/**
+ * Delete a collection for a user
+ * @param supabase - Supabase client instance from context.locals
+ * @param userId - ID of the authenticated user
+ * @param collectionId - ID of the collection to delete
+ * @returns void (no return value on success)
+ * @throws CollectionNotFoundError if collection not found or user is not authorized (anti-enumeration)
+ * @throws Error if database query fails
+ */
+export async function deleteCollection(supabase: SupabaseClient, userId: string, collectionId: string): Promise<void> {
+  // ========================================
+  // STEP 1: FETCH AND VERIFY OWNERSHIP
+  // ========================================
+
+  // Combined query to check existence and ownership in single database call
+  // This implements anti-enumeration pattern: we don't reveal if collection exists
+  // for collections the user doesn't own
+  const { data: collection, error: fetchError } = await supabase
+    .from("collections")
+    .select("id, user_id")
+    .eq("id", collectionId)
+    .eq("user_id", userId)
+    .single();
+
+  if (fetchError) {
+    // PGRST116 = "not found" error code
+    // This covers both "collection doesn't exist" and "user doesn't own it"
+    if (fetchError.code === "PGRST116") {
+      throw new CollectionNotFoundError(collectionId);
+    }
+    throw fetchError;
+  }
+
+  if (!collection) {
+    throw new CollectionNotFoundError(collectionId);
+  }
+
+  // ========================================
+  // STEP 2: DELETE COLLECTION
+  // ========================================
+
+  // Delete the collection - cascade deletion of collection_recipes is automatic
+  // due to database foreign key constraints (ON DELETE CASCADE)
+  const { error: deleteError } = await supabase.from("collections").delete().eq("id", collectionId);
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  // ========================================
+  // STEP 3: RETURN SUCCESS (VOID)
+  // ========================================
+
+  // Function completes successfully with no return value
+}
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
