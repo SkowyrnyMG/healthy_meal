@@ -4,6 +4,7 @@ import type {
   CollectionDetailDTO,
   CollectionRecipeDTO,
   CreateCollectionCommand,
+  UpdateCollectionCommand,
   NutritionDTO,
   PaginationDTO,
 } from "../../types";
@@ -30,6 +31,16 @@ export class CollectionNotFoundError extends Error {
   constructor(collectionId: string) {
     super(`Collection not found: ${collectionId}`);
     this.name = "CollectionNotFoundError";
+  }
+}
+
+/**
+ * Error thrown when user attempts to access/modify collection they don't own
+ */
+export class CollectionForbiddenError extends Error {
+  constructor(collectionId: string) {
+    super(`Access forbidden to collection: ${collectionId}`);
+    this.name = "CollectionForbiddenError";
   }
 }
 
@@ -176,6 +187,108 @@ export async function getUserCollections(supabase: SupabaseClient, userId: strin
   const collections = (data || []) as unknown as CollectionQueryResult[];
 
   return collections.map(mapToCollectionDTO);
+}
+
+/**
+ * Update collection name for a user
+ * @param supabase - Supabase client instance from context.locals
+ * @param userId - ID of the authenticated user
+ * @param collectionId - ID of the collection to update
+ * @param command - UpdateCollectionCommand with new collection name
+ * @returns Updated collection with id and name
+ * @throws CollectionNotFoundError if collection doesn't exist
+ * @throws CollectionForbiddenError if collection belongs to another user
+ * @throws CollectionAlreadyExistsError if another collection with same name exists
+ * @throws Error if database query fails
+ */
+export async function updateCollection(
+  supabase: SupabaseClient,
+  userId: string,
+  collectionId: string,
+  command: UpdateCollectionCommand
+): Promise<{ id: string; name: string }> {
+  // ========================================
+  // STEP 1: TRIM AND VALIDATE NAME
+  // ========================================
+
+  const trimmedName = command.name.trim();
+
+  // ========================================
+  // STEP 2: FETCH AND VERIFY COLLECTION
+  // ========================================
+
+  const { data: collection, error: fetchError } = await supabase
+    .from("collections")
+    .select("id, user_id, name")
+    .eq("id", collectionId)
+    .single();
+
+  if (fetchError) {
+    if (fetchError.code === "PGRST116") {
+      throw new CollectionNotFoundError(collectionId);
+    }
+    throw fetchError;
+  }
+
+  if (!collection) {
+    throw new CollectionNotFoundError(collectionId);
+  }
+
+  // ========================================
+  // STEP 3: VERIFY OWNERSHIP
+  // ========================================
+
+  if (collection.user_id !== userId) {
+    throw new CollectionForbiddenError(collectionId);
+  }
+
+  // ========================================
+  // STEP 4: CHECK FOR DUPLICATE NAME
+  // ========================================
+
+  const { data: existing, error: existingError } = await supabase
+    .from("collections")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("name", trimmedName)
+    .neq("id", collectionId) // Exclude current collection
+    .maybeSingle();
+
+  if (existingError) {
+    throw existingError;
+  }
+
+  if (existing) {
+    throw new CollectionAlreadyExistsError(trimmedName);
+  }
+
+  // ========================================
+  // STEP 5: UPDATE COLLECTION
+  // ========================================
+
+  const { data: updated, error: updateError } = await supabase
+    .from("collections")
+    .update({ name: trimmedName })
+    .eq("id", collectionId)
+    .select("id, name")
+    .single();
+
+  if (updateError) {
+    throw updateError;
+  }
+
+  if (!updated) {
+    throw new Error("Failed to update collection");
+  }
+
+  // ========================================
+  // STEP 6: RETURN UPDATED COLLECTION
+  // ========================================
+
+  return {
+    id: updated.id,
+    name: updated.name,
+  };
 }
 
 /**

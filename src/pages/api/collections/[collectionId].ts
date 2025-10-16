@@ -1,6 +1,12 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { getCollectionWithRecipes, CollectionNotFoundError } from "../../../lib/services/collection.service";
+import {
+  getCollectionWithRecipes,
+  updateCollection,
+  CollectionNotFoundError,
+  CollectionForbiddenError,
+  CollectionAlreadyExistsError,
+} from "../../../lib/services/collection.service";
 
 export const prerender = false;
 
@@ -27,6 +33,13 @@ const QueryParamsSchema = z.object({
     .optional()
     .transform((val) => (val ? parseInt(val, 10) : 20))
     .pipe(z.number().int().min(1).max(100)),
+});
+
+/**
+ * Zod schema for updating collection
+ */
+const UpdateCollectionSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100, "Name must be 100 characters or less").trim(),
 });
 
 // ============================================================================
@@ -187,6 +200,217 @@ export const GET: APIRoute = async (context) => {
       JSON.stringify({
         error: "Internal Server Error",
         message: "Failed to retrieve collection",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
+
+/**
+ * PUT /api/collections/{collectionId}
+ * Updates collection name for the authenticated user
+ *
+ * Path parameters: collectionId (UUID)
+ * Request body: { name: string (1-100 characters, trimmed) }
+ *
+ * Returns:
+ * - 200: Successfully updated collection
+ * - 400: Bad Request (invalid JSON, validation errors)
+ * - 401: Unauthorized (authentication required) - currently mocked
+ * - 403: Forbidden (collection belongs to another user)
+ * - 404: Not Found (collection not found)
+ * - 409: Conflict (collection with this name already exists)
+ * - 500: Internal server error
+ *
+ * @example
+ * PUT /api/collections/123e4567-e89b-12d3-a456-426614174000
+ * Body: { "name": "Szybkie i zdrowe kolacje" }
+ */
+export const PUT: APIRoute = async (context) => {
+  // ========================================
+  // AUTHENTICATION (MOCK FOR DEVELOPMENT)
+  // ========================================
+
+  // TODO: Production - Uncomment this block for real authentication
+  // const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
+  // if (authError || !user) {
+  //   return new Response(
+  //     JSON.stringify({
+  //       error: "Unauthorized",
+  //       message: "Authentication required"
+  //     }),
+  //     {
+  //       status: 401,
+  //       headers: { "Content-Type": "application/json" }
+  //     }
+  //   );
+  // }
+  // const userId = user.id;
+
+  // MOCK: Remove this in production
+  const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
+
+  try {
+    // ========================================
+    // PATH PARAMETER EXTRACTION AND VALIDATION
+    // ========================================
+
+    const collectionId = context.params.collectionId;
+
+    // Validate collectionId format
+    let validatedCollectionId: string;
+    try {
+      validatedCollectionId = CollectionIdParamSchema.parse(collectionId);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({
+            error: "Bad Request",
+            message: error.errors[0].message,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      throw error;
+    }
+
+    // ========================================
+    // REQUEST BODY PARSING AND VALIDATION
+    // ========================================
+
+    let body: unknown;
+    try {
+      body = await context.request.json();
+    } catch {
+      return new Response(
+        JSON.stringify({
+          error: "Bad Request",
+          message: "Invalid JSON in request body",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    let validatedData: z.infer<typeof UpdateCollectionSchema>;
+    try {
+      validatedData = UpdateCollectionSchema.parse(body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return new Response(
+          JSON.stringify({
+            error: "Bad Request",
+            message: error.errors[0].message,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      throw error;
+    }
+
+    // ========================================
+    // UPDATE COLLECTION VIA SERVICE
+    // ========================================
+
+    const collection = await updateCollection(context.locals.supabase, userId, validatedCollectionId, validatedData);
+
+    // ========================================
+    // RETURN SUCCESS RESPONSE
+    // ========================================
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        collection,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } catch (error) {
+    // Handle specific business logic errors
+    if (error instanceof CollectionNotFoundError) {
+      console.info("[PUT /api/collections/{collectionId}] Collection not found:", {
+        userId,
+        collectionId: context.params.collectionId,
+        error: error.message,
+      });
+
+      return new Response(
+        JSON.stringify({
+          error: "Not Found",
+          message: "Collection not found",
+        }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (error instanceof CollectionForbiddenError) {
+      console.info("[PUT /api/collections/{collectionId}] Collection forbidden:", {
+        userId,
+        collectionId: context.params.collectionId,
+        error: error.message,
+      });
+
+      return new Response(
+        JSON.stringify({
+          error: "Forbidden",
+          message: "You don't have permission to update this collection",
+        }),
+        {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (error instanceof CollectionAlreadyExistsError) {
+      console.info("[PUT /api/collections/{collectionId}] Collection name already exists:", {
+        userId,
+        collectionId: context.params.collectionId,
+        error: error.message,
+      });
+
+      return new Response(
+        JSON.stringify({
+          error: "Conflict",
+          message: "Collection with this name already exists",
+        }),
+        {
+          status: 409,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Log unexpected errors
+    console.error("[PUT /api/collections/{collectionId}] Error:", {
+      userId,
+      collectionId: context.params.collectionId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
+    // Return generic error response
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: "Failed to update collection",
       }),
       {
         status: 500,
