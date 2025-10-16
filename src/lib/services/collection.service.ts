@@ -5,6 +5,7 @@ import type {
   CollectionRecipeDTO,
   CreateCollectionCommand,
   UpdateCollectionCommand,
+  AddRecipeToCollectionCommand,
   NutritionDTO,
   PaginationDTO,
 } from "../../types";
@@ -41,6 +42,26 @@ export class CollectionForbiddenError extends Error {
   constructor(collectionId: string) {
     super(`Access forbidden to collection: ${collectionId}`);
     this.name = "CollectionForbiddenError";
+  }
+}
+
+/**
+ * Error thrown when recipe is not found
+ */
+export class RecipeNotFoundError extends Error {
+  constructor(recipeId: string) {
+    super(`Recipe not found: ${recipeId}`);
+    this.name = "RecipeNotFoundError";
+  }
+}
+
+/**
+ * Error thrown when recipe already exists in collection
+ */
+export class RecipeAlreadyInCollectionError extends Error {
+  constructor(collectionId: string, recipeId: string) {
+    super(`Recipe ${recipeId} already exists in collection ${collectionId}`);
+    this.name = "RecipeAlreadyInCollectionError";
   }
 }
 
@@ -453,6 +474,111 @@ export async function deleteCollection(supabase: SupabaseClient, userId: string,
   // ========================================
 
   // Function completes successfully with no return value
+}
+
+/**
+ * Add a recipe to a collection
+ * @param supabase - Supabase client instance from context.locals
+ * @param userId - ID of the authenticated user
+ * @param collectionId - ID of the collection
+ * @param command - AddRecipeToCollectionCommand with recipeId
+ * @returns Object with collectionId, recipeId, and createdAt
+ * @throws CollectionNotFoundError if collection not found or user is not authorized
+ * @throws RecipeNotFoundError if recipe doesn't exist
+ * @throws RecipeAlreadyInCollectionError if recipe already in collection
+ * @throws Error if database query fails
+ */
+export async function addRecipeToCollection(
+  supabase: SupabaseClient,
+  userId: string,
+  collectionId: string,
+  command: AddRecipeToCollectionCommand
+): Promise<{
+  collectionId: string;
+  recipeId: string;
+  createdAt: string;
+}> {
+  // ========================================
+  // STEP 1: VERIFY COLLECTION OWNERSHIP (anti-enumeration)
+  // ========================================
+
+  // Combined query to check existence and ownership in single database call
+  // This prevents information leakage about collection ownership
+  const { data: collection, error: collectionError } = await supabase
+    .from("collections")
+    .select("id, user_id")
+    .eq("id", collectionId)
+    .eq("user_id", userId)
+    .single();
+
+  if (collectionError || !collection) {
+    // Don't reveal whether collection exists or user doesn't own it
+    throw new CollectionNotFoundError(collectionId);
+  }
+
+  // ========================================
+  // STEP 2: VERIFY RECIPE EXISTS
+  // ========================================
+
+  const { data: recipe, error: recipeError } = await supabase
+    .from("recipes")
+    .select("id")
+    .eq("id", command.recipeId)
+    .single();
+
+  if (recipeError || !recipe) {
+    throw new RecipeNotFoundError(command.recipeId);
+  }
+
+  // ========================================
+  // STEP 3: CHECK FOR DUPLICATE
+  // ========================================
+
+  const { data: existingRecipe, error: duplicateError } = await supabase
+    .from("collection_recipes")
+    .select("recipe_id")
+    .eq("collection_id", collectionId)
+    .eq("recipe_id", command.recipeId)
+    .maybeSingle();
+
+  if (duplicateError) {
+    throw duplicateError;
+  }
+
+  if (existingRecipe) {
+    throw new RecipeAlreadyInCollectionError(collectionId, command.recipeId);
+  }
+
+  // ========================================
+  // STEP 4: INSERT RECIPE INTO COLLECTION
+  // ========================================
+
+  const { data: collectionRecipe, error: insertError } = await supabase
+    .from("collection_recipes")
+    .insert({
+      collection_id: collectionId,
+      recipe_id: command.recipeId,
+    })
+    .select("collection_id, recipe_id, added_at")
+    .single();
+
+  if (insertError) {
+    throw insertError;
+  }
+
+  if (!collectionRecipe) {
+    throw new Error("Failed to add recipe to collection");
+  }
+
+  // ========================================
+  // STEP 5: RETURN RESULT
+  // ========================================
+
+  return {
+    collectionId: collectionRecipe.collection_id,
+    recipeId: collectionRecipe.recipe_id,
+    createdAt: collectionRecipe.added_at,
+  };
 }
 
 // ============================================================================
