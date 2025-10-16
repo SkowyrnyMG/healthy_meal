@@ -61,8 +61,6 @@ HealthyMeal rozwiązuje te problemy, automatyzując proces modyfikacji przepisó
 ### 3.4 Wizualizacja danych
 
 - Wykresy kołowe dla makroskładników w przepisach
-- Paski postępu pokazujące realizację dziennego zapotrzebowania
-- System oceny przepisów: gwiazdki (1-5) z pytaniem "Czy ugotowałeś/aś ten przepis?" (tak/nie)
 
 ### 3.5 Planowanie posiłków
 
@@ -87,9 +85,12 @@ HealthyMeal rozwiązuje te problemy, automatyzując proces modyfikacji przepisó
 - System płatności i monetyzacji
 - Dashboard Admina
 - Meal Planner
+- Paski postępu pokazujące realizację dziennego zapotrzebowania
+- System oceny przepisów: gwiazdki (1-5) z pytaniem "Czy ugotowałeś/aś ten przepis?" (tak/nie)
 
 ### 4.2 Plany rozwojowe po MVP
 
+- Wszystkie założenia z sekcji 4.1
 - Import przepisów z URL
 - Natywne aplikacje mobilne dla iOS i Android
 - Rozszerzenie funkcji społecznościowych

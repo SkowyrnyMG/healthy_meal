@@ -65,6 +65,16 @@ export class RecipeAlreadyInCollectionError extends Error {
   }
 }
 
+/**
+ * Error thrown when recipe is not found in the collection
+ */
+export class RecipeNotInCollectionError extends Error {
+  constructor(collectionId: string, recipeId: string) {
+    super(`Recipe ${recipeId} not found in collection ${collectionId}`);
+    this.name = "RecipeNotInCollectionError";
+  }
+}
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -579,6 +589,70 @@ export async function addRecipeToCollection(
     recipeId: collectionRecipe.recipe_id,
     createdAt: collectionRecipe.added_at,
   };
+}
+
+/**
+ * Remove a recipe from a collection
+ * @param supabase - Supabase client instance from context.locals
+ * @param userId - ID of the authenticated user
+ * @param collectionId - ID of the collection
+ * @param recipeId - ID of the recipe to remove
+ * @returns void (no return value on success)
+ * @throws CollectionNotFoundError if collection not found or user is not authorized (anti-enumeration)
+ * @throws RecipeNotInCollectionError if recipe is not in the collection
+ * @throws Error if database query fails
+ */
+export async function removeRecipeFromCollection(
+  supabase: SupabaseClient,
+  userId: string,
+  collectionId: string,
+  recipeId: string
+): Promise<void> {
+  // ========================================
+  // STEP 1: VERIFY COLLECTION OWNERSHIP (anti-enumeration)
+  // ========================================
+
+  // Combined query to check existence and ownership in single database call
+  // This prevents information leakage about collection ownership
+  const { data: collection, error: collectionError } = await supabase
+    .from("collections")
+    .select("id, user_id")
+    .eq("id", collectionId)
+    .eq("user_id", userId)
+    .single();
+
+  if (collectionError || !collection) {
+    // Don't reveal whether collection exists or user doesn't own it
+    throw new CollectionNotFoundError(collectionId);
+  }
+
+  // ========================================
+  // STEP 2: DELETE RECIPE FROM COLLECTION
+  // ========================================
+
+  // Use RETURNING to verify deletion occurred (row existed)
+  const { data: deleted, error: deleteError } = await supabase
+    .from("collection_recipes")
+    .delete()
+    .eq("collection_id", collectionId)
+    .eq("recipe_id", recipeId)
+    .select("collection_id")
+    .maybeSingle();
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  // If no row was deleted, recipe wasn't in collection
+  if (!deleted) {
+    throw new RecipeNotInCollectionError(collectionId, recipeId);
+  }
+
+  // ========================================
+  // STEP 3: RETURN SUCCESS (VOID)
+  // ========================================
+
+  // Function completes successfully with no return value
 }
 
 // ============================================================================
