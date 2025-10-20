@@ -1,8 +1,22 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import LandingHeader from "../components/landing/LandingHeader.astro";
+import HeroSection from "../components/landing/HeroSection.astro";
+import FeaturesSection from "../components/landing/FeaturesSection.astro";
+import HowItWorksSection from "../components/landing/HowItWorksSection.astro";
+import SocialProofSection from "../components/landing/SocialProofSection.astro";
+import FinalCTASection from "../components/landing/FinalCTASection.astro";
+import Footer from "../components/landing/Footer.astro";
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="HealthyMeal - Dopasuj przepisy do swojej diety z pomocą AI">
+  <LandingHeader />
+  <main>
+    <HeroSection />
+    <FeaturesSection />
+    <HowItWorksSection />
+    <SocialProofSection />
+    <FinalCTASection />
+  </main>
+  <Footer />
 </Layout>

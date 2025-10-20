@@ -1,0 +1,81 @@
+---
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Sparkles, ChefHat } from "lucide-react";
+import type { Step } from "./types";
+
+/* eslint-disable prettier/prettier */
+const steps: Step[] = [
+  {
+    number: 1,
+    title: "Dodaj przepis",
+    description: "Wprowadź swój ulubiony przepis lub wybierz z naszej kolekcji.",
+    icon: FileText,
+  },
+  {
+    number: 2,
+    title: "Modyfikuj z AI",
+    description: "Dostosuj przepis do swoich potrzeb żywieniowych za pomocą sztucznej inteligencji.",
+    icon: Sparkles,
+  },
+  {
+    number: 3,
+    title: "Gotuj zdrowo",
+    description: "Przygotuj posiłki idealnie dopasowane do Twojej diety i celów.",
+    icon: ChefHat,
+  },
+];
+---
+
+<section id="how-it-works" class="bg-gray-50 py-16 md:py-24">
+  <div class="container mx-auto px-4 md:px-6">
+    <!-- Section Header -->
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl md:text-5xl">
+        Jak to działa?
+      </h2>
+      <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+        Trzy proste kroki do zdrowszych posiłków
+      </p>
+    </div>
+
+    <!-- Steps Grid -->
+    <div class="grid gap-8 md:grid-cols-3">
+      {steps.map((step) => {
+        const Icon = step.icon;
+        return (
+          <div class="relative">
+            <Card className="h-full border-2 transition-all hover:border-green-600 hover:shadow-lg">
+              <CardHeader>
+                <!-- Step Number Badge -->
+                <div class="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-xl font-bold text-white shadow-lg">
+                  {step.number}
+                </div>
+
+                <!-- Icon -->
+                <div class="mt-4 mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+                  <Icon className="h-6 w-6 text-green-600" />
+                </div>
+
+                <CardTitle className="text-xl font-bold text-gray-900">{step.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-base text-gray-600">
+                  {step.description}
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <!-- Connecting Arrow (hidden on last step and mobile) -->
+            {step.number < steps.length && (
+              <div class="hidden md:block absolute top-1/2 -right-4 z-10 text-green-600">
+                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</section>

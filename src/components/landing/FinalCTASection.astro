@@ -1,0 +1,88 @@
+---
+import { Sparkles } from "lucide-react";
+---
+
+<section class="relative overflow-hidden bg-gradient-to-r from-green-600 to-green-700 py-16 md:py-20">
+  <!-- Decorative background elements -->
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute top-0 left-1/4 h-64 w-64 rounded-full bg-white blur-3xl"></div>
+    <div class="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-white blur-3xl"></div>
+  </div>
+
+  <div class="container relative mx-auto px-4 md:px-6">
+    <div class="text-center">
+      <!-- Icon -->
+      <div class="mb-6 flex justify-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+          <Sparkles className="h-8 w-8 text-white" />
+        </div>
+      </div>
+
+      <!-- Headline -->
+      <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
+        Zacznij swoją zdrowszą przygodę kulinarną już dziś
+      </h2>
+
+      <!-- Supporting Text -->
+      <p class="mt-6 text-lg text-green-50 max-w-2xl mx-auto md:text-xl">
+        Dołącz do tysięcy użytkowników, którzy już odkryli, jak łatwo można jeść zdrowo dzięki AI. Pierwszy przepis
+        zmodyfikujesz za darmo!
+      </p>
+
+      <!-- CTA Button -->
+      <div class="mt-8 flex justify-center">
+        <button
+          data-final-cta="register"
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-white text-green-600 shadow hover:bg-gray-100 px-8 py-6"
+        >
+          Zacznij za darmo
+        </button>
+      </div>
+
+      <!-- Trust indicators -->
+      <div class="mt-8 flex flex-wrap justify-center gap-6 text-sm text-green-100">
+        <div class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+          <span>Bez karty kredytowej</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+          <span>Anuluj w każdej chwili</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd"></path>
+          </svg>
+          <span>Wsparcie w języku polskim</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  /* eslint-disable prettier/prettier */
+  // Handle final CTA button click
+  document.addEventListener("DOMContentLoaded", () => {
+    const finalCtaBtn = document.querySelector('[data-final-cta="register"]');
+
+    if (finalCtaBtn) {
+      finalCtaBtn.addEventListener("click", () => {
+        alert("Ta funkcja będzie wkrótce dostępna");
+      });
+    }
+  });
+</script>

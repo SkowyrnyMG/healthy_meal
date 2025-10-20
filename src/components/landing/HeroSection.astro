@@ -1,0 +1,85 @@
+<section class="relative overflow-hidden bg-gradient-to-b from-green-50 to-white py-16 md:py-24">
+  <div class="container mx-auto px-4 md:px-6">
+    <div class="flex flex-col items-center gap-8 md:flex-row md:gap-12">
+      <!-- Text Content -->
+      <div class="flex-1 text-center md:text-left">
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+          Dopasuj przepisy do swojej diety z pomocą <span class="text-green-600">AI</span>
+        </h1>
+        <p class="mt-6 text-lg text-gray-600 sm:text-xl">
+          Automatycznie modyfikuj przepisy, dostosowując kaloryczność, białko i składniki do Twoich celów żywieniowych.
+          Sztuczna inteligencja pomoże Ci jeść zdrowiej bez wysiłku.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:gap-4 md:justify-start">
+          <button
+            data-cta-action="register"
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white shadow hover:bg-green-700 px-8 py-6"
+          >
+            Zacznij za darmo
+          </button>
+          <button
+            data-cta-action="learn-more"
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-green-600 bg-white shadow-sm text-green-600 hover:bg-green-50 px-8 py-6"
+          >
+            Dowiedz się więcej
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero Illustration -->
+      <div class="flex-1">
+        <div class="relative aspect-square w-full max-w-md mx-auto">
+          <!-- Placeholder illustration - can be replaced with actual image/SVG -->
+          <div
+            class="flex h-full items-center justify-center rounded-2xl bg-gradient-to-br from-green-100 to-green-200 p-8"
+          >
+            <svg
+              class="h-full w-full text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              ></path>
+            </svg>
+          </div>
+
+          <!-- Decorative elements -->
+          <div class="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-green-400 opacity-20 blur-2xl"></div>
+          <div class="absolute -bottom-4 -left-4 h-32 w-32 rounded-full bg-green-500 opacity-20 blur-2xl"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  /* eslint-disable prettier/prettier */
+  // Handle CTA button clicks
+  document.addEventListener("DOMContentLoaded", () => {
+    const registerBtn = document.querySelector('[data-cta-action="register"]');
+    const learnMoreBtn = document.querySelector('[data-cta-action="learn-more"]');
+
+    if (registerBtn) {
+      registerBtn.addEventListener("click", () => {
+        alert("Ta funkcja będzie wkrótce dostępna");
+      });
+    }
+
+    if (learnMoreBtn) {
+      learnMoreBtn.addEventListener("click", () => {
+        const featuresSection = document.querySelector("#features");
+        if (featuresSection) {
+          featuresSection.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+    }
+  });
+</script>

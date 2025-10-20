@@ -1,0 +1,121 @@
+---
+import { Separator } from "@/components/ui/separator";
+import { ChefHat, Mail, Github, Linkedin } from "lucide-react";
+import type { FooterLinkGroup } from "./types";
+
+const footerLinkGroups: FooterLinkGroup[] = [
+  {
+    title: "Produkt",
+    links: [
+      { label: "Funkcje", href: "#features" },
+      { label: "Jak to działa", href: "#how-it-works" },
+      { label: "Cennik", href: "#" },
+      { label: "FAQ", href: "#" },
+    ],
+  },
+  {
+    title: "Firma",
+    links: [
+      { label: "O nas", href: "#" },
+      { label: "Blog", href: "#" },
+      { label: "Kariera", href: "#" },
+      { label: "Kontakt", href: "#" },
+    ],
+  },
+  {
+    title: "Zasoby",
+    links: [
+      { label: "Dokumentacja", href: "#" },
+      { label: "Przewodniki", href: "#" },
+      { label: "API", href: "#" },
+      { label: "Status", href: "#" },
+    ],
+  },
+  {
+    title: "Prawne",
+    links: [
+      { label: "Polityka prywatności", href: "#" },
+      { label: "Regulamin", href: "#" },
+      { label: "Cookies", href: "#" },
+      { label: "RODO", href: "#" },
+    ],
+  },
+];
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="border-t bg-gray-50">
+  <div class="container mx-auto px-4 py-12 md:px-6 md:py-16">
+    <!-- Main Footer Content -->
+    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-6">
+      <!-- Brand Column -->
+      <div class="lg:col-span-2">
+        <a href="/" class="flex items-center gap-2 text-xl font-bold text-gray-900">
+          <ChefHat className="h-8 w-8 text-green-600" />
+          <span>HealthyMeal</span>
+        </a>
+        <p class="mt-4 text-sm text-gray-600 max-w-xs">
+          Modyfikuj przepisy z pomocą AI i osiągaj swoje cele żywieniowe bez wysiłku.
+        </p>
+
+        <!-- Social Links -->
+        <div class="mt-6 flex gap-4">
+          <a
+            href="#"
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-200 text-gray-600 transition-colors hover:bg-green-600 hover:text-white"
+            aria-label="Email"
+          >
+            <Mail className="h-5 w-5" />
+          </a>
+          <a
+            href="#"
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-200 text-gray-600 transition-colors hover:bg-green-600 hover:text-white"
+            aria-label="GitHub"
+          >
+            <Github className="h-5 w-5" />
+          </a>
+          <a
+            href="#"
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-200 text-gray-600 transition-colors hover:bg-green-600 hover:text-white"
+            aria-label="LinkedIn"
+          >
+            <Linkedin className="h-5 w-5" />
+          </a>
+        </div>
+      </div>
+
+      <!-- Link Groups -->
+      {
+        footerLinkGroups.map((group) => (
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900">{group.title}</h3>
+            <ul class="mt-4 space-y-3">
+              {group.links.map((link) => (
+                <li>
+                  <a href={link.href} class="text-sm text-gray-600 transition-colors hover:text-green-600">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <Separator className="my-8" />
+
+    <!-- Bottom Footer -->
+    <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+      <p class="text-sm text-gray-600">
+        © {currentYear} HealthyMeal. Wszelkie prawa zastrzeżone.
+      </p>
+      <div class="flex gap-6">
+        <a href="#" class="text-sm text-gray-600 hover:text-green-600"> Polityka prywatności </a>
+        <a href="#" class="text-sm text-gray-600 hover:text-green-600"> Regulamin </a>
+        <a href="#" class="text-sm text-gray-600 hover:text-green-600"> Cookies </a>
+      </div>
+    </div>
+  </div>
+</footer>
