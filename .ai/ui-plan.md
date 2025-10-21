@@ -195,7 +195,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 
 ### 2.3 My Recipes Page
 
-**Path:** `/recipes` or `/recipes/my`
+**Path:** `/recipes`
 
 **Main Purpose:** Display user's personal recipe collection with search, filtering, and sorting capabilities. Primary interface for finding and managing recipes.
 

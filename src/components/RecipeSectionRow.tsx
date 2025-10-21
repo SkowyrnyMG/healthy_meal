@@ -177,11 +177,7 @@ const RecipeSectionRow = ({
           tabIndex={0}
         >
           {recipes.map((recipe) => (
-            <div
-              key={recipe.id}
-              style={{ scrollSnapAlign: "start" }}
-              className="flex-shrink-0 sm:flex-shrink"
-            >
+            <div key={recipe.id} style={{ scrollSnapAlign: "start" }} className="flex-shrink-0 sm:flex-shrink">
               <RecipeCard
                 recipe={recipe}
                 isFavorited={favoriteRecipeIds.has(recipe.id)}

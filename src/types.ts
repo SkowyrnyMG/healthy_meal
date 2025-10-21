@@ -630,3 +630,45 @@ export type DbIngredientSubstitution = Tables<"ingredient_substitutions">;
 export type DbUserStatistics = Tables<"mv_user_statistics">;
 export type DbRecipeStatistics = Tables<"mv_recipe_statistics">;
 export type DbRatingStatistics = Tables<"mv_rating_statistics">;
+
+// ============================================================================
+// VIEW MODELS (Frontend-specific types)
+// ============================================================================
+
+/**
+ * Recipe filter state managed in the view
+ * Maps to RecipeQueryParams for API calls
+ */
+export interface RecipeFilters {
+  search?: string; // Search query (1-255 chars, trimmed)
+  tagIds?: string[]; // Selected tag UUIDs
+  maxCalories?: number; // Max calories per serving (1-10000)
+  maxPrepTime?: number; // Max prep time in minutes (1-1440)
+  sortBy: "createdAt" | "updatedAt" | "title" | "prepTime";
+  sortOrder: "asc" | "desc";
+  page: number; // Current page (min: 1)
+}
+
+/**
+ * Combined sort option for dropdown
+ */
+export interface SortOption {
+  label: string; // Display label in Polish
+  sortBy: "createdAt" | "updatedAt" | "title" | "prepTime";
+  sortOrder: "asc" | "desc";
+}
+
+/**
+ * Empty state type
+ */
+export type EmptyStateType = "no-recipes" | "no-results";
+
+/**
+ * Filter chip item for active filters display
+ */
+export interface FilterChip {
+  key: string; // Unique identifier for the filter
+  label: string; // Display label
+  value?: string; // Optional value (for tag removal)
+  onRemove: () => void; // Callback to remove this filter
+}

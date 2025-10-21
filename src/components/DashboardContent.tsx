@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import RecipeSectionRow from "@/components/RecipeSectionRow";
 import { useFavoriteToggle } from "@/components/hooks/useFavoriteToggle";
 import type { RecipeCardData } from "@/lib/utils/dashboard";
@@ -13,7 +14,7 @@ interface DashboardContentProps {
   userRecipes: RecipeCardData[];
 
   /**
-   * Favorite recipe cards
+   * Favorite recipe cards (initial server-side data)
    */
   favoriteRecipes: RecipeCardData[];
 
@@ -47,6 +48,28 @@ const DashboardContent = ({
     initialFavorites: new Set(initialFavoriteIds),
   });
 
+  // Create a combined map of all recipes (keyed by ID) for quick lookup
+  const allRecipesMap = useMemo(() => {
+    const map = new Map<string, RecipeCardData>();
+
+    // Add all recipes to the map
+    [...userRecipes, ...favoriteRecipes, ...publicRecipes].forEach((recipe) => {
+      // Avoid duplicates - keep first occurrence
+      if (!map.has(recipe.id)) {
+        map.set(recipe.id, recipe);
+      }
+    });
+
+    return map;
+  }, [userRecipes, favoriteRecipes, publicRecipes]);
+
+  // Dynamically compute current favorite recipes based on favorite IDs
+  const currentFavoriteRecipes = useMemo(() => {
+    return Array.from(favorites)
+      .map((id) => allRecipesMap.get(id))
+      .filter((recipe): recipe is RecipeCardData => recipe !== undefined);
+  }, [favorites, allRecipesMap]);
+
   return (
     <main className="pb-16">
       {/* User's Recipes Section */}
@@ -64,10 +87,10 @@ const DashboardContent = ({
         isTogglingRecipe={isTogglingRecipe}
       />
 
-      {/* Favorite Recipes Section */}
+      {/* Favorite Recipes Section - Uses dynamically computed favorites */}
       <RecipeSectionRow
         title="Ulubione"
-        recipes={favoriteRecipes}
+        recipes={currentFavoriteRecipes}
         viewAllLink="/favorites"
         emptyMessage="Nie masz ulubionych przepisów"
         onFavoriteToggle={toggleFavorite}

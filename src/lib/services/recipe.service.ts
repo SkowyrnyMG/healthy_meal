@@ -166,8 +166,24 @@ export async function getUserRecipes(
 
   if (tags) {
     const tagUuids = tags.split(",").map((s) => s.trim());
-    countQuery = countQuery.in("recipe_tags.tag_id", tagUuids);
-    dataQuery = dataQuery.in("recipe_tags.tag_id", tagUuids);
+    // Filter recipes that have at least one of the specified tags
+    // We need to query recipe_tags table first to get recipe IDs
+    const { data: recipeIdsWithTags } = await supabase
+      .from("recipe_tags")
+      .select("recipe_id")
+      .in("tag_id", tagUuids);
+
+    if (recipeIdsWithTags && recipeIdsWithTags.length > 0) {
+      const recipeIds = [...new Set(recipeIdsWithTags.map((rt) => rt.recipe_id))];
+      countQuery = countQuery.in("id", recipeIds);
+      dataQuery = dataQuery.in("id", recipeIds);
+    } else {
+      // No recipes found with these tags - return empty result early
+      return {
+        recipes: [],
+        pagination: { page, limit, total: 0, totalPages: 0 },
+      };
+    }
   }
 
   if (maxCalories !== undefined) {
@@ -299,8 +315,24 @@ export async function getPublicRecipes(
 
   if (tags) {
     const tagUuids = tags.split(",").map((s) => s.trim());
-    countQuery = countQuery.in("recipe_tags.tag_id", tagUuids);
-    dataQuery = dataQuery.in("recipe_tags.tag_id", tagUuids);
+    // Filter recipes that have at least one of the specified tags
+    // We need to query recipe_tags table first to get recipe IDs
+    const { data: recipeIdsWithTags } = await supabase
+      .from("recipe_tags")
+      .select("recipe_id")
+      .in("tag_id", tagUuids);
+
+    if (recipeIdsWithTags && recipeIdsWithTags.length > 0) {
+      const recipeIds = [...new Set(recipeIdsWithTags.map((rt) => rt.recipe_id))];
+      countQuery = countQuery.in("id", recipeIds);
+      dataQuery = dataQuery.in("id", recipeIds);
+    } else {
+      // No recipes found with these tags - return empty result early
+      return {
+        recipes: [],
+        pagination: { page, limit, total: 0, totalPages: 0 },
+      };
+    }
   }
 
   if (maxCalories !== undefined) {

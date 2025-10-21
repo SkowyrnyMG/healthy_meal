@@ -3,7 +3,7 @@ Your task is to implement a frontend view based on the provided implementation p
 First, review the implementation plan:
 
 <implementation_plan>
-{{implementation-plan}} <- replace with reference to view implementation plan (e.g., @generations-view-implementation-plan.md)
+`.ai/claude_prompts/ui/views/2_3_my-recipes-view-implementation-plan.md`
 </implementation_plan>
 
 Now review the implementation rules:

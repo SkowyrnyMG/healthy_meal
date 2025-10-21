@@ -1,0 +1,61 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import RecipeListLayout from "@/components/recipes/RecipeListLayout";
+import type { FavoriteDTO, PaginationDTO } from "@/types";
+
+// ============================================================================
+// AUTHENTICATION CHECK
+// ============================================================================
+
+// TODO: Production - Uncomment this block for real authentication
+// const { data: { user }, error: authError } = await Astro.locals.supabase.auth.getUser();
+// if (authError || !user) {
+//   return Astro.redirect("/login");
+// }
+// const userId = user.id;
+
+// MOCK: Remove this in production
+const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
+
+// ============================================================================
+// DATA FETCHING
+// ============================================================================
+
+/**
+ * Fetch initial favorite recipe IDs for optimistic UI updates
+ * This is optional - the client can work without it, but having initial
+ * favorites improves UX by showing correct favorite state immediately
+ */
+let favoriteRecipeIds: string[] = [];
+
+try {
+  const favoritesResponse = await fetch(`${Astro.url.origin}/api/favorites`, {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  });
+
+  if (favoritesResponse.ok) {
+    const data: { favorites: FavoriteDTO[]; pagination: PaginationDTO } = await favoritesResponse.json();
+    favoriteRecipeIds = data.favorites.map((f) => f.recipeId);
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn("[Recipes Page] Failed to fetch favorites:", favoritesResponse.status);
+  }
+} catch (error) {
+  // eslint-disable-next-line no-console
+  console.error("[Recipes Page] Error fetching favorites:", error);
+  // Continue without favorites - the UI will still work
+}
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+const title = "Moje przepisy - HealthyMeal";
+---
+
+<Layout title={title}>
+  <!-- Recipe List Layout (client-side rendered with URL state management) -->
+  <RecipeListLayout initialFavoriteIds={favoriteRecipeIds} client:load />
+</Layout>
