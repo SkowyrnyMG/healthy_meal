@@ -392,6 +392,19 @@ Kryteria akceptacji:
 2. System wyświetla procent przepisów, które zostały faktycznie ugotowane
 3. System wyświetla trendy w ocenach w czasie
 
+#### US-027: Przeglądanie pulpitu użytkownika
+
+Jako zalogowany użytkownik, chcę zobaczyć pulpit nawigacyjny, aby mieć szybki dostęp do moich przepisów, ulubionych oraz odkrywać nowe przepisy.
+
+Kryteria akceptacji:
+
+1.  Po zalogowaniu, system wyświetla spersonalizowane powitanie z imieniem użytkownika.
+2.  Pulpit wyświetla sekcję z ostatnio dodanymi przepisami użytkownika (4-6 przepisów).
+3.  Pulpit wyświetla sekcję z ostatnio polubionymi przepisami (4-6 przepisów).
+4.  Pulpit wyświetla sekcję z losowymi przepisami publicznymi (4-6 przepisów), które odświeżają się przy każdej wizycie.
+5.  Użytkownik widzi wyraźny przycisk "+ Dodaj przepis" umożliwiający szybkie dodanie nowego przepisu.
+6.  W przypadku braku własnych przepisów lub ulubionych, system wyświetla odpowiednie komunikaty i zachęca do działania (np. "Nie masz jeszcze przepisów", "+ Dodaj pierwszy przepis").
+
 ## 6. Metryki sukcesu
 
 ### 6.1 Metryki użytkownika

@@ -1,0 +1,167 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { shuffleArray, transformRecipeToCardData, transformFavoriteToCardData } from "@/lib/utils/dashboard";
+import type { RecipeListItemDTO, FavoriteDTO, PaginationDTO } from "@/types";
+import WelcomeBanner from "@/components/WelcomeBanner";
+import DashboardContent from "@/components/DashboardContent";
+
+// ============================================================================
+// AUTHENTICATION CHECK
+// ============================================================================
+
+// TODO: Production - Uncomment this block for real authentication
+// const { data: { user }, error: authError } = await Astro.locals.supabase.auth.getUser();
+// if (authError || !user) {
+//   return Astro.redirect("/login");
+// }
+// const userId = user.id;
+
+// MOCK: Remove this in production
+const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
+
+// ============================================================================
+// DATA FETCHING
+// ============================================================================
+
+/**
+ * Fetch all dashboard data in parallel using Promise.allSettled
+ * This ensures that if one request fails, others can still complete
+ */
+const [profileResult, userRecipesResult, favoritesResult, publicRecipesResult] = await Promise.allSettled([
+  // Fetch user profile for name
+  fetch(`${Astro.url.origin}/api/profile`, {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  }),
+
+  // Fetch user's recent recipes (limit 6)
+  fetch(`${Astro.url.origin}/api/recipes?limit=6&sortBy=createdAt&sortOrder=desc`, {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  }),
+
+  // Fetch user's favorite recipes (limit 6)
+  fetch(`${Astro.url.origin}/api/favorites?limit=6`, {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  }),
+
+  // Fetch public recipes for inspiration (limit 20 for randomization)
+  fetch(`${Astro.url.origin}/api/recipes/public?limit=20&sortBy=createdAt&sortOrder=desc`, {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  }),
+]);
+
+// ============================================================================
+// EXTRACT USER NAME
+// ============================================================================
+
+let userName: string | null = null;
+
+if (profileResult.status === "fulfilled" && profileResult.value.ok) {
+  try {
+    const profile = await profileResult.value.json();
+    // Note: ProfileDTO doesn't have a name field, so we'll use null for now
+    // In production, you might get the name from Supabase auth metadata
+    userName = null;
+  } catch (error) {
+    console.error("[Dashboard] Failed to parse profile:", error);
+  }
+} else if (profileResult.status === "rejected") {
+  console.error("[Dashboard] Profile fetch failed:", profileResult.reason);
+}
+
+// ============================================================================
+// EXTRACT USER RECIPES
+// ============================================================================
+
+let userRecipes: RecipeListItemDTO[] = [];
+
+if (userRecipesResult.status === "fulfilled" && userRecipesResult.value.ok) {
+  try {
+    const data: { recipes: RecipeListItemDTO[]; pagination: PaginationDTO } = await userRecipesResult.value.json();
+    userRecipes = data.recipes;
+  } catch (error) {
+    console.error("[Dashboard] Failed to parse user recipes:", error);
+  }
+} else if (userRecipesResult.status === "rejected") {
+  console.error("[Dashboard] User recipes fetch failed:", userRecipesResult.reason);
+}
+
+// ============================================================================
+// EXTRACT FAVORITE RECIPES
+// ============================================================================
+
+let favoriteRecipes: FavoriteDTO[] = [];
+
+if (favoritesResult.status === "fulfilled" && favoritesResult.value.ok) {
+  try {
+    const data: { favorites: FavoriteDTO[]; pagination: PaginationDTO } = await favoritesResult.value.json();
+    favoriteRecipes = data.favorites;
+  } catch (error) {
+    console.error("[Dashboard] Failed to parse favorites:", error);
+  }
+} else if (favoritesResult.status === "rejected") {
+  console.error("[Dashboard] Favorites fetch failed:", favoritesResult.reason);
+}
+
+// ============================================================================
+// EXTRACT AND SHUFFLE PUBLIC RECIPES
+// ============================================================================
+
+let publicRecipes: RecipeListItemDTO[] = [];
+
+if (publicRecipesResult.status === "fulfilled" && publicRecipesResult.value.ok) {
+  try {
+    const data: { recipes: RecipeListItemDTO[]; pagination: PaginationDTO } = await publicRecipesResult.value.json();
+    // Shuffle and take first 6
+    publicRecipes = shuffleArray(data.recipes).slice(0, 6);
+  } catch (error) {
+    console.error("[Dashboard] Failed to parse public recipes:", error);
+  }
+} else if (publicRecipesResult.status === "rejected") {
+  console.error("[Dashboard] Public recipes fetch failed:", publicRecipesResult.reason);
+}
+
+// ============================================================================
+// TRANSFORM DATA FOR COMPONENTS
+// ============================================================================
+
+// Transform user recipes to RecipeCardData
+const userRecipeCards = userRecipes.map(transformRecipeToCardData);
+
+// Transform favorites to RecipeCardData
+const favoriteRecipeCards = favoriteRecipes.map(transformFavoriteToCardData);
+
+// Transform public recipes to RecipeCardData
+const publicRecipeCards = publicRecipes.map(transformRecipeToCardData);
+
+// Create array of favorite recipe IDs for initial state
+const favoriteRecipeIds = favoriteRecipes.map((f) => f.recipeId);
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+const title = "Dashboard - HealthyMeal";
+const description = "Przeglądaj swoje przepisy, ulubione i inspiracje kulinarne";
+---
+
+<Layout title={title}>
+  <!-- Welcome Banner -->
+  <WelcomeBanner userName={userName} client:load />
+
+  <!-- Dashboard Content with Favorite Toggle Logic -->
+  <DashboardContent
+    userRecipes={userRecipeCards}
+    favoriteRecipes={favoriteRecipeCards}
+    publicRecipes={publicRecipeCards}
+    initialFavoriteIds={favoriteRecipeIds}
+    client:load
+  />
+</Layout>
