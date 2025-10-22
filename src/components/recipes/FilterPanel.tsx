@@ -25,6 +25,11 @@ interface FilterPanelProps {
   tags: TagDTO[];
 
   /**
+   * Loading state for tags
+   */
+  isLoadingTags?: boolean;
+
+  /**
    * Callback when filter values change
    */
   onFiltersChange: (filters: Partial<RecipeFilters>) => void;
@@ -89,6 +94,7 @@ interface FilterPanelProps {
 const FilterPanel = ({
   filters,
   tags,
+  isLoadingTags = false,
   onFiltersChange,
   onApply,
   onClear,
@@ -113,6 +119,7 @@ const FilterPanel = ({
         tags={tags}
         selectedTagIds={filters.tagIds || []}
         onChange={(tagIds) => onFiltersChange({ tagIds })}
+        isLoading={isLoadingTags}
       />
 
       <Separator />

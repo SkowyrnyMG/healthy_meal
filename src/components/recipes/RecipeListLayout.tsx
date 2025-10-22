@@ -68,7 +68,7 @@ const RecipeListLayout = ({ initialFavoriteIds }: RecipeListLayoutProps) => {
 
   const { recipes, pagination, isLoading, error, refetch } = useRecipeList(filters);
 
-  const { tags, error: tagsError } = useTags();
+  const { tags, isLoading: isLoadingTags, error: tagsError } = useTags();
 
   const { favorites, toggleFavorite, isTogglingRecipe } = useFavoriteToggle({
     initialFavorites: new Set(initialFavoriteIds),
@@ -113,6 +113,7 @@ const RecipeListLayout = ({ initialFavoriteIds }: RecipeListLayoutProps) => {
       <FilterPanel
         filters={filters}
         tags={tags}
+        isLoadingTags={isLoadingTags}
         onFiltersChange={handleFiltersChange}
         onApply={handleApplyFilters}
         onClear={clearFilters}

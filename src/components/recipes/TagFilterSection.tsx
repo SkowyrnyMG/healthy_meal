@@ -1,4 +1,5 @@
 import { Checkbox } from "@/components/ui/checkbox";
+import TagFilterSkeleton from "./TagFilterSkeleton";
 import type { TagDTO } from "@/types";
 
 // ============================================================================
@@ -20,6 +21,11 @@ interface TagFilterSectionProps {
    * Callback when tag selection changes
    */
   onChange: (tagIds: string[]) => void;
+
+  /**
+   * Loading state - displays skeleton when true
+   */
+  isLoading?: boolean;
 }
 
 // ============================================================================
@@ -34,6 +40,7 @@ interface TagFilterSectionProps {
  * - Multi-select support
  * - Scrollable container for long tag lists
  * - Maximum 50 tags (enforced by API)
+ * - Skeleton loading state to prevent FOUC
  *
  * @example
  * ```tsx
@@ -41,10 +48,15 @@ interface TagFilterSectionProps {
  *   tags={tags}
  *   selectedTagIds={filters.tagIds || []}
  *   onChange={setTagIds}
+ *   isLoading={isLoadingTags}
  * />
  * ```
  */
-const TagFilterSection = ({ tags, selectedTagIds, onChange }: TagFilterSectionProps) => {
+const TagFilterSection = ({ tags, selectedTagIds, onChange, isLoading = false }: TagFilterSectionProps) => {
+  // Show skeleton while loading
+  if (isLoading) {
+    return <TagFilterSkeleton count={6} />;
+  }
   // Handle checkbox toggle
   const handleToggle = (tagId: string, checked: boolean) => {
     if (checked) {
