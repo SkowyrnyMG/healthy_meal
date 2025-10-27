@@ -1,0 +1,94 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import RecipeDetailLayout from "@/components/recipes/detail/RecipeDetailLayout";
+
+// Disable prerendering for this dynamic route
+export const prerender = false;
+
+// Get recipe ID from URL params
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/recipes");
+}
+
+// Mock authentication - TODO: Replace with actual auth
+const isAuthenticated = true;
+
+if (!isAuthenticated) {
+  return Astro.redirect("/login");
+}
+
+// Mock user ID - TODO: Get from actual session
+const userId = "00000000-0000-0000-0000-000000000001";
+
+// Fetch recipe data server-side
+let recipe = null;
+let isFavorited = false;
+let errorStatus = null;
+
+try {
+  // Fetch recipe from API
+  const recipeResponse = await fetch(`${Astro.url.origin}/api/recipes/${id}`, {
+    headers: {
+      // Forward cookies for authentication
+      cookie: Astro.request.headers.get("cookie") || "",
+    },
+  });
+
+  if (!recipeResponse.ok) {
+    errorStatus = recipeResponse.status;
+  } else {
+    recipe = await recipeResponse.json();
+
+    // Check if recipe is favorited (optional server-side optimization)
+    try {
+      const favoritesResponse = await fetch(`${Astro.url.origin}/api/favorites`, {
+        headers: {
+          cookie: Astro.request.headers.get("cookie") || "",
+        },
+      });
+
+      if (favoritesResponse.ok) {
+        const favoritesData = await favoritesResponse.json();
+        isFavorited = favoritesData.favorites?.some((fav: { recipeId: string }) => fav.recipeId === id) || false;
+      }
+    } catch (error) {
+      // Non-critical error, continue with isFavorited = false
+      console.error("Error fetching favorites:", error);
+    }
+  }
+} catch (error) {
+  console.error("Error fetching recipe:", error);
+  errorStatus = 500;
+}
+
+// Handle errors
+if (errorStatus === 404) {
+  return new Response(null, {
+    status: 404,
+    statusText: "Recipe not found",
+  });
+}
+
+if (errorStatus === 403) {
+  return new Response(null, {
+    status: 403,
+    statusText: "Access forbidden",
+  });
+}
+
+if (errorStatus === 500 || !recipe) {
+  return new Response(null, {
+    status: 500,
+    statusText: "Internal server error",
+  });
+}
+
+// Get page title
+const pageTitle = recipe.title ? `${recipe.title} - HealthyMeal` : "Przepis - HealthyMeal";
+---
+
+<Layout title={pageTitle}>
+  <RecipeDetailLayout recipeId={id} initialIsFavorited={isFavorited} client:load />
+</Layout>

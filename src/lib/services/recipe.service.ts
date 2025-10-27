@@ -168,10 +168,7 @@ export async function getUserRecipes(
     const tagUuids = tags.split(",").map((s) => s.trim());
     // Filter recipes that have at least one of the specified tags
     // We need to query recipe_tags table first to get recipe IDs
-    const { data: recipeIdsWithTags } = await supabase
-      .from("recipe_tags")
-      .select("recipe_id")
-      .in("tag_id", tagUuids);
+    const { data: recipeIdsWithTags } = await supabase.from("recipe_tags").select("recipe_id").in("tag_id", tagUuids);
 
     if (recipeIdsWithTags && recipeIdsWithTags.length > 0) {
       const recipeIds = [...new Set(recipeIdsWithTags.map((rt) => rt.recipe_id))];
@@ -317,10 +314,7 @@ export async function getPublicRecipes(
     const tagUuids = tags.split(",").map((s) => s.trim());
     // Filter recipes that have at least one of the specified tags
     // We need to query recipe_tags table first to get recipe IDs
-    const { data: recipeIdsWithTags } = await supabase
-      .from("recipe_tags")
-      .select("recipe_id")
-      .in("tag_id", tagUuids);
+    const { data: recipeIdsWithTags } = await supabase.from("recipe_tags").select("recipe_id").in("tag_id", tagUuids);
 
     if (recipeIdsWithTags && recipeIdsWithTags.length > 0) {
       const recipeIds = [...new Set(recipeIdsWithTags.map((rt) => rt.recipe_id))];

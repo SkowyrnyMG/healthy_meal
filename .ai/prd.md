@@ -273,9 +273,22 @@ Kryteria akceptacji:
 3. Użytkownik może usuwać przepisy z kolekcji
 4. Użytkownik może przeglądać kolekcje i zawarte w nich przepisy
 
+#### US-016: Wyświetlanie szczegółów przepisu
+
+Jako użytkownik, chcę zobaczyć pełne szczegóły przepisu, aby poznać wszystkie informacje potrzebne do przygotowania.
+
+Kryteria akceptacji:
+
+1. System wyświetla tytuł przepisu, składniki, kroki przygotowania
+2. System pokazuje wartości odżywcze (kalorie, makroskładniki) na porcję
+3. System wyświetla czas przygotowania i liczbę porcji
+4. System pokazuje przypisane hasztagi
+5. Użytkownik może zobaczyć wizualizację makroskładników (wykres kołowy)
+6. Jako użytkownik mogę zmieniać liczbę porcji za pomocą suwaka/przycisków +/-, a system automatycznie przelicza ilość składników i wartości odżywcze na porcję.
+
 ### Modyfikacja Przepisów przez AI
 
-#### US-016: Dostosowanie kaloryczności przepisu
+#### US-017: Dostosowanie kaloryczności przepisu
 
 Jako użytkownik, chcę modyfikować kaloryczność przepisu, aby dostosować go do moich potrzeb dietetycznych.
 
@@ -286,7 +299,7 @@ Kryteria akceptacji:
 3. System pokazuje podgląd zmian przed/po modyfikacji
 4. Użytkownik może zatwierdzić lub odrzucić zmodyfikowany przepis
 
-#### US-017: Zwiększenie zawartości białka
+#### US-018: Zwiększenie zawartości białka
 
 Jako użytkownik, chcę zwiększyć zawartość białka w przepisie, aby lepiej wspierać moje cele treningowe.
 
@@ -297,7 +310,7 @@ Kryteria akceptacji:
 3. System pokazuje podgląd zmian przed/po modyfikacji
 4. Użytkownik może zatwierdzić lub odrzucić zmodyfikowany przepis
 
-#### US-018: Zmiana wielkości porcji
+#### US-019: Zmiana wielkości porcji
 
 Jako użytkownik, chcę zmieniać wielkość porcji, aby przygotować odpowiednią ilość jedzenia.
 
@@ -307,7 +320,7 @@ Kryteria akceptacji:
 2. System automatycznie przelicza ilość składników
 3. System przelicza wartości odżywcze na porcję
 
-#### US-019: Wyszukiwanie zdrowszych zamienników składników
+#### US-020: Wyszukiwanie zdrowszych zamienników składników
 
 Jako użytkownik, chcę znajdować zdrowsze zamienniki składników, aby poprawić wartość odżywczą przepisu.
 
@@ -320,7 +333,7 @@ Kryteria akceptacji:
 5. Jeśli zamiennik nie istnieje w bazie, system wykorzystuje AI do zaproponowania alternatywy
 6. Użytkownik ma możliwość cofnięcia zmiany
 
-#### US-020: Ocena zmodyfikowanego przepisu
+#### US-021: Ocena zmodyfikowanego przepisu
 
 Jako użytkownik, chcę ocenić zmodyfikowany przepis, aby podzielić się opinią o jakości modyfikacji.
 
@@ -332,7 +345,7 @@ Kryteria akceptacji:
 
 ### Planowanie Posiłków
 
-#### US-021: Przypisywanie przepisów do dni w kalendarzu
+#### US-022: Przypisywanie przepisów do dni w kalendarzu
 
 Jako użytkownik, chcę przypisywać przepisy do konkretnych dni, aby planować moje posiłki.
 
@@ -342,7 +355,7 @@ Kryteria akceptacji:
 2. Użytkownik może przypisać przepis do wybranego dnia
 3. System zapisuje przypisanie i wyświetla przepis w kalendarzu
 
-#### US-022: Przeglądanie zaplanowanych posiłków
+#### US-023: Przeglądanie zaplanowanych posiłków
 
 Jako użytkownik, chcę przeglądać zaplanowane posiłki, aby wiedzieć, co będę gotować.
 
@@ -351,7 +364,7 @@ Kryteria akceptacji:
 1. System wyświetla przepisy przypisane do poszczególnych dni
 2. Użytkownik może zobaczyć szczegóły zaplanowanych przepisów
 
-#### US-023: Usuwanie zaplanowanych posiłków
+#### US-024: Usuwanie zaplanowanych posiłków
 
 Jako użytkownik, chcę usuwać zaplanowane posiłki, aby modyfikować mój plan.
 
@@ -362,7 +375,7 @@ Kryteria akceptacji:
 
 ### Panel Administratora
 
-#### US-024: Przeglądanie statystyk użytkowników
+#### US-025: Przeglądanie statystyk użytkowników
 
 Jako administrator, chcę przeglądać statystyki użytkowników, aby monitorować aktywność w aplikacji.
 
@@ -372,7 +385,7 @@ Kryteria akceptacji:
 2. System wyświetla procent użytkowników z wypełnionymi preferencjami
 3. System wyświetla dane o retention rate
 
-#### US-025: Przeglądanie statystyk generowania przepisów
+#### US-026: Przeglądanie statystyk generowania przepisów
 
 Jako administrator, chcę przeglądać statystyki generowania przepisów, aby monitorować wykorzystanie funkcji AI.
 
@@ -382,7 +395,7 @@ Kryteria akceptacji:
 2. System wyświetla średnią liczbę wygenerowanych przepisów na użytkownika
 3. System wyświetla najpopularniejsze typy modyfikacji
 
-#### US-026: Przeglądanie statystyk ocen przepisów
+#### US-027: Przeglądanie statystyk ocen przepisów
 
 Jako administrator, chcę przeglądać statystyki ocen przepisów, aby monitorować jakość modyfikacji AI.
 
@@ -392,7 +405,7 @@ Kryteria akceptacji:
 2. System wyświetla procent przepisów, które zostały faktycznie ugotowane
 3. System wyświetla trendy w ocenach w czasie
 
-#### US-027: Przeglądanie pulpitu użytkownika
+#### US-028: Przeglądanie pulpitu użytkownika
 
 Jako zalogowany użytkownik, chcę zobaczyć pulpit nawigacyjny, aby mieć szybki dostęp do moich przepisów, ulubionych oraz odkrywać nowe przepisy.
 
