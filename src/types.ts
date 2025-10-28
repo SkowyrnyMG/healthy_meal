@@ -672,3 +672,118 @@ export interface FilterChip {
   value?: string; // Optional value (for tag removal)
   onRemove: () => void; // Callback to remove this filter
 }
+
+// ============================================================================
+// RECIPE FORM WIZARD TYPES
+// ============================================================================
+
+/**
+ * Current step in the recipe form wizard (1-6)
+ */
+export type RecipeFormStep = 1 | 2 | 3 | 4 | 5 | 6;
+
+/**
+ * Form mode (create or edit)
+ */
+export type RecipeFormMode = "create" | "edit";
+
+/**
+ * Complete recipe form data structure
+ * Extends CreateRecipeCommand with additional UI state
+ */
+export interface RecipeFormData {
+  // Basic Info (Step 1)
+  title: string;
+  description?: string;
+  servings: number;
+  prepTimeMinutes?: number;
+  isPublic: boolean;
+
+  // Ingredients (Step 2)
+  ingredients: RecipeIngredientDTO[];
+
+  // Steps (Step 3)
+  stepsEnabled: boolean;
+  steps: RecipeStepDTO[];
+
+  // Nutrition (Step 4)
+  nutritionPerServing: NutritionDTO;
+
+  // Tags (Step 5)
+  tagIds: string[];
+}
+
+/**
+ * Validation errors for all form fields
+ * Mirrors RecipeFormData structure with optional string error messages
+ */
+export interface RecipeFormErrors {
+  // Basic Info errors
+  title?: string;
+  description?: string;
+  servings?: string;
+  prepTimeMinutes?: string;
+
+  // Ingredients errors
+  ingredients?: string; // General error (e.g., "At least one ingredient required")
+  ingredientFields?: {
+    name?: string;
+    amount?: string;
+    unit?: string;
+  }[];
+
+  // Steps errors
+  steps?: string; // General error (e.g., "At least one step required")
+  stepFields?: {
+    instruction?: string;
+  }[];
+
+  // Nutrition errors
+  calories?: string;
+  protein?: string;
+  fat?: string;
+  carbs?: string;
+  fiber?: string;
+  salt?: string;
+
+  // Tags errors
+  tags?: string; // E.g., "Maximum 5 tags allowed"
+}
+
+/**
+ * Draft data structure stored in localStorage
+ */
+export interface RecipeDraftData {
+  timestamp: string; // ISO 8601 timestamp
+  step: RecipeFormStep; // Current step when draft was saved
+  data: RecipeFormData; // Complete form data
+}
+
+/**
+ * localStorage keys for draft persistence
+ */
+export const DRAFT_KEYS = {
+  NEW_RECIPE: "draft_recipe_new",
+  EDIT_RECIPE: (recipeId: string) => `draft_recipe_edit_${recipeId}`,
+} as const;
+
+/**
+ * Draft expiration time (24 hours in milliseconds)
+ */
+export const DRAFT_EXPIRATION_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Command to create a new custom tag
+ */
+export interface CreateTagCommand {
+  name: string; // 1-100 characters, trimmed
+  slug: string; // Auto-generated: lowercase, hyphens, no special chars
+}
+
+/**
+ * Response from POST /api/tags
+ */
+export interface CreateTagResponse {
+  success: boolean;
+  tag: TagDTO;
+}

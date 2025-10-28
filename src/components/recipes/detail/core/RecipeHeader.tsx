@@ -19,7 +19,7 @@ const RecipeHeader = ({ title, description, prepTimeMinutes, tags, isPublic }: R
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <a key={tag.id} href={`/recipes?tags=${tag.slug}`}>
+            <a key={tag.id} href={`/recipes?tags=${tag.id}`}>
               <Badge
                 variant="outline"
                 className="cursor-pointer hover:bg-green-50 hover:border-green-600 transition-colors"

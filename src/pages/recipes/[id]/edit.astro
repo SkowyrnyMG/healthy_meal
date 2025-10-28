@@ -1,0 +1,104 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import RecipeFormWizard from "@/components/recipe-wizard/RecipeFormWizard";
+import type { RecipeDetailDTO } from "@/types";
+
+// Disable prerendering for this dynamic route
+export const prerender = false;
+
+// ============================================================================
+// AUTHENTICATION CHECK
+// ============================================================================
+
+// TODO: Production - Replace with actual authentication
+// const { data: { user }, error: authError } = await Astro.locals.supabase.auth.getUser();
+// if (authError || !user) {
+//   return Astro.redirect("/login");
+// }
+// const userId = user.id;
+
+// MOCK: Remove this in production
+const isAuthenticated = true;
+const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
+
+if (!isAuthenticated) {
+  return Astro.redirect("/login");
+}
+
+// ============================================================================
+// EXTRACT RECIPE ID FROM URL
+// ============================================================================
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/recipes");
+}
+
+// ============================================================================
+// FETCH RECIPE DATA
+// ============================================================================
+
+let recipe: RecipeDetailDTO | null = null;
+let errorStatus: number | null = null;
+
+try {
+  const recipeResponse = await fetch(`${Astro.url.origin}/api/recipes/${id}`, {
+    headers: {
+      cookie: Astro.request.headers.get("cookie") || "",
+    },
+  });
+
+  if (!recipeResponse.ok) {
+    errorStatus = recipeResponse.status;
+  } else {
+    recipe = await recipeResponse.json();
+
+    // ========================================
+    // AUTHORIZATION CHECK
+    // ========================================
+    // User must be the recipe owner to edit
+    if (recipe && recipe.userId !== userId) {
+      errorStatus = 403;
+      recipe = null;
+    }
+  }
+} catch (error) {
+  console.error("Error fetching recipe:", error);
+  errorStatus = 500;
+}
+
+// ============================================================================
+// ERROR HANDLING
+// ============================================================================
+
+if (errorStatus === 404) {
+  return new Response(null, {
+    status: 404,
+    statusText: "Recipe not found",
+  });
+}
+
+if (errorStatus === 403) {
+  // Redirect with error message
+  return Astro.redirect("/recipes?error=unauthorized");
+}
+
+if (errorStatus === 500 || !recipe) {
+  return new Response(null, {
+    status: 500,
+    statusText: "Internal server error",
+  });
+}
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+const pageTitle = `Edytuj: ${recipe.title} - HealthyMeal`;
+const pageDescription = `Edytuj przepis: ${recipe.title}`;
+---
+
+<Layout title={pageTitle}>
+  <RecipeFormWizard mode="edit" recipeId={id} initialData={recipe} client:load />
+</Layout>

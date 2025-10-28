@@ -1,0 +1,35 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import RecipeFormWizard from "@/components/recipe-wizard/RecipeFormWizard";
+
+// Disable prerendering for this dynamic route
+export const prerender = false;
+
+// ============================================================================
+// AUTHENTICATION CHECK
+// ============================================================================
+
+// TODO: Production - Replace with actual authentication
+// const { data: { user }, error: authError } = await Astro.locals.supabase.auth.getUser();
+// if (authError || !user) {
+//   return Astro.redirect("/login");
+// }
+
+// MOCK: Remove this in production
+const isAuthenticated = true;
+
+if (!isAuthenticated) {
+  return Astro.redirect("/login");
+}
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+const pageTitle = "Nowy przepis - HealthyMeal";
+const pageDescription = "Dodaj nowy przepis do swojej kolekcji";
+---
+
+<Layout title={pageTitle}>
+  <RecipeFormWizard mode="create" client:load />
+</Layout>
