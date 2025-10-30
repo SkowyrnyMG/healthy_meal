@@ -366,7 +366,7 @@ export const useRecipeDetail = (recipeId: string, initialIsFavorited: boolean): 
     setActionStates((prev) => ({ ...prev, deleteModification: true }));
 
     try {
-      const response = await fetch(`/api/recipes/${recipeId}/modifications/${modification.id}`, {
+      const response = await fetch(`/api/modifications/${modification.id}`, {
         method: "DELETE",
       });
 

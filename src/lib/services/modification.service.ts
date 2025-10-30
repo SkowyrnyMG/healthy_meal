@@ -11,10 +11,23 @@ import type {
   DbModificationInsert,
   PaginationDTO,
 } from "../../types";
+import { createChatCompletion, OpenRouterError, type JSONSchema } from "./openrouter.service";
 
 // ============================================================================
 // TYPES
 // ============================================================================
+
+/**
+ * AI response structure for recipe modifications
+ * Used with OpenRouter structured outputs
+ */
+interface AIModificationResponse {
+  ingredients: RecipeIngredientDTO[];
+  steps: RecipeStepDTO[];
+  nutritionPerServing: NutritionDTO;
+  servings: number;
+  modificationNotes: string;
+}
 
 /**
  * Database query result interface for recipe_modifications table
@@ -73,10 +86,10 @@ export async function createModification(
   command: CreateModificationCommand
 ): Promise<ModificationDTO> {
   // ========================================
-  // GENERATE MOCK MODIFIED DATA
+  // GENERATE AI-POWERED MODIFIED DATA
   // ========================================
 
-  const modifiedData = generateMockModification(recipe, command);
+  const modifiedData = await generateAIModification(recipe, command);
 
   // ========================================
   // INSERT MODIFICATION INTO DATABASE
@@ -305,44 +318,189 @@ export async function deleteModification(
 }
 
 // ============================================================================
-// MOCK DATA GENERATION
+// AI-POWERED MODIFICATION GENERATION
 // ============================================================================
 
 /**
- * Generate mock modified recipe data based on modification type
- * For MVP, this simulates AI responses to avoid API costs during development
+ * JSON schema for AI modification responses
+ * Ensures structured, type-safe output from OpenRouter
+ */
+const MODIFICATION_RESPONSE_SCHEMA: JSONSchema = {
+  name: "recipe_modification",
+  strict: true,
+  schema: {
+    type: "object",
+    properties: {
+      ingredients: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            amount: { type: "number" },
+            unit: { type: "string" },
+          },
+          required: ["name", "amount", "unit"],
+          additionalProperties: false,
+        },
+      },
+      steps: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            stepNumber: { type: "number" },
+            instruction: { type: "string" },
+          },
+          required: ["stepNumber", "instruction"],
+          additionalProperties: false,
+        },
+      },
+      nutritionPerServing: {
+        type: "object",
+        properties: {
+          calories: { type: "number" },
+          protein: { type: "number" },
+          fat: { type: "number" },
+          carbs: { type: "number" },
+          fiber: { type: "number" },
+          salt: { type: "number" },
+        },
+        required: ["calories", "protein", "fat", "carbs", "fiber", "salt"],
+        additionalProperties: false,
+      },
+      servings: { type: "number" },
+      modificationNotes: { type: "string" },
+    },
+    required: ["ingredients", "steps", "nutritionPerServing", "servings", "modificationNotes"],
+    additionalProperties: false,
+  },
+};
+
+/**
+ * Generate AI-powered modified recipe data using OpenRouter
  * @param recipe - Original recipe to modify
  * @param command - Modification command with type and parameters
- * @returns ModificationDataDTO with mocked modifications
+ * @returns ModificationDataDTO with AI-generated modifications
+ * @throws Error if OpenRouter API call fails
  */
-function generateMockModification(recipe: RecipeDetailDTO, command: CreateModificationCommand): ModificationDataDTO {
-  switch (command.modificationType) {
-    case "reduce_calories":
-      return generateMockReduceCalories(recipe, command.parameters);
-    case "increase_calories":
-      return generateMockIncreaseCalories(recipe, command.parameters);
-    case "increase_protein":
-      return generateMockIncreaseProtein(recipe, command.parameters);
-    case "increase_fiber":
-      return generateMockIncreaseFiber(recipe, command.parameters);
-    case "portion_size":
-      return generateMockPortionSize(recipe, command.parameters);
-    case "ingredient_substitution":
-      return generateMockIngredientSubstitution(recipe, command.parameters);
-    default:
-      throw new Error(`Unsupported modification type: ${command.modificationType}`);
+async function generateAIModification(
+  recipe: RecipeDetailDTO,
+  command: CreateModificationCommand
+): Promise<ModificationDataDTO> {
+  // ========================================
+  // BUILD PROMPT BASED ON MODIFICATION TYPE
+  // ========================================
+
+  const { systemMessage, userMessage } = buildModificationPrompt(recipe, command);
+
+  // ========================================
+  // CALL OPENROUTER API
+  // ========================================
+
+  try {
+    const response = await createChatCompletion<AIModificationResponse>({
+      model: "openai/gpt-4o-mini",
+      systemMessage,
+      userMessage,
+      responseSchema: MODIFICATION_RESPONSE_SCHEMA,
+      parameters: {
+        temperature: 0.7,
+        max_tokens: 2000,
+      },
+    });
+
+    // ========================================
+    // RETURN STRUCTURED RESPONSE
+    // ========================================
+
+    return response.content;
+  } catch (error) {
+    // ========================================
+    // HANDLE OPENROUTER ERRORS
+    // ========================================
+
+    if (error instanceof OpenRouterError) {
+      // Log error for debugging
+      console.error("OpenRouter API error:", {
+        code: error.code,
+        message: error.message,
+        statusCode: error.statusCode,
+      });
+
+      // Provide user-friendly error messages
+      switch (error.code) {
+        case "INSUFFICIENT_CREDITS":
+          throw new Error("AI service credits exhausted. Please contact support.");
+        case "RATE_LIMIT_EXCEEDED":
+          throw new Error("Too many modification requests. Please try again in a moment.");
+        case "MODERATION_FLAGGED":
+          throw new Error("Recipe content was flagged. Please review the recipe.");
+        default:
+          throw new Error(`Failed to generate modification: ${error.message}`);
+      }
+    }
+
+    // Unknown error
+    console.error("Unexpected error during AI modification:", error);
+    throw new Error("An unexpected error occurred while modifying the recipe.");
   }
 }
 
 /**
- * Generate mock data for calorie reduction
- * Simulates AI adjusting ingredients and nutrition to reduce calories
+ * Build system and user prompts for AI modification based on type
+ * @param recipe - Original recipe
+ * @param command - Modification command
+ * @returns Object with systemMessage and userMessage
  */
-function generateMockReduceCalories(
+function buildModificationPrompt(
   recipe: RecipeDetailDTO,
-  parameters: { targetCalories?: number; reductionPercentage?: number }
-): ModificationDataDTO {
-  const originalCalories = recipe.nutritionPerServing.calories;
+  command: CreateModificationCommand
+): { systemMessage: string; userMessage: string } {
+  const systemMessage =
+    "You are an expert nutritionist and chef who modifies recipes to meet specific dietary goals " +
+    "while maintaining taste, quality, and culinary authenticity. " +
+    "Provide accurate nutrition calculations and clear modification notes explaining your changes. " +
+    "IMPORTANT: You MUST respond in Polish language. All ingredient names, instructions, and notes must be in Polish.";
+
+  let userMessage = "";
+  const originalNutrition = recipe.nutritionPerServing;
+
+  switch (command.modificationType) {
+    case "reduce_calories":
+      userMessage = buildReduceCaloriesPrompt(recipe, command.parameters, originalNutrition);
+      break;
+    case "increase_calories":
+      userMessage = buildIncreaseCaloriesPrompt(recipe, command.parameters, originalNutrition);
+      break;
+    case "increase_protein":
+      userMessage = buildIncreaseProteinPrompt(recipe, command.parameters, originalNutrition);
+      break;
+    case "increase_fiber":
+      userMessage = buildIncreaseFiberPrompt(recipe, command.parameters, originalNutrition);
+      break;
+    case "portion_size":
+      userMessage = buildPortionSizePrompt(recipe, command.parameters);
+      break;
+    case "ingredient_substitution":
+      userMessage = buildIngredientSubstitutionPrompt(recipe, command.parameters);
+      break;
+    default:
+      throw new Error(`Unsupported modification type: ${command.modificationType}`);
+  }
+
+  return { systemMessage, userMessage };
+}
+
+/**
+ * Build prompt for calorie reduction modification
+ */
+function buildReduceCaloriesPrompt(
+  recipe: RecipeDetailDTO,
+  parameters: { targetCalories?: number; reductionPercentage?: number },
+  originalNutrition: NutritionDTO
+): string {
+  const originalCalories = originalNutrition.calories;
 
   // Calculate target calories
   let targetCalories: number;
@@ -351,253 +509,195 @@ function generateMockReduceCalories(
   } else if (parameters.reductionPercentage !== undefined) {
     targetCalories = Math.round(originalCalories * (1 - parameters.reductionPercentage / 100));
   } else {
-    targetCalories = originalCalories;
+    targetCalories = Math.round(originalCalories * 0.8); // Default 20% reduction
   }
 
-  // Calculate reduction ratio
-  const reductionRatio = targetCalories / originalCalories;
+  return `Zmodyfikuj ten przepis, aby zmniejszyć kalorie z ${originalCalories} do ${targetCalories} kcal na porcję.
 
-  // Adjust nutrition proportionally
-  const modifiedNutrition: NutritionDTO = {
-    calories: targetCalories,
-    protein: Math.round(recipe.nutritionPerServing.protein * reductionRatio * 10) / 10,
-    fat: Math.round(recipe.nutritionPerServing.fat * reductionRatio * 10) / 10,
-    carbs: Math.round(recipe.nutritionPerServing.carbs * reductionRatio * 10) / 10,
-    fiber: Math.round(recipe.nutritionPerServing.fiber * reductionRatio * 10) / 10,
-    salt: Math.round(recipe.nutritionPerServing.salt * reductionRatio * 10) / 10,
-  };
+ORYGINALNY PRZEPIS:
+Tytuł: ${recipe.title}
+Porcje: ${recipe.servings}
 
-  // Copy ingredients and steps (in real AI, these would be modified)
-  const modifiedIngredients = recipe.ingredients.map((ing) => ({ ...ing }));
-  const modifiedSteps = recipe.steps.map((step) => ({ ...step }));
+Składniki:
+${recipe.ingredients.map((ing) => `- ${ing.amount} ${ing.unit} ${ing.name}`).join("\n")}
 
-  const modificationNotes =
-    `Zmniejszono kalorie z ${originalCalories} do ${targetCalories} kcal na porcję. ` +
-    `Zmodyfikowano proporcje składników i zmniejszono ilości tłuszczów.`;
+Kroki przygotowania:
+${recipe.steps.map((step) => `${step.stepNumber}. ${step.instruction}`).join("\n")}
 
-  return {
-    ingredients: modifiedIngredients,
-    steps: modifiedSteps,
-    nutritionPerServing: modifiedNutrition,
-    servings: recipe.servings,
-    modificationNotes,
-  };
+Obecne wartości odżywcze (na porcję):
+- Kalorie: ${originalNutrition.calories} kcal
+- Białko: ${originalNutrition.protein}g
+- Tłuszcz: ${originalNutrition.fat}g
+- Węglowodany: ${originalNutrition.carbs}g
+- Błonnik: ${originalNutrition.fiber}g
+- Sól: ${originalNutrition.salt}g
+
+INSTRUKCJE:
+1. Zmodyfikuj składniki, aby zmniejszyć kalorie do około ${targetCalories} kcal na porcję
+2. Dostosuj metody gotowania, jeśli trzeba zmniejszyć tłuszcz/olej
+3. Zaktualizuj wartości odżywcze dokładnie na podstawie swoich zmian
+4. Podaj jasne notatki wyjaśniające, co zmieniłeś i dlaczego
+5. Zachowaj tę samą liczbę porcji: ${recipe.servings}
+6. Dbaj o to, aby przepis był smaczny i satysfakcjonujący
+
+WAŻNE: Wszystkie składniki, instrukcje i notatki MUSZĄ być po polsku!`;
 }
 
 /**
- * Generate mock data for calorie increase
- * Simulates AI adding ingredients to increase calories
+ * Helper function to format recipe details for AI prompts
  */
-function generateMockIncreaseCalories(
+function formatRecipeForPrompt(recipe: RecipeDetailDTO): string {
+  return `Title: ${recipe.title}
+Servings: ${recipe.servings}
+
+Ingredients:
+${recipe.ingredients.map((ing) => `- ${ing.amount} ${ing.unit} ${ing.name}`).join("\n")}
+
+Steps:
+${recipe.steps.map((step) => `${step.stepNumber}. ${step.instruction}`).join("\n")}
+
+Current Nutrition (per serving):
+- Calories: ${recipe.nutritionPerServing.calories} kcal
+- Protein: ${recipe.nutritionPerServing.protein}g
+- Fat: ${recipe.nutritionPerServing.fat}g
+- Carbs: ${recipe.nutritionPerServing.carbs}g
+- Fiber: ${recipe.nutritionPerServing.fiber}g
+- Salt: ${recipe.nutritionPerServing.salt}g`;
+}
+
+/**
+ * Build prompt for calorie increase modification
+ */
+function buildIncreaseCaloriesPrompt(
   recipe: RecipeDetailDTO,
-  parameters: { targetCalories?: number; increasePercentage?: number }
-): ModificationDataDTO {
-  const originalCalories = recipe.nutritionPerServing.calories;
+  parameters: { targetCalories?: number; increasePercentage?: number },
+  originalNutrition: NutritionDTO
+): string {
+  const originalCalories = originalNutrition.calories;
+  const targetCalories =
+    parameters.targetCalories ||
+    (parameters.increasePercentage
+      ? Math.round(originalCalories * (1 + parameters.increasePercentage / 100))
+      : Math.round(originalCalories * 1.2));
 
-  // Calculate target calories
-  let targetCalories: number;
-  if (parameters.targetCalories !== undefined) {
-    targetCalories = parameters.targetCalories;
-  } else if (parameters.increasePercentage !== undefined) {
-    targetCalories = Math.round(originalCalories * (1 + parameters.increasePercentage / 100));
-  } else {
-    targetCalories = originalCalories;
-  }
+  return `Zmodyfikuj ten przepis, aby ZWIĘKSZYĆ kalorie z ${originalCalories} do ${targetCalories} kcal na porcję, dodając składniki bogate w wartości odżywcze.
 
-  // Calculate increase ratio
-  const increaseRatio = targetCalories / originalCalories;
+ORYGINALNY PRZEPIS:
+${formatRecipeForPrompt(recipe)}
 
-  // Adjust nutrition proportionally
-  const modifiedNutrition: NutritionDTO = {
-    calories: targetCalories,
-    protein: Math.round(recipe.nutritionPerServing.protein * increaseRatio * 10) / 10,
-    fat: Math.round(recipe.nutritionPerServing.fat * increaseRatio * 10) / 10,
-    carbs: Math.round(recipe.nutritionPerServing.carbs * increaseRatio * 10) / 10,
-    fiber: Math.round(recipe.nutritionPerServing.fiber * increaseRatio * 10) / 10,
-    salt: Math.round(recipe.nutritionPerServing.salt * increaseRatio * 10) / 10,
-  };
+INSTRUKCJE:
+- Zwiększ kalorie do około ${targetCalories} kcal na porcję
+- Dodaj zdrowe tłuszcze, złożone węglowodany lub składniki bogate w białko
+- Zaktualizuj wartości odżywcze dokładnie
+- Podaj jasne notatki wyjaśniające zmiany
+- Zachowaj liczbę porcji: ${recipe.servings}
 
-  const modifiedIngredients = recipe.ingredients.map((ing) => ({ ...ing }));
-  const modifiedSteps = recipe.steps.map((step) => ({ ...step }));
-
-  const modificationNotes =
-    `Zwiększono kalorie z ${originalCalories} do ${targetCalories} kcal na porcję. ` +
-    `Dodano więcej składników bogatych w zdrowe tłuszcze i węglowodany.`;
-
-  return {
-    ingredients: modifiedIngredients,
-    steps: modifiedSteps,
-    nutritionPerServing: modifiedNutrition,
-    servings: recipe.servings,
-    modificationNotes,
-  };
+WAŻNE: Wszystkie składniki, instrukcje i notatki MUSZĄ być po polsku!`;
 }
 
 /**
- * Generate mock data for protein increase
- * Simulates AI adding protein-rich ingredients
+ * Build prompt for protein increase modification
  */
-function generateMockIncreaseProtein(
+function buildIncreaseProteinPrompt(
   recipe: RecipeDetailDTO,
-  parameters: { targetProtein?: number; increasePercentage?: number }
-): ModificationDataDTO {
-  const originalProtein = recipe.nutritionPerServing.protein;
+  parameters: { targetProtein?: number; increasePercentage?: number },
+  originalNutrition: NutritionDTO
+): string {
+  const originalProtein = originalNutrition.protein;
+  const targetProtein =
+    parameters.targetProtein ||
+    (parameters.increasePercentage
+      ? Math.round(originalProtein * (1 + parameters.increasePercentage / 100) * 10) / 10
+      : Math.round(originalProtein * 1.3 * 10) / 10);
 
-  // Calculate target protein
-  let targetProtein: number;
-  if (parameters.targetProtein !== undefined) {
-    targetProtein = parameters.targetProtein;
-  } else if (parameters.increasePercentage !== undefined) {
-    targetProtein = Math.round(originalProtein * (1 + parameters.increasePercentage / 100) * 10) / 10;
-  } else {
-    targetProtein = originalProtein;
-  }
+  return `Zmodyfikuj ten przepis, aby ZWIĘKSZYĆ białko z ${originalProtein}g do ${targetProtein}g na porcję.
 
-  // Adjust nutrition (protein increases more than other macros)
-  const proteinIncrease = targetProtein - originalProtein;
-  const calorieIncrease = Math.round(proteinIncrease * 4); // 4 kcal per gram of protein
+ORYGINALNY PRZEPIS:
+${formatRecipeForPrompt(recipe)}
 
-  const modifiedNutrition: NutritionDTO = {
-    calories: recipe.nutritionPerServing.calories + calorieIncrease,
-    protein: targetProtein,
-    fat: recipe.nutritionPerServing.fat,
-    carbs: recipe.nutritionPerServing.carbs,
-    fiber: recipe.nutritionPerServing.fiber,
-    salt: recipe.nutritionPerServing.salt,
-  };
+INSTRUKCJE:
+- Zwiększ białko do około ${targetProtein}g na porcję
+- Dodaj chude mięso, ryby, jajka, rośliny strączkowe lub nabiał
+- Zaktualizuj wszystkie wartości odżywcze dokładnie (pamiętaj: 4 kcal na gram białka)
+- Podaj jasne notatki o modyfikacji
+- Zachowaj liczbę porcji: ${recipe.servings}
 
-  const modifiedIngredients = recipe.ingredients.map((ing) => ({ ...ing }));
-  const modifiedSteps = recipe.steps.map((step) => ({ ...step }));
-
-  const modificationNotes =
-    `Zwiększono białko z ${originalProtein}g do ${targetProtein}g na porcję. ` +
-    `Dodano składniki bogate w białko, takie jak chude mięso, ryby, jajka lub rośliny strączkowe.`;
-
-  return {
-    ingredients: modifiedIngredients,
-    steps: modifiedSteps,
-    nutritionPerServing: modifiedNutrition,
-    servings: recipe.servings,
-    modificationNotes,
-  };
+WAŻNE: Wszystkie składniki, instrukcje i notatki MUSZĄ być po polsku!`;
 }
 
 /**
- * Generate mock data for fiber increase
- * Simulates AI adding high-fiber ingredients
+ * Build prompt for fiber increase modification
  */
-function generateMockIncreaseFiber(
+function buildIncreaseFiberPrompt(
   recipe: RecipeDetailDTO,
-  parameters: { targetFiber?: number; increasePercentage?: number }
-): ModificationDataDTO {
-  const originalFiber = recipe.nutritionPerServing.fiber;
+  parameters: { targetFiber?: number; increasePercentage?: number },
+  originalNutrition: NutritionDTO
+): string {
+  const originalFiber = originalNutrition.fiber;
+  const targetFiber =
+    parameters.targetFiber ||
+    (parameters.increasePercentage
+      ? Math.round(originalFiber * (1 + parameters.increasePercentage / 100) * 10) / 10
+      : Math.round(originalFiber * 1.5 * 10) / 10);
 
-  // Calculate target fiber
-  let targetFiber: number;
-  if (parameters.targetFiber !== undefined) {
-    targetFiber = parameters.targetFiber;
-  } else if (parameters.increasePercentage !== undefined) {
-    targetFiber = Math.round(originalFiber * (1 + parameters.increasePercentage / 100) * 10) / 10;
-  } else {
-    targetFiber = originalFiber;
-  }
+  return `Zmodyfikuj ten przepis, aby ZWIĘKSZYĆ błonnik z ${originalFiber}g do ${targetFiber}g na porcję.
 
-  // Adjust nutrition (adding fiber also adds some carbs and calories)
-  const fiberIncrease = targetFiber - originalFiber;
-  const carbIncrease = Math.round(fiberIncrease * 1.5 * 10) / 10; // Fiber-rich foods have carbs
-  const calorieIncrease = Math.round(carbIncrease * 2); // Rough estimate
+ORYGINALNY PRZEPIS:
+${formatRecipeForPrompt(recipe)}
 
-  const modifiedNutrition: NutritionDTO = {
-    calories: recipe.nutritionPerServing.calories + calorieIncrease,
-    protein: recipe.nutritionPerServing.protein,
-    fat: recipe.nutritionPerServing.fat,
-    carbs: recipe.nutritionPerServing.carbs + carbIncrease,
-    fiber: targetFiber,
-    salt: recipe.nutritionPerServing.salt,
-  };
+INSTRUKCJE:
+- Zwiększ błonnik do około ${targetFiber}g na porcję
+- Dodaj warzywa, owoce, pełne ziarna, nasiona lub rośliny strączkowe
+- Zaktualizuj wartości odżywcze (żywność bogata w błonnik dodaje też węglowodany)
+- Podaj jasne notatki o modyfikacji
+- Zachowaj liczbę porcji: ${recipe.servings}
 
-  const modifiedIngredients = recipe.ingredients.map((ing) => ({ ...ing }));
-  const modifiedSteps = recipe.steps.map((step) => ({ ...step }));
-
-  const modificationNotes =
-    `Zwiększono błonnik z ${originalFiber}g do ${targetFiber}g na porcję. ` +
-    `Dodano składniki bogate w błonnik, takie jak warzywa, owoce, pełne ziarna lub nasiona.`;
-
-  return {
-    ingredients: modifiedIngredients,
-    steps: modifiedSteps,
-    nutritionPerServing: modifiedNutrition,
-    servings: recipe.servings,
-    modificationNotes,
-  };
+WAŻNE: Wszystkie składniki, instrukcje i notatki MUSZĄ być po polsku!`;
 }
 
 /**
- * Generate mock data for portion size adjustment
- * Simulates adjusting recipe for different number of servings
+ * Build prompt for portion size adjustment
  */
-function generateMockPortionSize(recipe: RecipeDetailDTO, parameters: { newServings?: number }): ModificationDataDTO {
+function buildPortionSizePrompt(recipe: RecipeDetailDTO, parameters: { newServings?: number }): string {
   const newServings = parameters.newServings || recipe.servings;
-  const originalServings = recipe.servings;
 
-  // Nutrition per serving stays the same
-  const modifiedNutrition: NutritionDTO = { ...recipe.nutritionPerServing };
+  return `Dostosuj ten przepis z ${recipe.servings} porcji do ${newServings} porcji.
 
-  // Copy ingredients and steps (in real AI, quantities would be scaled)
-  const modifiedIngredients = recipe.ingredients.map((ing) => ({ ...ing }));
-  const modifiedSteps = recipe.steps.map((step) => ({ ...step }));
+ORYGINALNY PRZEPIS:
+${formatRecipeForPrompt(recipe)}
 
-  const modificationNotes =
-    `Dostosowano przepis z ${originalServings} porcji do ${newServings} porcji. ` +
-    `Wartości odżywcze na porcję pozostają bez zmian.`;
+INSTRUKCJE:
+- Przeskaluj ilości składników proporcjonalnie dla ${newServings} porcji
+- Zachowaj wartości odżywcze na porcję bez zmian
+- Dostosuj czasy/metody gotowania, jeśli potrzeba dla innej wielkości porcji
+- Podaj notatki wyjaśniające przeskalowanie
 
-  return {
-    ingredients: modifiedIngredients,
-    steps: modifiedSteps,
-    nutritionPerServing: modifiedNutrition,
-    servings: newServings,
-    modificationNotes,
-  };
+WAŻNE: Wszystkie składniki, instrukcje i notatki MUSZĄ być po polsku!`;
 }
 
 /**
- * Generate mock data for ingredient substitution
- * Simulates AI replacing one ingredient with another
+ * Build prompt for ingredient substitution
  */
-function generateMockIngredientSubstitution(
+function buildIngredientSubstitutionPrompt(
   recipe: RecipeDetailDTO,
   parameters: { originalIngredient?: string; preferredSubstitute?: string }
-): ModificationDataDTO {
-  const originalIngredient = parameters.originalIngredient || "nieznany składnik";
-  const substitute = parameters.preferredSubstitute || "alternatywny składnik";
+): string {
+  const originalIng = parameters.originalIngredient || "specified ingredient";
+  const substitute = parameters.preferredSubstitute || "suitable alternative";
 
-  // Copy ingredients (in real AI, the specific ingredient would be replaced)
-  const modifiedIngredients = recipe.ingredients.map((ing) => ({ ...ing }));
+  return `Zmodyfikuj ten przepis, zastępując "${originalIng}" składnikiem "${substitute}".
 
-  // Copy steps (in real AI, instructions might be updated)
-  const modifiedSteps = recipe.steps.map((step) => ({ ...step }));
+ORYGINALNY PRZEPIS:
+${formatRecipeForPrompt(recipe)}
 
-  // Adjust nutrition slightly (simulating difference between ingredients)
-  const modifiedNutrition: NutritionDTO = {
-    calories: Math.round(recipe.nutritionPerServing.calories * 0.95), // Slight reduction as example
-    protein: Math.round(recipe.nutritionPerServing.protein * 1.05 * 10) / 10,
-    fat: Math.round(recipe.nutritionPerServing.fat * 0.9 * 10) / 10,
-    carbs: recipe.nutritionPerServing.carbs,
-    fiber: Math.round(recipe.nutritionPerServing.fiber * 1.1 * 10) / 10,
-    salt: recipe.nutritionPerServing.salt,
-  };
+INSTRUKCJE:
+- Zastąp "${originalIng}" składnikiem "${substitute}"
+- Dostosuj ilości, aby zachować smak i teksturę
+- Zaktualizuj instrukcje gotowania, jeśli potrzeba
+- Przelicz wartości odżywcze na podstawie zamiany
+- Podaj szczegółowe notatki wyjaśniające zamianę i jej wpływ
 
-  const modificationNotes =
-    `Zastąpiono składnik "${originalIngredient}" składnikiem "${substitute}". ` +
-    `Zmieniono wartości odżywcze, aby odzwierciedlić profil nowego składnika.`;
-
-  return {
-    ingredients: modifiedIngredients,
-    steps: modifiedSteps,
-    nutritionPerServing: modifiedNutrition,
-    servings: recipe.servings,
-    modificationNotes,
-  };
+WAŻNE: Wszystkie składniki, instrukcje i notatki MUSZĄ być po polsku!`;
 }
 
 // ============================================================================

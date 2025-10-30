@@ -1,0 +1,79 @@
+---
+import "../styles/global.css";
+import AppHeader from "@/components/app/AppHeader.astro";
+import type { UserInfo } from "@/components/app/types";
+
+interface Props {
+  title?: string;
+  showNewRecipeButton?: boolean;
+}
+
+const { title = "HealthyMeal", showNewRecipeButton = true } = Astro.props;
+
+// ============================================================================
+// AUTHENTICATION CHECK
+// ============================================================================
+
+// Fetch current user from Supabase
+const {
+  data: { user },
+} = await Astro.locals.supabase.auth.getUser();
+
+// TODO: Production - Uncomment this redirect for protected routes
+// if (authError || !user) {
+//   return Astro.redirect("/login");
+// }
+
+// Transform Supabase user to UserInfo for AppHeader
+let userInfo: UserInfo | null = null;
+
+if (user) {
+  // Extract display name from user metadata or use email
+  const displayName = user.user_metadata?.full_name || user.user_metadata?.name || null;
+
+  userInfo = {
+    userId: user.id,
+    email: user.email || "",
+    displayName,
+  };
+}
+
+// MOCK: For development when auth is not fully implemented
+// Remove this when authentication is ready
+if (!userInfo) {
+  userInfo = {
+    userId: "a85d6d6c-b7d4-4605-9cc4-3743401b67a0",
+    email: "test@example.com",
+    displayName: "Test User",
+  };
+}
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="gradient-bg">
+    <!-- Application Header -->
+    <AppHeader user={userInfo} showNewRecipeButton={showNewRecipeButton} />
+
+    <!-- Main Content Area -->
+    <main class="min-h-[calc(100vh-4rem)]">
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style>
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+</style>

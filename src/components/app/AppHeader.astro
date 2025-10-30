@@ -1,0 +1,160 @@
+---
+import { ChefHat, Plus } from "lucide-react";
+import UserMenu from "./UserMenu";
+import MobileNav from "./MobileNav";
+import type { NavLink, UserInfo } from "./types";
+
+/* eslint-disable prettier/prettier */
+interface Props {
+  user: UserInfo | null;
+  showNewRecipeButton?: boolean;
+}
+
+const { user, showNewRecipeButton = true } = Astro.props;
+
+// Navigation links - only shown when user is authenticated
+const navLinks: NavLink[] = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/recipes", label: "Moje Przepisy" },
+  { href: "/recipes/public", label: "Publiczne Przepisy" },
+  { href: "/collections", label: "Kolekcje" },
+];
+
+// Get current path for active link highlighting
+const currentPath = Astro.url.pathname;
+
+// Helper function to check if a link is active
+const isLinkActive = (href: string): boolean => {
+  return currentPath === href || currentPath.startsWith(href + "/");
+};
+---
+
+<header class="w-full border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
+  <div class="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+    <!-- Logo -->
+    <a
+      href={user ? "/dashboard" : "/"}
+      class="flex items-center gap-2 text-xl font-bold text-gray-900 transition-colors hover:text-green-600"
+    >
+      <ChefHat className="h-8 w-8 text-green-600" />
+      <span>HealthyMeal</span>
+    </a>
+
+    <!-- Desktop Navigation (only when authenticated) -->
+    {
+      user && (
+        <nav class="hidden md:flex items-center gap-6">
+          {navLinks.map((link) => (
+            <a
+              href={link.href}
+              class={`text-sm font-medium transition-colors relative pb-1 ${
+                isLinkActive(link.href)
+                  ? "text-green-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-green-600"
+                  : "text-gray-700 hover:text-green-600"
+              }`}
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      )
+    }
+
+    <!-- New Recipe Button (desktop, only when authenticated and showNewRecipeButton is true) -->
+    {
+      user && showNewRecipeButton && (
+        <a
+          href="/recipes/new"
+          class="hidden md:inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-600 bg-green-600 text-white shadow hover:bg-green-700 h-9 px-4 py-2"
+        >
+          <Plus className="h-4 w-4" />
+          Nowy przepis
+        </a>
+      )
+    }
+
+    <!-- Desktop Auth Section -->
+    <div class="hidden md:flex items-center gap-3">
+      {
+        user ? (
+          /* User Menu for authenticated users */
+          <UserMenu user={user} client:load />
+        ) : (
+          /* Auth Buttons for unauthenticated users */
+          <>
+            <button
+              data-auth-action="login"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-gray-300 bg-white shadow-sm hover:border-green-600 hover:text-green-600 h-9 px-4 py-2"
+            >
+              Zaloguj się
+            </button>
+            <button
+              data-auth-action="register"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white shadow hover:bg-green-700 h-9 px-4 py-2"
+            >
+              Zarejestruj się
+            </button>
+          </>
+        )
+      }
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="md:hidden">
+      <MobileNav
+        user={user}
+        navLinks={user ? navLinks : []}
+        currentPath={currentPath}
+        showNewRecipeButton={showNewRecipeButton}
+        client:load
+      />
+    </div>
+  </div>
+</header>
+
+{
+  /* Auth button handlers for unauthenticated users (desktop only) */
+  !user && (
+    <script>
+      /* eslint-disable prettier/prettier */
+      document.addEventListener("DOMContentLoaded", () => {
+        const authButtons = document.querySelectorAll("[data-auth-action]");
+
+        authButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            // TODO: Redirect to actual login/register pages when implemented
+            alert("Ta funkcja będzie wkrótce dostępna");
+          });
+        });
+      });
+    </script>
+  )
+}
+
+<style>
+  /* Smooth scroll behavior for internal links */
+  :global(html) {
+    scroll-behavior: smooth;
+  }
+
+  /* Active link underline animation */
+  nav a {
+    position: relative;
+  }
+
+  nav a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transition: transform 0.2s ease-in-out;
+  }
+
+  nav a:hover::after {
+    transform: scaleX(1);
+  }
+</style>
