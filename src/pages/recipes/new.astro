@@ -1,5 +1,5 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import AppLayout from "@/layouts/AppLayout.astro";
 import RecipeFormWizard from "@/components/recipe-wizard/RecipeFormWizard";
 
 // Disable prerendering for this dynamic route
@@ -30,6 +30,6 @@ const pageTitle = "Nowy przepis - HealthyMeal";
 const pageDescription = "Dodaj nowy przepis do swojej kolekcji";
 ---
 
-<Layout title={pageTitle}>
+<AppLayout title={pageTitle} showNewRecipeButton={false}>
   <RecipeFormWizard mode="create" client:load />
-</Layout>
+</AppLayout>

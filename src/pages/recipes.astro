@@ -1,20 +1,16 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import AppLayout from "@/layouts/AppLayout.astro";
 import RecipeListLayout from "@/components/recipes/RecipeListLayout";
 import type { FavoriteDTO, PaginationDTO } from "@/types";
 
 // ============================================================================
-// AUTHENTICATION CHECK
+// AUTHENTICATION - Handled by AppLayout
 // ============================================================================
 
-// TODO: Production - Uncomment this block for real authentication
-// const { data: { user }, error: authError } = await Astro.locals.supabase.auth.getUser();
-// if (authError || !user) {
-//   return Astro.redirect("/login");
-// }
-// const userId = user.id;
+// Note: Authentication check is now performed in AppLayout
+// AppLayout handles user session and passes it to AppHeader
+// For now, using mock userId for data fetching until full auth is implemented
 
-// MOCK: Remove this in production
 const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 
 // ============================================================================
@@ -55,7 +51,7 @@ try {
 const title = "Moje przepisy - HealthyMeal";
 ---
 
-<Layout title={title}>
+<AppLayout title={title}>
   <!-- Recipe List Layout (client-side rendered with URL state management) -->
   <RecipeListLayout initialFavoriteIds={favoriteRecipeIds} client:load />
-</Layout>
+</AppLayout>

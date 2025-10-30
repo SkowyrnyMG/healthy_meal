@@ -1,5 +1,5 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import AppLayout from "@/layouts/AppLayout.astro";
 import RecipeDetailLayout from "@/components/recipes/detail/RecipeDetailLayout";
 
 // Disable prerendering for this dynamic route
@@ -89,6 +89,6 @@ if (errorStatus === 500 || !recipe) {
 const pageTitle = recipe.title ? `${recipe.title} - HealthyMeal` : "Przepis - HealthyMeal";
 ---
 
-<Layout title={pageTitle}>
+<AppLayout title={pageTitle}>
   <RecipeDetailLayout recipeId={id} initialIsFavorited={isFavorited} client:load />
-</Layout>
+</AppLayout>

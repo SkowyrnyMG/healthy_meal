@@ -1,5 +1,5 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import AppLayout from "@/layouts/AppLayout.astro";
 import RecipeFormWizard from "@/components/recipe-wizard/RecipeFormWizard";
 import type { RecipeDetailDTO } from "@/types";
 
@@ -99,6 +99,6 @@ const pageTitle = `Edytuj: ${recipe.title} - HealthyMeal`;
 const pageDescription = `Edytuj przepis: ${recipe.title}`;
 ---
 
-<Layout title={pageTitle}>
+<AppLayout title={pageTitle} showNewRecipeButton={false}>
   <RecipeFormWizard mode="edit" recipeId={id} initialData={recipe} client:load />
-</Layout>
+</AppLayout>

@@ -1,22 +1,18 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import AppLayout from "@/layouts/AppLayout.astro";
 import { shuffleArray, transformRecipeToCardData, transformFavoriteToCardData } from "@/lib/utils/dashboard";
 import type { RecipeListItemDTO, FavoriteDTO, PaginationDTO } from "@/types";
 import WelcomeBanner from "@/components/WelcomeBanner";
 import DashboardContent from "@/components/DashboardContent";
 
 // ============================================================================
-// AUTHENTICATION CHECK
+// AUTHENTICATION - Handled by AppLayout
 // ============================================================================
 
-// TODO: Production - Uncomment this block for real authentication
-// const { data: { user }, error: authError } = await Astro.locals.supabase.auth.getUser();
-// if (authError || !user) {
-//   return Astro.redirect("/login");
-// }
-// const userId = user.id;
+// Note: Authentication check is now performed in AppLayout
+// AppLayout handles user session and passes it to AppHeader
+// For now, using mock userId for data fetching until full auth is implemented
 
-// MOCK: Remove this in production
 const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 
 // ============================================================================
@@ -152,7 +148,7 @@ const title = "Dashboard - HealthyMeal";
 const description = "Przeglądaj swoje przepisy, ulubione i inspiracje kulinarne";
 ---
 
-<Layout title={title}>
+<AppLayout title={title}>
   <!-- Welcome Banner -->
   <WelcomeBanner userName={userName} client:load />
 
@@ -164,4 +160,4 @@ const description = "Przeglądaj swoje przepisy, ulubione i inspiracje kulinarne
     initialFavoriteIds={favoriteRecipeIds}
     client:load
   />
-</Layout>
+</AppLayout>
