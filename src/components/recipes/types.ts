@@ -291,7 +291,7 @@ export interface AddToCollectionDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (collectionId: string) => Promise<void>;
-  collections: { id: string; name: string; recipeCount: number }[];
+  recipeId: string;
   isLoading: boolean;
 }
 

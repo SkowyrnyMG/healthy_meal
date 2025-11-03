@@ -164,11 +164,38 @@ const RecipeDetailLayout = ({ recipeId, initialIsFavorited }: RecipeDetailLayout
         isOpen={dialogStates.addToCollection}
         onClose={() => closeDialog("addToCollection")}
         onConfirm={async (collectionId) => {
-          // TODO: Implement add to collection API call
-          console.log("Add to collection:", collectionId);
-          closeDialog("addToCollection");
+          try {
+            const response = await fetch(`/api/collections/${collectionId}/recipes`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ recipeId }),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              if (response.status === 409) {
+                throw new Error("Ten przepis jest już w tej kolekcji");
+              }
+              throw new Error(errorData.message || "Nie udało się dodać przepisu do kolekcji");
+            }
+
+            // Show success toast
+            const { toast } = await import("sonner");
+            toast.success("Przepis został dodany do kolekcji");
+
+            // Close dialog
+            closeDialog("addToCollection");
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error("[RecipeDetailLayout] Error adding to collection:", error);
+            const { toast } = await import("sonner");
+            toast.error(error instanceof Error ? error.message : "Wystąpił błąd. Spróbuj ponownie.");
+            throw error; // Re-throw to prevent dialog from closing
+          }
         }}
-        collections={[]}
+        recipeId={recipeId}
         isLoading={actionStates.addToCollection}
       />
     </div>

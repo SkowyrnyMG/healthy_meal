@@ -722,3 +722,43 @@ function mapToCollectionDetailDTO(
     createdAt: collection.created_at,
   };
 }
+
+// ============================================================================
+// GET COLLECTIONS FOR RECIPE
+// ============================================================================
+
+/**
+ * Get all collections that contain a specific recipe for the authenticated user
+ *
+ * Returns a list of collection IDs that contain the specified recipe.
+ * Used to show which collections already have the recipe when adding it to a collection.
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - ID of the authenticated user
+ * @param recipeId - ID of the recipe to check
+ * @returns Array of collection IDs that contain this recipe
+ * @throws Error if database query fails
+ *
+ * @example
+ * const collectionIds = await getCollectionsForRecipe(supabase, "user-123", "recipe-456");
+ * // Returns: ["collection-1", "collection-2"]
+ */
+export async function getCollectionsForRecipe(
+  supabase: SupabaseClient,
+  userId: string,
+  recipeId: string
+): Promise<string[]> {
+  // Query collection_recipes joined with collections to ensure user ownership
+  const { data, error } = await supabase
+    .from("collection_recipes")
+    .select("collection_id, collections!inner(user_id)")
+    .eq("recipe_id", recipeId)
+    .eq("collections.user_id", userId);
+
+  if (error) {
+    throw error;
+  }
+
+  // Extract collection IDs from the result
+  return data ? data.map((item) => item.collection_id) : [];
+}

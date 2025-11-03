@@ -1,0 +1,68 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import CollectionsLayout from "@/components/collections/CollectionsLayout";
+import type { CollectionDTO } from "@/types";
+
+// ============================================================================
+// PAGE CONFIGURATION
+// ============================================================================
+
+const title = "Moje Kolekcje - HealthyMeal";
+
+// ============================================================================
+// AUTHENTICATION & AUTHORIZATION
+// ============================================================================
+
+// Note: Authentication is handled by AppLayout
+// When auth is fully implemented, AppLayout will redirect to /login if not authenticated
+
+// ============================================================================
+// DATA FETCHING
+// ============================================================================
+
+let collections: CollectionDTO[] = [];
+
+try {
+  // Fetch user's collections from API
+  const response = await fetch(`${Astro.url.origin}/api/collections`, {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch collections: ${response.status}`);
+  }
+
+  const data = await response.json();
+  collections = data.collections || [];
+} catch (error) {
+  // Log error for debugging (error is logged but we handle gracefully)
+  // eslint-disable-next-line no-console
+  console.error("[collections.astro] Error fetching collections:", error);
+
+  // Pass empty array to component (will show empty state)
+  collections = [];
+}
+---
+
+<!---
+  Collections List Page
+
+  This page displays the user's recipe collections in a responsive grid layout.
+
+  Features:
+  - Responsive grid layout (1-4 columns)
+  - Create new collection with validation
+  - Edit collection name with conflict detection
+  - Delete collection with confirmation
+  - Empty state with call-to-action
+  - Loading skeletons for initial load
+  - Toast notifications for user feedback
+  - Polish language interface
+
+  Access: Authenticated users only
+-->
+<AppLayout title={title}>
+  <CollectionsLayout initialCollections={collections} client:load />
+</AppLayout>
