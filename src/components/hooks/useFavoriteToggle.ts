@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { toast } from "sonner";
 
 // ============================================================================
 // TYPES
@@ -76,6 +77,73 @@ export const useFavoriteToggle = (options: UseFavoriteToggleOptions): UseFavorit
   const [togglingRecipes, setTogglingRecipes] = useState<Set<string>>(new Set());
 
   /**
+   * Handle undo action for unfavorite
+   * Re-adds the recipe to favorites with optimistic update
+   */
+  const handleUndo = useCallback(
+    async (recipeId: string): Promise<void> => {
+      // Prevent double-toggling
+      if (togglingRecipes.has(recipeId)) {
+        return;
+      }
+
+      // Mark recipe as toggling
+      setTogglingRecipes((prev) => new Set(prev).add(recipeId));
+
+      // Optimistic update - add back to favorites
+      setFavorites((prev) => {
+        const next = new Set(prev);
+        next.add(recipeId);
+        return next;
+      });
+
+      try {
+        // POST /api/favorites
+        const response = await fetch("/api/favorites", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ recipeId }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "Nie udało się przywrócić");
+        }
+
+        // Show success toast
+        toast.success("Przywrócono do ulubionych");
+      } catch (error) {
+        // Rollback optimistic update - remove from favorites again
+        setFavorites((prev) => {
+          const next = new Set(prev);
+          next.delete(recipeId);
+          return next;
+        });
+
+        // Log error
+        // eslint-disable-next-line no-console
+        console.error("[useFavoriteToggle] Undo error:", {
+          recipeId,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+
+        // Show error toast
+        toast.error(error instanceof Error ? error.message : "Nie udało się przywrócić");
+      } finally {
+        // Remove recipe from toggling state
+        setTogglingRecipes((prev) => {
+          const next = new Set(prev);
+          next.delete(recipeId);
+          return next;
+        });
+      }
+    },
+    [togglingRecipes]
+  );
+
+  /**
    * Toggle favorite status for a recipe
    * Implements optimistic UI pattern with rollback on error
    */
@@ -121,15 +189,28 @@ export const useFavoriteToggle = (options: UseFavoriteToggleOptions): UseFavorit
             throw new Error(errorData.message || "Nie udało się dodać do ulubionych");
           }
         } else {
-          // DELETE /api/favorites/{recipeId}
-          const response = await fetch(`/api/favorites/${recipeId}`, {
+          // DELETE /api/favorites
+          const response = await fetch("/api/favorites", {
             method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ recipeId }),
           });
 
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || "Nie udało się usunąć z ulubionych");
           }
+
+          // Show undo toast for unfavorite action
+          toast("Usunięto z ulubionych", {
+            action: {
+              label: "Cofnij",
+              onClick: () => handleUndo(recipeId),
+            },
+            duration: 5000,
+          });
         }
 
         // Success - keep optimistic update
@@ -146,15 +227,16 @@ export const useFavoriteToggle = (options: UseFavoriteToggleOptions): UseFavorit
         });
 
         // Log error
+        // eslint-disable-next-line no-console
         console.error("[useFavoriteToggle] Error:", {
           recipeId,
           action,
           error: error instanceof Error ? error.message : "Unknown error",
         });
 
-        // TODO: Show error toast notification
-        // For now, we'll just log the error
-        // In production, integrate with a toast library (e.g., sonner)
+        // Show error toast notification
+        const errorMessage = error instanceof Error ? error.message : "Wystąpił nieoczekiwany błąd";
+        toast.error(errorMessage);
       } finally {
         // Remove recipe from toggling state
         setTogglingRecipes((prev) => {
@@ -164,7 +246,7 @@ export const useFavoriteToggle = (options: UseFavoriteToggleOptions): UseFavorit
         });
       }
     },
-    [favorites, togglingRecipes]
+    [favorites, togglingRecipes, handleUndo]
   );
 
   /**

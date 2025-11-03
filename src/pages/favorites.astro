@@ -1,0 +1,36 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import FavoritesLayout from "@/components/favorites/FavoritesLayout";
+
+// ============================================================================
+// PAGE CONFIGURATION
+// ============================================================================
+
+const title = "Ulubione przepisy - HealthyMeal";
+
+// ============================================================================
+// AUTHENTICATION & AUTHORIZATION
+// ============================================================================
+
+// Note: Authentication is handled by AppLayout
+// When auth is fully implemented, AppLayout will redirect to /login if not authenticated
+---
+
+<!---
+  Favorites Page
+
+  This page displays the user's favorite recipes in a paginated list format.
+
+  Features:
+  - Paginated list of favorite recipes (20 per page)
+  - Unfavorite with undo functionality
+  - Loading states with skeletons
+  - Empty state with call-to-action
+  - Responsive grid layout
+  - URL-based pagination for shareable links
+
+  Access: Authenticated users only
+-->
+<AppLayout title={title}>
+  <FavoritesLayout client:load />
+</AppLayout>
