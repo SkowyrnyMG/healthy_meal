@@ -33,6 +33,18 @@ interface RecipeCardProps {
    * Whether the favorite toggle is in progress
    */
   isLoading?: boolean;
+
+  /**
+   * Whether to show the author badge ("Publiczny")
+   * Used to distinguish public recipes from user's own recipes
+   */
+  showAuthorBadge?: boolean;
+
+  /**
+   * Whether this is a public view (hides Edit/Delete actions)
+   * In public view, users can only View and Favorite recipes
+   */
+  isPublicView?: boolean;
 }
 
 // ============================================================================
@@ -47,20 +59,43 @@ interface RecipeCardProps {
  * - Calorie badge with color coding (green/yellow/red)
  * - Protein amount and prep time
  * - Primary tag badge (if available)
+ * - Optional author badge for public recipes
  * - Favorite heart button with loading state
  * - Click navigation to recipe detail
+ * - Conditional Edit/Delete actions based on isPublicView
  *
  * @example
  * ```tsx
+ * // My Recipes (default)
  * <RecipeCard
  *   recipe={recipeData}
  *   isFavorited={favorites.has(recipeData.id)}
  *   onFavoriteToggle={toggleFavorite}
  *   isLoading={isTogglingRecipe(recipeData.id)}
  * />
+ *
+ * // Public Recipes
+ * <RecipeCard
+ *   recipe={recipeData}
+ *   isFavorited={favorites.has(recipeData.id)}
+ *   onFavoriteToggle={toggleFavorite}
+ *   isLoading={isTogglingRecipe(recipeData.id)}
+ *   showAuthorBadge={true}
+ *   isPublicView={true}
+ * />
  * ```
  */
-const RecipeCard = ({ recipe, isFavorited, onFavoriteToggle, isLoading = false }: RecipeCardProps) => {
+const RecipeCard = ({
+  recipe,
+  isFavorited,
+  onFavoriteToggle,
+  isLoading = false,
+  showAuthorBadge = false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isPublicView = false, // Reserved for future Edit/Delete menu implementation
+}: RecipeCardProps) => {
+  // Note: isPublicView is currently unused but reserved for when Edit/Delete actions are added
+  // When implemented, it will control visibility of Edit/Delete menu items
   // Generate placeholder colors
   const placeholderBgColor = getRecipePlaceholderColor(recipe.title);
   const placeholderIconColor = getRecipePlaceholderIconColor(placeholderBgColor);
@@ -142,6 +177,15 @@ const RecipeCard = ({ recipe, isFavorited, onFavoriteToggle, isLoading = false }
             <div className="h-4" />
           )}
         </div>
+
+        {/* Author Badge (Public Recipes Only) */}
+        {showAuthorBadge && (
+          <div className="mt-2 flex items-center">
+            <Badge variant="outline" className="text-xs text-green-600 border-green-600">
+              Publiczny
+            </Badge>
+          </div>
+        )}
       </div>
 
       {/* Actions Section - Favorite Button */}

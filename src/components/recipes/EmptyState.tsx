@@ -21,6 +21,12 @@ interface EmptyStateProps {
    * Callback to navigate to add recipe page (for "no-recipes" type)
    */
   onAddRecipe?: () => void;
+
+  /**
+   * Whether this is a public recipes view
+   * Affects messaging to distinguish between user recipes and community recipes
+   */
+  isPublicView?: boolean;
 }
 
 // ============================================================================
@@ -34,13 +40,17 @@ interface EmptyStateProps {
  * - **no-recipes**: User has no recipes at all → Show "Add first recipe" CTA
  * - **no-results**: No recipes match current filters → Show "Clear filters" CTA
  *
+ * Supports both user recipes and public recipes contexts with appropriate messaging.
+ *
  * Features:
  * - Contextual icon (search or empty box)
  * - Clear heading and description
  * - Action button with appropriate callback
+ * - Context-aware messaging (My Recipes vs Public Recipes)
  *
  * @example
  * ```tsx
+ * // My Recipes - no recipes
  * {recipes.length === 0 && activeFilterCount === 0 && (
  *   <EmptyState
  *     type="no-recipes"
@@ -48,27 +58,33 @@ interface EmptyStateProps {
  *   />
  * )}
  *
+ * // Public Recipes - no results from filters
  * {recipes.length === 0 && activeFilterCount > 0 && (
  *   <EmptyState
  *     type="no-results"
  *     onClearFilters={clearFilters}
+ *     isPublicView={true}
  *   />
  * )}
  * ```
  */
-const EmptyState = ({ type, onClearFilters, onAddRecipe }: EmptyStateProps) => {
-  // Determine content based on type
+const EmptyState = ({ type, onClearFilters, onAddRecipe, isPublicView = false }: EmptyStateProps) => {
+  // Determine content based on type and context
   const content = {
     "no-recipes": {
       icon: FileX,
-      heading: "Nie masz jeszcze przepisów",
-      description: "Dodaj swój pierwszy przepis, aby zacząć zarządzać swoją kolekcją.",
+      heading: isPublicView ? "Brak publicznych przepisów w społeczności" : "Nie masz jeszcze przepisów",
+      description: isPublicView
+        ? "Społeczność nie udostępniła jeszcze żadnych przepisów. Sprawdź ponownie później lub dodaj swój pierwszy publiczny przepis."
+        : "Dodaj swój pierwszy przepis, aby zacząć zarządzać swoją kolekcją.",
       buttonText: "+ Dodaj pierwszy przepis",
       onClick: onAddRecipe,
     },
     "no-results": {
       icon: Search,
-      heading: "Nie znaleziono przepisów pasujących do kryteriów",
+      heading: isPublicView
+        ? "Nie znaleziono publicznych przepisów pasujących do kryteriów"
+        : "Nie znaleziono przepisów pasujących do kryteriów",
       description: "Spróbuj zmienić filtry lub wyczyść wszystkie, aby zobaczyć więcej przepisów.",
       buttonText: "Wyczyść filtry",
       onClick: onClearFilters,

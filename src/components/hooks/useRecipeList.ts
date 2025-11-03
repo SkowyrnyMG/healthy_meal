@@ -6,6 +6,18 @@ import type { RecipeFilters, RecipeListItemDTO, PaginationDTO } from "@/types";
 // ============================================================================
 
 /**
+ * Options for the useRecipeList hook
+ */
+export interface UseRecipeListOptions {
+  /**
+   * API endpoint to fetch recipes from
+   * - '/api/recipes': User's own recipes (default)
+   * - '/api/recipes/public': Public recipes from all users
+   */
+  endpoint?: "/api/recipes" | "/api/recipes/public";
+}
+
+/**
  * Return type for the useRecipeList hook
  */
 export interface UseRecipeListReturn {
@@ -82,12 +94,20 @@ function buildQueryString(filters: RecipeFilters): string {
  * - Debouncing for search queries (500ms)
  * - Loading and error state management
  * - Manual refetch capability
+ * - Support for both user recipes and public recipes endpoints
  *
  * @param filters - Current filter state
+ * @param options - Optional configuration (endpoint selection)
  *
  * @example
  * ```tsx
+ * // My Recipes (default)
  * const { recipes, pagination, isLoading, error } = useRecipeList(filters);
+ *
+ * // Public Recipes
+ * const { recipes, pagination, isLoading, error } = useRecipeList(filters, {
+ *   endpoint: '/api/recipes/public'
+ * });
  *
  * if (isLoading) return <LoadingSkeletons />;
  * if (error) return <ErrorMessage message={error} />;
@@ -96,7 +116,9 @@ function buildQueryString(filters: RecipeFilters): string {
  * return <RecipeGrid recipes={recipes} />;
  * ```
  */
-export const useRecipeList = (filters: RecipeFilters): UseRecipeListReturn => {
+export const useRecipeList = (filters: RecipeFilters, options: UseRecipeListOptions = {}): UseRecipeListReturn => {
+  // Extract endpoint from options (default to user recipes)
+  const { endpoint = "/api/recipes" } = options;
   const [recipes, setRecipes] = useState<RecipeListItemDTO[]>([]);
   const [pagination, setPagination] = useState<PaginationDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,7 +139,7 @@ export const useRecipeList = (filters: RecipeFilters): UseRecipeListReturn => {
 
       try {
         const queryString = buildQueryString(currentFilters);
-        const response = await fetch(`/api/recipes?${queryString}`);
+        const response = await fetch(`${endpoint}?${queryString}`);
 
         // Handle authentication errors
         if (response.status === 401) {
@@ -159,7 +181,7 @@ export const useRecipeList = (filters: RecipeFilters): UseRecipeListReturn => {
         setIsLoading(false);
       }
     },
-    [MIN_LOADING_TIME]
+    [endpoint, MIN_LOADING_TIME]
   );
 
   /**

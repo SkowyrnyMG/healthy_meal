@@ -1,0 +1,86 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import RecipeListLayout from "@/components/recipes/RecipeListLayout";
+import type { FavoriteDTO, PaginationDTO } from "@/types";
+
+// ============================================================================
+// AUTHENTICATION - Handled by AppLayout
+// ============================================================================
+
+// Note: Authentication check is now performed in AppLayout
+// AppLayout handles user session and passes it to AppHeader
+// Public recipes are available to all authenticated users
+
+// ============================================================================
+// DATA FETCHING
+// ============================================================================
+
+/**
+ * Fetch initial favorite recipe IDs for optimistic UI updates
+ * This is optional - the client can work without it, but having initial
+ * favorites improves UX by showing correct favorite state immediately
+ */
+let favoriteRecipeIds: string[] = [];
+
+try {
+  const favoritesResponse = await fetch(`${Astro.url.origin}/api/favorites`, {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  });
+
+  if (favoritesResponse.ok) {
+    const data: { favorites: FavoriteDTO[]; pagination: PaginationDTO } = await favoritesResponse.json();
+    favoriteRecipeIds = data.favorites.map((f) => f.recipeId);
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn("[Public Recipes Page] Failed to fetch favorites:", favoritesResponse.status);
+  }
+} catch (error) {
+  // eslint-disable-next-line no-console
+  console.error("[Public Recipes Page] Error fetching favorites:", error);
+  // Continue without favorites - the UI will still work
+}
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+const title = "Publiczne przepisy - HealthyMeal";
+---
+
+<AppLayout title={title}>
+  <!-- Page Header -->
+  <div class="border-b border-gray-200 bg-white px-4 py-6 lg:px-6">
+    <div class="flex items-center gap-3">
+      <!-- Icon -->
+      <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="h-6 w-6 text-green-600"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          <path d="M2 12h20"></path>
+        </svg>
+      </div>
+
+      <!-- Text Content -->
+      <div class="flex-1">
+        <h1 class="text-2xl font-bold text-gray-900">Publiczne przepisy</h1>
+        <p class="mt-1 text-sm text-gray-600">Odkryj przepisy udostępnione przez społeczność HealthyMeal</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recipe List Layout (client-side rendered with URL state management) -->
+  <RecipeListLayout initialFavoriteIds={favoriteRecipeIds} isPublicView={true} client:load />
+</AppLayout>

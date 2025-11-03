@@ -414,7 +414,7 @@ Kryteria akceptacji:
 1.  Po zalogowaniu, system wyświetla spersonalizowane powitanie z imieniem użytkownika.
 2.  Pulpit wyświetla sekcję z ostatnio dodanymi przepisami użytkownika (4-6 przepisów).
 3.  Pulpit wyświetla sekcję z ostatnio polubionymi przepisami (4-6 przepisów).
-4.  Pulpit wyświetla sekcję z losowymi przepisami publicznymi (4-6 przepisów), które odświeżają się przy każdej wizycie.
+4.  Pulpit wyświetla sekcję z losowymi przepisami     publicznymi (4-6 przepisów), które odświeżają się przy każdej wizycie.
 5.  Użytkownik widzi wyraźny przycisk "+ Dodaj przepis" umożliwiający szybkie dodanie nowego przepisu.
 6.  W przypadku braku własnych przepisów lub ulubionych, system wyświetla odpowiednie komunikaty i zachęca do działania (np. "Nie masz jeszcze przepisów", "+ Dodaj pierwszy przepis").
 

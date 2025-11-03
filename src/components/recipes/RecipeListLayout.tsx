@@ -19,6 +19,13 @@ interface RecipeListLayoutProps {
    * Initial set of favorite recipe IDs (from server)
    */
   initialFavoriteIds: string[];
+
+  /**
+   * Whether this is a public recipes view
+   * - true: Displays public recipes from all users
+   * - false (default): Displays user's own recipes
+   */
+  isPublicView?: boolean;
 }
 
 // ============================================================================
@@ -26,7 +33,11 @@ interface RecipeListLayoutProps {
 // ============================================================================
 
 /**
- * RecipeListLayout is the main container component for the My Recipes page
+ * RecipeListLayout is the main container component for recipe list pages
+ *
+ * Supports two modes:
+ * - My Recipes (isPublicView=false): User's own recipes
+ * - Public Recipes (isPublicView=true): Community recipes from all users
  *
  * Features:
  * - Responsive layout with filter sidebar (desktop) or sheet (mobile)
@@ -43,13 +54,21 @@ interface RecipeListLayoutProps {
  *
  * @example
  * ```astro
+ * // My Recipes
  * <RecipeListLayout
  *   initialFavoriteIds={favoriteIds}
  *   client:load
  * />
+ *
+ * // Public Recipes
+ * <RecipeListLayout
+ *   initialFavoriteIds={favoriteIds}
+ *   isPublicView={true}
+ *   client:load
+ * />
  * ```
  */
-const RecipeListLayout = ({ initialFavoriteIds }: RecipeListLayoutProps) => {
+const RecipeListLayout = ({ initialFavoriteIds, isPublicView = false }: RecipeListLayoutProps) => {
   // Initialize hooks
   const {
     filters,
@@ -66,7 +85,9 @@ const RecipeListLayout = ({ initialFavoriteIds }: RecipeListLayoutProps) => {
     toggleFilterPanel,
   } = useRecipeFilters();
 
-  const { recipes, pagination, isLoading, error, refetch } = useRecipeList(filters);
+  const { recipes, pagination, isLoading, error, refetch } = useRecipeList(filters, {
+    endpoint: isPublicView ? "/api/recipes/public" : "/api/recipes",
+  });
 
   const { tags, isLoading: isLoadingTags, error: tagsError } = useTags();
 
@@ -149,8 +170,9 @@ const RecipeListLayout = ({ initialFavoriteIds }: RecipeListLayoutProps) => {
         {!isLoading && !error && recipes.length === 0 && (
           <EmptyState
             type={emptyStateType}
-            onAddRecipe={emptyStateType === "no-recipes" ? handleAddRecipe : undefined}
+            onAddRecipe={emptyStateType === "no-recipes" && !isPublicView ? handleAddRecipe : undefined}
             onClearFilters={emptyStateType === "no-results" ? handleClearFilters : undefined}
+            isPublicView={isPublicView}
           />
         )}
 
@@ -162,6 +184,8 @@ const RecipeListLayout = ({ initialFavoriteIds }: RecipeListLayoutProps) => {
               favoriteRecipeIds={favorites}
               onFavoriteToggle={toggleFavorite}
               isTogglingRecipe={isTogglingRecipe}
+              showAuthorBadge={isPublicView}
+              isPublicView={isPublicView}
             />
 
             {/* Pagination */}
