@@ -123,14 +123,10 @@
     background: linear-gradient(
       135deg,
       #fefefe 0%,
-      /* almost white */
-      #fafdf9 25%,
-      /* very subtle green tint */
-      #f7fcf5 50%,
-      /* barely visible green */
-      #fafdf9 75%,
-      /* very subtle green tint */
-      #fefefe 100% /* almost white */
+      /* almost white */ #fafdf9 25%,
+      /* very subtle green tint */ #f7fcf5 50%,
+      /* barely visible green */ #fafdf9 75%,
+      /* very subtle green tint */ #fefefe 100% /* almost white */
     );
     background-attachment: fixed;
     background-size: 400% 400%;
@@ -161,14 +157,10 @@
     background: linear-gradient(
       135deg,
       #0f0f0f 0%,
-      /* very dark */
-      #0f1210 25%,
-      /* barely visible green tint */
-      #0e1410 50%,
-      /* subtle dark green */
-      #0f1210 75%,
-      /* barely visible green tint */
-      #0f0f0f 100% /* very dark */
+      /* very dark */ #0f1210 25%,
+      /* barely visible green tint */ #0e1410 50%,
+      /* subtle dark green */ #0f1210 75%,
+      /* barely visible green tint */ #0f0f0f 100% /* very dark */
     );
     background-attachment: fixed;
     background-size: 400% 400%;

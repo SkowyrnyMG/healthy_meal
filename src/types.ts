@@ -787,3 +787,96 @@ export interface CreateTagResponse {
   success: boolean;
   tag: TagDTO;
 }
+
+// ============================================================================
+// PROFILE SETTINGS VIEW TYPES
+// ============================================================================
+
+/**
+ * Settings section identifiers
+ */
+export type SettingsSection = "basic-info" | "dietary-preferences" | "allergens" | "disliked-ingredients" | "account";
+
+/**
+ * Gender options for profile
+ */
+export type Gender = "male" | "female";
+
+/**
+ * Activity level options for profile
+ */
+export type ActivityLevel = "sedentary" | "lightly_active" | "moderately_active" | "very_active" | "extremely_active";
+
+/**
+ * Diet type options for profile
+ */
+export type DietType = "high_protein" | "keto" | "vegetarian" | "weight_gain" | "weight_loss" | "balanced";
+
+/**
+ * Target goal options for profile
+ */
+export type TargetGoal = "lose_weight" | "gain_weight" | "maintain_weight";
+
+/**
+ * Basic info form data
+ */
+export interface BasicInfoFormData {
+  weight: number | null;
+  age: number | null;
+  gender: Gender | null;
+  activityLevel: ActivityLevel | null;
+}
+
+/**
+ * Basic info form validation errors
+ */
+export interface BasicInfoFormErrors {
+  weight?: string;
+  age?: string;
+  gender?: string;
+  activityLevel?: string;
+}
+
+/**
+ * Dietary preferences form data
+ */
+export interface DietaryPreferencesFormData {
+  dietType: DietType | null;
+  targetGoal: TargetGoal | null;
+  targetValue: number | null;
+}
+
+/**
+ * Dietary preferences form validation errors
+ */
+export interface DietaryPreferencesFormErrors {
+  dietType?: string;
+  targetGoal?: string;
+  targetValue?: string;
+}
+
+/**
+ * Complete profile settings state
+ */
+export interface ProfileSettingsState {
+  // Data
+  profile: ProfileDTO | null;
+  allAllergens: AllergenDTO[];
+  userAllergens: UserAllergenDTO[];
+  dislikedIngredients: DislikedIngredientDTO[];
+
+  // Loading states
+  isLoadingProfile: boolean;
+  isLoadingAllergens: boolean;
+  isLoadingDislikedIngredients: boolean;
+
+  // Saving states
+  isSavingBasicInfo: boolean;
+  isSavingDietaryPreferences: boolean;
+  isSavingAllergens: boolean;
+  isAddingIngredient: boolean;
+  removingIngredientId: string | null;
+
+  // Error states
+  error: string | null;
+}

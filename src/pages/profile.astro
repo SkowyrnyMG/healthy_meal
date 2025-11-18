@@ -1,0 +1,10 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import ProfileSettingsLayout from "@/components/profile/ProfileSettingsLayout";
+
+const title = "Ustawienia profilu - HealthyMeal";
+---
+
+<AppLayout title={title}>
+  <ProfileSettingsLayout client:load />
+</AppLayout>
