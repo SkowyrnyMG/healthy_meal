@@ -45,6 +45,27 @@ interface RecipeCardProps {
    * In public view, users can only View and Favorite recipes
    */
   isPublicView?: boolean;
+
+  /**
+   * Whether this card is displayed in a collection view
+   * Shows "Remove from collection" action
+   */
+  isCollectionView?: boolean;
+
+  /**
+   * Collection UUID (required when isCollectionView=true)
+   */
+  collectionId?: string;
+
+  /**
+   * Collection name (required when isCollectionView=true)
+   */
+  collectionName?: string;
+
+  /**
+   * Callback when "Remove from collection" is clicked
+   */
+  onRemoveFromCollection?: () => void;
 }
 
 // ============================================================================
@@ -93,6 +114,12 @@ const RecipeCard = ({
   showAuthorBadge = false,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isPublicView = false, // Reserved for future Edit/Delete menu implementation
+  isCollectionView = false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  collectionId,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  collectionName,
+  onRemoveFromCollection,
 }: RecipeCardProps) => {
   // Note: isPublicView is currently unused but reserved for when Edit/Delete actions are added
   // When implemented, it will control visibility of Edit/Delete menu items
@@ -112,6 +139,14 @@ const RecipeCard = ({
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     await onFavoriteToggle(recipe.id);
+  };
+
+  // Handle remove from collection - prevent event bubbling
+  const handleRemoveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRemoveFromCollection) {
+      onRemoveFromCollection();
+    }
   };
 
   return (
@@ -184,6 +219,21 @@ const RecipeCard = ({
             <Badge variant="outline" className="text-xs text-green-600 border-green-600">
               Publiczny
             </Badge>
+          </div>
+        )}
+
+        {/* Remove from Collection Button (Collection View Only) */}
+        {isCollectionView && (
+          <div className="mt-auto pt-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={handleRemoveClick}
+              disabled={isLoading}
+            >
+              Usuń z kolekcji
+            </Button>
           </div>
         )}
       </div>
