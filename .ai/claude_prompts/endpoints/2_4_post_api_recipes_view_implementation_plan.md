@@ -5,6 +5,7 @@
 The POST /api/recipes endpoint allows authenticated users to create new recipes in the HealthyMeal application. Users can submit recipe details including title, description, ingredients, preparation steps, nutritional information, servings, preparation time, visibility status, and associated tags. The endpoint validates all inputs, stores the recipe in the database with proper user association, links it to specified tags, and returns the complete recipe details including auto-generated fields (id, timestamps, featured status).
 
 **Key Features:**
+
 - Authenticated user recipe creation
 - Comprehensive input validation with Zod
 - Support for multiple ingredients and preparation steps
@@ -23,6 +24,7 @@ The POST /api/recipes endpoint allows authenticated users to create new recipes 
 ### Parameters
 
 **Required:**
+
 - `title` (string): Recipe title, 1-255 characters
 - `ingredients` (array): Array of ingredient objects, min 1 item, max 100 items
   - `name` (string): Ingredient name, 1-255 characters
@@ -41,6 +43,7 @@ The POST /api/recipes endpoint allows authenticated users to create new recipes 
   - `salt` (number): Salt in grams, 0-100
 
 **Optional:**
+
 - `description` (string): Recipe description, max 5000 characters
 - `prepTimeMinutes` (number): Preparation time in minutes, integer > 0, max 1440 (24 hours)
 - `isPublic` (boolean): Recipe visibility, default: false
@@ -94,24 +97,29 @@ The POST /api/recipes endpoint allows authenticated users to create new recipes 
 ### DTOs (from src/types.ts)
 
 **Request Payload:**
+
 - `CreateRecipeCommand` (lines 489-499): Represents the request body structure
 
 **Response:**
+
 - `RecipeDetailDTO` (lines 121-136): Complete recipe information with tags
 - `TagDTO` (lines 58-63): Tag information included in response
 
 **Nested Structures:**
+
 - `RecipeIngredientDTO` (lines 72-76): Ingredient structure
 - `RecipeStepDTO` (lines 81-84): Preparation step structure
 - `NutritionDTO` (lines 89-96): Nutritional information structure
 
 **Database Types:**
+
 - `DbRecipeInsert` (line 600): Database insertion type for recipes table
 - `DbRecipeTagInsert` (line 604): Database insertion type for recipe_tags junction table
 
 ### New Validation Schema
 
 **CreateRecipeCommandSchema** (to be created with Zod):
+
 - Validates all request body fields according to specification
 - Enforces constraints on string lengths, numeric ranges, array sizes
 - Validates nested objects and arrays
@@ -186,6 +194,7 @@ The POST /api/recipes endpoint allows authenticated users to create new recipes 
 ### Error Responses
 
 **400 Bad Request** - Validation Failed
+
 ```json
 {
   "error": "Bad Request",
@@ -194,6 +203,7 @@ The POST /api/recipes endpoint allows authenticated users to create new recipes 
 ```
 
 **401 Unauthorized** - Authentication Required
+
 ```json
 {
   "error": "Unauthorized",
@@ -202,6 +212,7 @@ The POST /api/recipes endpoint allows authenticated users to create new recipes 
 ```
 
 **500 Internal Server Error** - Server Error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -252,6 +263,7 @@ Return 201 Response
 ### Database Interactions
 
 **Tables Involved:**
+
 1. `recipes` - Main recipe storage
    - INSERT operation with user_id, title, description, ingredients (JSON), steps (JSON), servings, nutrition_per_serving (JSON), prep_time_minutes, is_public, featured (default false)
 
@@ -262,11 +274,13 @@ Return 201 Response
    - SELECT to verify tagIds exist
 
 **Relationships:**
+
 - `recipes.user_id` → `profiles.user_id` (CASCADE on delete)
 - `recipe_tags.recipe_id` → `recipes.id` (CASCADE on delete)
 - `recipe_tags.tag_id` → `tags.id` (RESTRICT on delete)
 
 **Transaction Flow:**
+
 1. Begin transaction (implicit with Supabase)
 2. Insert recipe record → get recipe.id
 3. If tagIds provided: Insert recipe_tags records
@@ -278,11 +292,13 @@ Return 201 Response
 ### Authentication & Authorization
 
 **Authentication:**
+
 - Verify user authentication via `context.locals.supabase.auth.getUser()`
 - Return 401 if not authenticated or auth error occurs
 - Development: Use mock user ID with TODO comment for production
 
 **Authorization:**
+
 - Users can only create recipes for themselves (userId from auth, not request)
 - Recipe ownership is enforced at creation time
 - Supabase Row Level Security (RLS) policies provide additional layer
@@ -290,6 +306,7 @@ Return 201 Response
 ### Input Validation & Sanitization
 
 **Zod Schema Validation:**
+
 - Validate all required fields are present
 - Enforce string length constraints (prevent buffer overflow)
 - Validate numeric ranges (prevent invalid data)
@@ -301,10 +318,12 @@ Return 201 Response
   - Max 50 tags
 
 **SQL Injection Protection:**
+
 - Supabase SDK uses parameterized queries (automatic protection)
 - No raw SQL construction with user input
 
 **XSS Protection:**
+
 - JSON responses are automatically escaped by browser
 - Input validation ensures data type correctness
 - String fields validated for length and content
@@ -312,20 +331,24 @@ Return 201 Response
 ### Data Integrity
 
 **Foreign Key Validation:**
+
 - Verify tagIds reference existing tags before insertion
 - Handle non-existent tag references gracefully (return 400)
 
 **User Association:**
+
 - Set userId from authenticated session (never from request body)
 - Prevents users from creating recipes for other users
 
 **Default Values:**
+
 - `isPublic`: default false (secure by default - private recipes)
 - `featured`: default false (only admins can feature recipes)
 
 ### Rate Limiting & Resource Protection
 
 **Recommendations (not implemented in endpoint, handle at infrastructure level):**
+
 - Rate limit recipe creation per user (e.g., 10 per hour)
 - Implement max request size limits (e.g., 1MB)
 - Monitor for abuse patterns
@@ -337,6 +360,7 @@ Return 201 Response
 #### 400 Bad Request
 
 **Validation Errors:**
+
 - Missing required fields (title, ingredients, steps, servings, nutritionPerServing)
 - Invalid data types (e.g., string for numeric field)
 - Out-of-range values (e.g., negative servings, calories > 10000)
@@ -347,10 +371,12 @@ Return 201 Response
 - Invalid UUID format in tagIds
 
 **Business Logic Errors:**
+
 - Referenced tagIds don't exist in tags table
 - Array size limits exceeded (>100 ingredients, >100 steps, >50 tags)
 
 **Response Format:**
+
 ```json
 {
   "error": "Bad Request",
@@ -359,6 +385,7 @@ Return 201 Response
 ```
 
 **Handling:**
+
 - Catch `z.ZodError` exceptions
 - Return first error message from Zod errors array
 - Log full error details for debugging
@@ -367,12 +394,14 @@ Return 201 Response
 #### 401 Unauthorized
 
 **Authentication Errors:**
+
 - No authentication token provided
 - Invalid authentication token
 - Expired authentication token
 - Supabase auth service error
 
 **Response Format:**
+
 ```json
 {
   "error": "Unauthorized",
@@ -388,6 +417,7 @@ const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 ```
 
 **Handling:**
+
 - Check for authError from `supabase.auth.getUser()` (mock for development)
 - Check if user object is null
 - Return 401 immediately without processing request
@@ -396,6 +426,7 @@ const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 #### 500 Internal Server Error
 
 **Database Errors:**
+
 - Recipe insertion fails
 - Recipe-tag association insertion fails
 - Database connection errors
@@ -403,12 +434,14 @@ const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 - Query fetch errors
 
 **Application Errors:**
+
 - Unexpected runtime errors
 - Service layer exceptions
 - JSON parsing errors (malformed request body)
 - Supabase SDK errors
 
 **Response Format:**
+
 ```json
 {
   "error": "Internal Server Error",
@@ -417,6 +450,7 @@ const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 ```
 
 **Handling:**
+
 - Catch all unexpected errors in try-catch block
 - Log full error details (message, stack trace, context)
 - Return generic error message (don't leak internal details)
@@ -425,13 +459,14 @@ const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
   console.error("[POST /api/recipes] Error:", {
     error: error instanceof Error ? error.message : "Unknown error",
     stack: error instanceof Error ? error.stack : undefined,
-    userId: userId // if available
+    userId: userId, // if available
   });
   ```
 
 ### Error Logging Strategy
 
 **Log Structure:**
+
 - Prefix with endpoint path: `[POST /api/recipes]`
 - Include error type and message
 - Include stack trace for debugging
@@ -439,11 +474,12 @@ const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 - Don't log sensitive data (passwords, tokens)
 
 **Example:**
+
 ```javascript
 console.error("[POST /api/recipes] Error:", {
   error: error instanceof Error ? error.message : "Unknown error",
   stack: error instanceof Error ? error.stack : undefined,
-  userId: userId
+  userId: userId,
 });
 ```
 
@@ -452,17 +488,20 @@ console.error("[POST /api/recipes] Error:", {
 ### Database Performance
 
 **Query Optimization:**
+
 - Use single INSERT for recipe creation (not multiple queries)
 - Batch insert recipe_tags associations if multiple tags provided
 - Use efficient JOIN query to fetch complete recipe with tags after creation
 - Leverage database indexes (id, user_id already indexed)
 
 **Transaction Management:**
+
 - Keep transaction scope minimal (insert recipe + insert tags only)
 - Supabase handles transactions implicitly
 - Avoid long-running operations within transaction
 
 **Potential Bottlenecks:**
+
 - Large JSON fields (ingredients, steps arrays) - mitigated by array size limits
 - Multiple tag associations - limited to 50 tags
 - Tag validation query - use single query with IN clause
@@ -470,31 +509,37 @@ console.error("[POST /api/recipes] Error:", {
 ### API Performance
 
 **Response Time:**
+
 - Target: < 500ms for typical recipe creation
 - Expected: ~200-300ms for recipe with 10-20 ingredients
 
 **Payload Size:**
+
 - Request: Typically 5-50KB (with array limits, max ~200KB)
 - Response: Similar to request + additional fields (timestamps, ids, tags)
 
 **Caching:**
+
 - Not applicable for POST operations (cache invalidation only)
 - Consider invalidating GET /api/recipes cache after creation
 
 ### Optimization Strategies
 
 **Immediate Optimizations:**
+
 - Validate tagIds in single query (use `IN` clause): `SELECT id FROM tags WHERE id IN ($1, $2, ...)`
 - Use Supabase batch operations for recipe_tags insertion if supported
 - Minimize data fetching - only fetch necessary fields for response
 
 **Future Optimizations:**
+
 - Implement async tag validation (if performance becomes issue)
 - Consider denormalizing tag count on recipes table
 - Add database index on recipe_tags (recipe_id, tag_id) for faster lookups
 - Implement connection pooling for database (if not already configured)
 
 **Monitoring:**
+
 - Track recipe creation success/failure rates
 - Monitor average response times
 - Alert on error rate spikes
@@ -507,6 +552,7 @@ console.error("[POST /api/recipes] Error:", {
 **File**: `src/pages/api/recipes.ts`
 
 **Tasks:**
+
 1. Add Zod validation schema for `CreateRecipeCommand` at top of file (after imports, before existing schemas)
 2. Define nested schemas for `RecipeIngredientDTO`, `RecipeStepDTO`, `NutritionDTO`
 3. Implement custom validation for step numbers (sequential, starting from 1)
@@ -517,16 +563,17 @@ console.error("[POST /api/recipes] Error:", {
 5. Define type inference: `type ValidatedCreateRecipeCommand = z.infer<typeof CreateRecipeCommandSchema>`
 
 **Example Schema Structure:**
+
 ```typescript
 const RecipeIngredientSchema = z.object({
   name: z.string().trim().min(1).max(255),
   amount: z.number().positive(),
-  unit: z.string().trim().min(1).max(50)
+  unit: z.string().trim().min(1).max(50),
 });
 
 const RecipeStepSchema = z.object({
   stepNumber: z.number().int().positive(),
-  instruction: z.string().trim().min(1).max(2000)
+  instruction: z.string().trim().min(1).max(2000),
 });
 
 const NutritionSchema = z.object({
@@ -535,24 +582,30 @@ const NutritionSchema = z.object({
   fat: z.number().min(0).max(1000),
   carbs: z.number().min(0).max(1000),
   fiber: z.number().min(0).max(1000),
-  salt: z.number().min(0).max(100)
+  salt: z.number().min(0).max(100),
 });
 
 const CreateRecipeCommandSchema = z.object({
   title: z.string().trim().min(1).max(255),
   description: z.string().trim().max(5000).optional(),
   ingredients: z.array(RecipeIngredientSchema).min(1).max(100),
-  steps: z.array(RecipeStepSchema).min(1).max(100)
-    .refine((steps) => {
-      // Validate step numbers are sequential starting from 1
-      const sorted = [...steps].sort((a, b) => a.stepNumber - b.stepNumber);
-      return sorted.every((step, idx) => step.stepNumber === idx + 1);
-    }, { message: "Step numbers must be sequential starting from 1" }),
+  steps: z
+    .array(RecipeStepSchema)
+    .min(1)
+    .max(100)
+    .refine(
+      (steps) => {
+        // Validate step numbers are sequential starting from 1
+        const sorted = [...steps].sort((a, b) => a.stepNumber - b.stepNumber);
+        return sorted.every((step, idx) => step.stepNumber === idx + 1);
+      },
+      { message: "Step numbers must be sequential starting from 1" }
+    ),
   servings: z.number().int().positive(),
   nutritionPerServing: NutritionSchema,
   prepTimeMinutes: z.number().int().positive().max(1440).optional(),
   isPublic: z.boolean().optional().default(false),
-  tagIds: z.array(z.string().uuid()).max(50).optional()
+  tagIds: z.array(z.string().uuid()).max(50).optional(),
 });
 ```
 
@@ -561,6 +614,7 @@ const CreateRecipeCommandSchema = z.object({
 **File**: `src/lib/services/recipe.service.ts`
 
 **Tasks:**
+
 1. Add `createRecipe` function with signature: `createRecipe(supabase: SupabaseClient, userId: string, command: CreateRecipeCommand): Promise<RecipeDetailDTO>`
 2. Import necessary types: `CreateRecipeCommand`, `RecipeDetailDTO`, `DbRecipeInsert`, `DbRecipeTagInsert`, `TagDTO`
 3. Implement tag validation logic (if tagIds provided)
@@ -573,13 +627,11 @@ const CreateRecipeCommandSchema = z.object({
 **Detailed Implementation Steps:**
 
 **2.1 Tag Validation:**
+
 ```typescript
 // If tagIds provided, validate they exist
 if (command.tagIds && command.tagIds.length > 0) {
-  const { data: existingTags, error: tagError } = await supabase
-    .from("tags")
-    .select("id")
-    .in("id", command.tagIds);
+  const { data: existingTags, error: tagError } = await supabase.from("tags").select("id").in("id", command.tagIds);
 
   if (tagError) {
     throw tagError;
@@ -592,6 +644,7 @@ if (command.tagIds && command.tagIds.length > 0) {
 ```
 
 **2.2 Recipe Insertion:**
+
 ```typescript
 const recipeInsert: DbRecipeInsert = {
   user_id: userId,
@@ -603,14 +656,10 @@ const recipeInsert: DbRecipeInsert = {
   nutrition_per_serving: command.nutritionPerServing as any, // JSONB field
   prep_time_minutes: command.prepTimeMinutes || null,
   is_public: command.isPublic ?? false,
-  featured: false // Default value
+  featured: false, // Default value
 };
 
-const { data: recipe, error: recipeError } = await supabase
-  .from("recipes")
-  .insert(recipeInsert)
-  .select()
-  .single();
+const { data: recipe, error: recipeError } = await supabase.from("recipes").insert(recipeInsert).select().single();
 
 if (recipeError || !recipe) {
   throw recipeError || new Error("Failed to create recipe");
@@ -618,16 +667,15 @@ if (recipeError || !recipe) {
 ```
 
 **2.3 Recipe-Tag Associations:**
+
 ```typescript
 if (command.tagIds && command.tagIds.length > 0) {
-  const recipeTagInserts: DbRecipeTagInsert[] = command.tagIds.map(tagId => ({
+  const recipeTagInserts: DbRecipeTagInsert[] = command.tagIds.map((tagId) => ({
     recipe_id: recipe.id,
-    tag_id: tagId
+    tag_id: tagId,
   }));
 
-  const { error: tagAssocError } = await supabase
-    .from("recipe_tags")
-    .insert(recipeTagInserts);
+  const { error: tagAssocError } = await supabase.from("recipe_tags").insert(recipeTagInserts);
 
   if (tagAssocError) {
     throw tagAssocError;
@@ -636,10 +684,12 @@ if (command.tagIds && command.tagIds.length > 0) {
 ```
 
 **2.4 Fetch Complete Recipe with Tags:**
+
 ```typescript
 const { data: completeRecipe, error: fetchError } = await supabase
   .from("recipes")
-  .select(`
+  .select(
+    `
     id,
     user_id,
     title,
@@ -662,7 +712,8 @@ const { data: completeRecipe, error: fetchError } = await supabase
         created_at
       )
     )
-  `)
+  `
+  )
   .eq("id", recipe.id)
   .single();
 
@@ -672,22 +723,25 @@ if (fetchError || !completeRecipe) {
 ```
 
 **2.5 Map to RecipeDetailDTO:**
+
 ```typescript
 return mapToRecipeDetailDTO(completeRecipe);
 ```
 
 **2.6 Helper Function:**
+
 ```typescript
 // Add helper function to map database result to RecipeDetailDTO
 function mapToRecipeDetailDTO(dbRecipe: any): RecipeDetailDTO {
-  const tags: TagDTO[] = dbRecipe.recipe_tags
-    ?.filter((rt: any) => rt.tags !== null)
-    .map((rt: any) => ({
-      id: rt.tags.id,
-      name: rt.tags.name,
-      slug: rt.tags.slug,
-      createdAt: rt.tags.created_at
-    })) || [];
+  const tags: TagDTO[] =
+    dbRecipe.recipe_tags
+      ?.filter((rt: any) => rt.tags !== null)
+      .map((rt: any) => ({
+        id: rt.tags.id,
+        name: rt.tags.name,
+        slug: rt.tags.slug,
+        createdAt: rt.tags.created_at,
+      })) || [];
 
   return {
     id: dbRecipe.id,
@@ -703,7 +757,7 @@ function mapToRecipeDetailDTO(dbRecipe: any): RecipeDetailDTO {
     featured: dbRecipe.featured,
     tags,
     createdAt: dbRecipe.created_at,
-    updatedAt: dbRecipe.updated_at
+    updatedAt: dbRecipe.updated_at,
   };
 }
 ```
@@ -713,6 +767,7 @@ function mapToRecipeDetailDTO(dbRecipe: any): RecipeDetailDTO {
 **File**: `src/pages/api/recipes.ts`
 
 **Tasks:**
+
 1. Add POST function export to existing file (after GET handler)
 2. Implement authentication check using `context.locals.supabase.auth.getUser()`
 3. Parse and validate request body with `CreateRecipeCommandSchema`
@@ -768,7 +823,7 @@ export const POST: APIRoute = async (context) => {
       return new Response(
         JSON.stringify({
           error: "Bad Request",
-          message: "Invalid JSON in request body"
+          message: "Invalid JSON in request body",
         }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
@@ -782,7 +837,7 @@ export const POST: APIRoute = async (context) => {
         return new Response(
           JSON.stringify({
             error: "Bad Request",
-            message: error.errors[0].message
+            message: error.errors[0].message,
           }),
           { status: 400, headers: { "Content-Type": "application/json" } }
         );
@@ -794,31 +849,26 @@ export const POST: APIRoute = async (context) => {
     // CREATE RECIPE
     // ========================================
 
-    const recipe = await createRecipe(
-      context.locals.supabase,
-      userId,
-      validatedCommand
-    );
+    const recipe = await createRecipe(context.locals.supabase, userId, validatedCommand);
 
     // Success response
     return new Response(
       JSON.stringify({
         success: true,
-        recipe
+        recipe,
       }),
       {
         status: 201,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       }
     );
-
   } catch (error) {
     // Handle business logic errors (e.g., invalid tagIds)
     if (error instanceof Error && error.message.includes("tag IDs are invalid")) {
       return new Response(
         JSON.stringify({
           error: "Bad Request",
-          message: error.message
+          message: error.message,
         }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
@@ -828,18 +878,18 @@ export const POST: APIRoute = async (context) => {
     console.error("[POST /api/recipes] Error:", {
       error: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined,
-      userId: userId
+      userId: userId,
     });
 
     // Return generic error response
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",
-        message: "An unexpected error occurred"
+        message: "An unexpected error occurred",
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
@@ -898,12 +948,14 @@ export const POST: APIRoute = async (context) => {
    - Verify recipes can be retrieved via GET /api/recipes
 
 **Test Tools:**
+
 - Use Postman, Insomnia, or curl for API testing
 - Use Supabase dashboard to verify database state
 
 ### Step 5: Update Documentation and Review
 
 **Tasks:**
+
 1. Add JSDoc comments to service function
 2. Review error handling completeness
 3. Verify all validation constraints match specification
@@ -914,6 +966,7 @@ export const POST: APIRoute = async (context) => {
 8. Consider adding integration tests for API endpoint (future improvement)
 
 **Code Review Checklist:**
+
 - [ ] Authentication implemented correctly
 - [ ] All required fields validated
 - [ ] All optional fields handled with defaults

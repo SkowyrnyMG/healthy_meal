@@ -50,7 +50,7 @@ Before we begin, review the following information:
 **Error Responses**:
 
 - 401 Unauthorized: Not authenticated
-</route_api_specification>
+  </route_api_specification>
 
 2. Related database resources:
    <related_db_resources>

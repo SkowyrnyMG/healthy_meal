@@ -4,6 +4,7 @@ Before we begin, review the following information:
 
 1. Route API specification:
    <route_api_specification>
+
 #### POST /api/collections/{collectionId}/recipes
 
 **Description**: Add recipe to collection
@@ -41,7 +42,7 @@ Before we begin, review the following information:
 - 403 Forbidden: Collection belongs to another user
 - 404 Not Found: Collection or recipe not found
 - 409 Conflict: Recipe already in collection
-</route_api_specification>
+  </route_api_specification>
 
 2. Related database resources:
    <related_db_resources>
@@ -51,6 +52,7 @@ Before we begin, review the following information:
 ### User → Profile (1:1)
 
 - `profiles.user_id` → `auth.users.id` (CASCADE on delete)
+
 ### User ↔ Allergens (M:M via user_allergens)
 
 - `user_allergens.user_id` → `profiles.user_id` (CASCADE on delete)

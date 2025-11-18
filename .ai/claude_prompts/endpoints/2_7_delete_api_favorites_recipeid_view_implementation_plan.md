@@ -5,6 +5,7 @@
 This endpoint allows authenticated users to remove a recipe from their favorites list. The operation is idempotent-like in behavior - attempting to remove a recipe that is not in favorites returns a 404 error. The endpoint implements proper authorization checks to ensure users can only remove favorites from their own list and validates recipe accessibility before performing the deletion.
 
 **Key Features:**
+
 - Removes a specific recipe from the authenticated user's favorites
 - Validates recipe exists and is accessible (public or user-owned)
 - Returns 204 No Content on successful deletion
@@ -36,7 +37,7 @@ DELETE /api/favorites/invalid-id
 
 ```typescript
 const RecipeIdParamSchema = z.object({
-  recipeId: z.string().uuid("Invalid recipe ID format")
+  recipeId: z.string().uuid("Invalid recipe ID format"),
 });
 
 type ValidatedRecipeIdParam = z.infer<typeof RecipeIdParamSchema>;
@@ -58,6 +59,7 @@ class RecipeNotInFavoritesError extends Error
 ## 4. Response Details
 
 ### Success Response (204 No Content)
+
 ```
 Status: 204 No Content
 Body: null
@@ -66,6 +68,7 @@ Body: null
 ### Error Responses
 
 **400 Bad Request** - Invalid recipeId format
+
 ```json
 {
   "error": "Bad Request",
@@ -74,6 +77,7 @@ Body: null
 ```
 
 **401 Unauthorized** - Not authenticated (production only)
+
 ```json
 {
   "error": "Unauthorized",
@@ -82,6 +86,7 @@ Body: null
 ```
 
 **403 Forbidden** - Recipe is private and belongs to another user
+
 ```json
 {
   "error": "Forbidden",
@@ -90,6 +95,7 @@ Body: null
 ```
 
 **404 Not Found** - Recipe not found
+
 ```json
 {
   "error": "Not Found",
@@ -98,6 +104,7 @@ Body: null
 ```
 
 **404 Not Found** - Recipe not in favorites
+
 ```json
 {
   "error": "Not Found",
@@ -106,6 +113,7 @@ Body: null
 ```
 
 **500 Internal Server Error** - Unexpected error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -116,6 +124,7 @@ Body: null
 ## 5. Data Flow
 
 ### Request Flow
+
 1. **Authentication** (Mock for development)
    - Extract user from Supabase auth session
    - Development: Use hardcoded userId `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
@@ -141,6 +150,7 @@ Body: null
 ### Database Interactions
 
 **Query 1: Check Recipe Existence and Accessibility**
+
 ```sql
 SELECT id, user_id, is_public
 FROM recipes
@@ -148,6 +158,7 @@ WHERE id = {recipeId}
 ```
 
 **Query 2: Check Favorite Existence**
+
 ```sql
 SELECT user_id, recipe_id
 FROM favorites
@@ -155,6 +166,7 @@ WHERE user_id = {userId} AND recipe_id = {recipeId}
 ```
 
 **Query 3: Delete Favorite**
+
 ```sql
 DELETE FROM favorites
 WHERE user_id = {userId} AND recipe_id = {recipeId}
@@ -163,6 +175,7 @@ WHERE user_id = {userId} AND recipe_id = {recipeId}
 ### Service Layer Logic
 
 The service function `removeRecipeFromFavorites` will:
+
 1. Query recipes table to verify recipe exists and get accessibility info
 2. Throw `RecipeNotFoundError` if recipe doesn't exist
 3. Check accessibility: `recipe.is_public || recipe.user_id === userId`
@@ -175,6 +188,7 @@ The service function `removeRecipeFromFavorites` will:
 ## 6. Security Considerations
 
 ### Authentication & Authorization
+
 - **Authentication**: Verify user is logged in via Supabase auth (mocked in development)
 - **IDOR Protection**: Service verifies the favorite belongs to the authenticated user
 - **Access Control**: Recipe accessibility check prevents enumeration of private recipes
@@ -182,16 +196,19 @@ The service function `removeRecipeFromFavorites` will:
   - This matches the POST /api/favorites behavior for consistency
 
 ### Input Validation
+
 - **UUID Validation**: Zod schema validates recipeId is proper UUID format
 - **Prevents Injection**: UUID validation prevents SQL injection attempts
 - **Type Safety**: TypeScript + Zod ensure type-safe parameter handling
 
 ### Information Leakage Prevention
+
 - **Consistent Error Messages**: Use generic 404 messages to prevent information disclosure
 - **Access Control Before Operations**: Check accessibility before revealing favorite status
 - **No Enumeration**: Cannot determine if private recipes exist by trying to unfavorite them
 
 ### Best Practices
+
 - Use parameterized queries via Supabase client (prevents SQL injection)
 - Validate all inputs at API boundary
 - Implement proper error logging without exposing sensitive data
@@ -200,24 +217,28 @@ The service function `removeRecipeFromFavorites` will:
 ## 7. Error Handling
 
 ### Validation Errors (400 Bad Request)
+
 - **Trigger**: Invalid recipeId format (not a UUID)
 - **Handling**: Catch Zod validation error, return first error message
 - **Logging**: Not logged (expected client error)
 - **User Message**: "Invalid recipe ID format"
 
 ### Authentication Errors (401 Unauthorized)
+
 - **Trigger**: User not authenticated (production only)
 - **Handling**: Check Supabase auth.getUser() result
 - **Logging**: Not logged (expected for unauthenticated requests)
 - **User Message**: "Authentication required"
 
 ### Authorization Errors (403 Forbidden)
+
 - **Trigger**: Recipe is private and belongs to another user
 - **Handling**: Catch `RecipeNotAccessibleError` from service
 - **Logging**: INFO level with userId and recipeId
 - **User Message**: "Cannot access private recipes from other users"
 
 ### Not Found Errors (404)
+
 - **Trigger 1**: Recipe doesn't exist in database
   - Catch `RecipeNotFoundError` from service
   - Message: "Recipe not found"
@@ -227,6 +248,7 @@ The service function `removeRecipeFromFavorites` will:
 - **Logging**: INFO level (expected user errors)
 
 ### Server Errors (500 Internal Server Error)
+
 - **Trigger**: Unexpected database errors, network issues, unhandled exceptions
 - **Handling**: Catch-all error handler at route level
 - **Logging**: ERROR level with full context:
@@ -237,6 +259,7 @@ The service function `removeRecipeFromFavorites` will:
 - **User Message**: "An unexpected error occurred" (generic, no internal details)
 
 ### Error Handling Pattern
+
 ```typescript
 try {
   // Validation
@@ -257,6 +280,7 @@ try {
 ## 8. Performance Considerations
 
 ### Database Queries
+
 - **Query Count**: 3 queries in worst case, 1-2 in typical error cases
   - Check recipe existence: 1 query
   - Check favorite existence: 1 query
@@ -265,13 +289,16 @@ try {
 - **No N+1 Issues**: Single recipe deletion, no iteration needed
 
 ### Indexes
+
 Required indexes (should already exist from database schema):
+
 - `recipes.id` (primary key)
 - `favorites.user_id` (foreign key, indexed)
 - `favorites.recipe_id` (foreign key, indexed)
 - Composite index on `favorites(user_id, recipe_id)` would be ideal
 
 ### Potential Bottlenecks
+
 - **Database Latency**: Sequential queries add latency
   - Recipe existence check
   - Favorite existence check
@@ -279,10 +306,12 @@ Required indexes (should already exist from database schema):
 - **Mitigation**: Queries are simple lookups on indexed columns, should be fast
 
 ### Caching Considerations
+
 - **Not Applicable**: DELETE operations should not be cached
 - **Cache Invalidation**: If favorites list is cached elsewhere, invalidate on deletion
 
 ### Scalability
+
 - **Low Resource Impact**: Simple DELETE operation with minimal queries
 - **Concurrent Requests**: Supabase handles concurrent DELETE operations safely
 - **No Locks Needed**: Single-row deletion doesn't require explicit locking
@@ -290,9 +319,11 @@ Required indexes (should already exist from database schema):
 ## 9. Implementation Steps
 
 ### Step 1: Create Service Function
+
 **File**: `src/lib/services/favorite.service.ts`
 
 1.1. Add new error class `RecipeNotInFavoritesError`:
+
 ```typescript
 export class RecipeNotInFavoritesError extends Error {
   constructor(recipeId: string) {
@@ -303,15 +334,17 @@ export class RecipeNotInFavoritesError extends Error {
 ```
 
 1.2. Implement `removeRecipeFromFavorites` function:
+
 ```typescript
 export async function removeRecipeFromFavorites(
   supabase: SupabaseClient,
   userId: string,
   recipeId: string
-): Promise<void>
+): Promise<void>;
 ```
 
 1.3. Service logic:
+
 - Query recipe to verify existence and get accessibility info
 - Throw `RecipeNotFoundError` if not found (handle PGRST116 error code)
 - Check accessibility: `recipe.is_public || recipe.user_id === userId`
@@ -322,9 +355,11 @@ export async function removeRecipeFromFavorites(
 - Return void
 
 ### Step 2: Create API Route Handler
+
 **File**: `src/pages/api/favorites/[recipeId].ts`
 
 2.1. Add required imports:
+
 ```typescript
 import type { APIRoute } from "astro";
 import { z } from "zod";
@@ -337,18 +372,21 @@ import {
 ```
 
 2.2. Set prerender flag:
+
 ```typescript
 export const prerender = false;
 ```
 
 2.3. Define Zod validation schema:
+
 ```typescript
 const RecipeIdParamSchema = z.object({
-  recipeId: z.string().uuid("Invalid recipe ID format")
+  recipeId: z.string().uuid("Invalid recipe ID format"),
 });
 ```
 
 2.4. Implement DELETE handler following this structure:
+
 - Authentication block (mocked for development)
 - Path parameter extraction from `context.params.recipeId`
 - Zod validation with error handling (return 400 on failure)
@@ -359,30 +397,36 @@ const RecipeIdParamSchema = z.object({
 ### Step 3: Error Handling Implementation
 
 3.1. Catch `RecipeNotFoundError`:
+
 - Return 404 with message: "Recipe not found"
 
-3.2. Catch `RecipeNotAccessibleError`:
+  3.2. Catch `RecipeNotAccessibleError`:
+
 - Log at INFO level with userId and recipeId
 - Return 403 with message: "Cannot access private recipes from other users"
 
-3.3. Catch `RecipeNotInFavoritesError`:
+  3.3. Catch `RecipeNotInFavoritesError`:
+
 - Log at INFO level with userId and recipeId
 - Return 404 with message: "Recipe not in favorites"
 
-3.4. Generic error handler:
+  3.4. Generic error handler:
+
 - Log at ERROR level with full context
 - Return 500 with generic message
 
 ### Step 4: Testing Considerations
 
 4.1. **Unit Tests for Service** (if implementing tests):
+
 - Test recipe not found scenario
 - Test recipe not accessible scenario (private + different user)
 - Test recipe not in favorites scenario
 - Test successful deletion
 - Test database errors
 
-4.2. **Integration Tests for Route** (if implementing tests):
+  4.2. **Integration Tests for Route** (if implementing tests):
+
 - Test invalid UUID format (400)
 - Test recipe not found (404)
 - Test recipe not accessible (403)
@@ -390,7 +434,8 @@ const RecipeIdParamSchema = z.object({
 - Test successful deletion (204)
 - Test authentication (401) when real auth is enabled
 
-4.3. **Manual Testing**:
+  4.3. **Manual Testing**:
+
 - Create favorite via POST /api/favorites
 - Verify it exists via GET /api/favorites
 - Delete via DELETE /api/favorites/{recipeId}
@@ -403,20 +448,23 @@ const RecipeIdParamSchema = z.object({
 5.1. Add JSDoc comments to service function
 
 5.2. Add JSDoc comments to route handler explaining:
+
 - Endpoint purpose
 - Parameters
 - Return values
 - Error responses
 - Usage examples
 
-5.3. Ensure code follows project conventions:
+  5.3. Ensure code follows project conventions:
+
 - Astro route patterns
 - Zod validation patterns
 - Error handling patterns
 - Logging patterns
 - Code formatting (will be checked by Prettier/ESLint on commit)
 
-5.4. Code review checklist:
+  5.4. Code review checklist:
+
 - [ ] Service function properly validates all checks
 - [ ] Route handler validates path parameters
 - [ ] Authentication block present (mocked for dev)

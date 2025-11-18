@@ -14,6 +14,7 @@
 60. **Nutrition pie chart edge cases**: Each piece of macro nutrition (FAT, Protein, Carbs, Fiber) should have at least 10% space on chart; if value is 0, don't display on chart
 
 **Follow-up clarifications for Q51**:
+
 - **Edit button on Modified tab**: Hide the Edit button on modified tab (only show on Original tab)
 - **Delete modification functionality**: Yes - add 'Usuń modyfikację' button on Modified tab to remove only the modification (keep original recipe)
 
@@ -151,24 +152,25 @@
 ### MVP Exclusions
 
 46. **Out of Scope for MVP**:
-   - Authentication logic implementation (UI only)
-   - Breadcrumb navigation
-   - Meal planner/calendar
-   - Recipe rating system
-   - Image upload/display (using placeholders)
-   - Import recipes from URL
-   - Social features
-   - Offline functionality
-   - Multi-language support (Polish only)
-   - Admin dashboard
-   - Command palette/keyboard shortcuts (basic nav only)
-   - Client-side caching strategies
-   - Ingredient autocomplete
-   - Cooking mode with step checkboxes
-   - Multi-select for adding to multiple collections
-   - Advanced recipe sorting (popularity, rating)
-   - Drag-to-reorder steps in recipe form
-   - Multiple modifications per recipe (modification history)
+
+- Authentication logic implementation (UI only)
+- Breadcrumb navigation
+- Meal planner/calendar
+- Recipe rating system
+- Image upload/display (using placeholders)
+- Import recipes from URL
+- Social features
+- Offline functionality
+- Multi-language support (Polish only)
+- Admin dashboard
+- Command palette/keyboard shortcuts (basic nav only)
+- Client-side caching strategies
+- Ingredient autocomplete
+- Cooking mode with step checkboxes
+- Multi-select for adding to multiple collections
+- Advanced recipe sorting (popularity, rating)
+- Drag-to-reorder steps in recipe form
+- Multiple modifications per recipe (modification history)
 
 </decisions>
 
@@ -249,6 +251,7 @@ The HealthyMeal MVP UI architecture is designed as a mobile-first, Polish-langua
 The application uses Astro's **multi-page architecture** with partial hydration, NOT a Single Page Application pattern. Each major view (dashboard, recipes list, recipe detail, collections, profile) is a separate `.astro` page with server-side rendering. React components are used selectively with `client:load` or `client:visible` directives only for interactive elements like forms, modals, AI modification interfaces, and dynamic controls.
 
 This hybrid approach provides:
+
 - Excellent initial page load performance through SSR
 - Minimal JavaScript sent to client
 - Progressive enhancement where JavaScript adds interactivity
@@ -273,6 +276,7 @@ Authentication logic implementation is **explicitly deferred for MVP**. The UI w
 ### Public Landing Page (`/`)
 
 Single-page marketing site with sections:
+
 - Hero with value proposition "Dopasuj przepisy do swojej diety z pomocą AI" and CTAs
 - Features section highlighting AI modifications, dietary preferences, recipe organization
 - How It Works with 3-step illustration
@@ -282,6 +286,7 @@ Single-page marketing site with sections:
 ### User Dashboard (`/dashboard`)
 
 Post-login landing page serving as navigation hub with horizontally scrollable sections:
+
 1. **Welcome banner** with personalized greeting and "+ Dodaj przepis" quick action
 2. **Twoje ostatnie przepisy**: Last 4-6 user recipes with "Zobacz wszystkie" link
 3. **Ulubione**: Last 4-6 favorited recipes with "Zobacz wszystkie" link
@@ -292,6 +297,7 @@ This structure was specifically designed to "shorten user time to reach the want
 ### My Recipes Page (`/recipes` or `/recipes/my`)
 
 User's personal recipe collection with:
+
 - Prominent search bar (placeholder: "Szukaj przepisów...")
 - "Filtry" button opening collapsible panel (desktop) or drawer (mobile, Shadcn/ui Sheet)
 - Filter options: tag multi-select, max calories slider, max prep time slider, sort dropdown
@@ -300,6 +306,7 @@ User's personal recipe collection with:
 - Pagination (20 items per page default)
 
 All filter changes update URL query parameters, enabling:
+
 - Shareable filtered views
 - Browser back/forward navigation
 - Bookmarkable searches
@@ -309,6 +316,7 @@ Empty state: "Nie masz jeszcze przepisów" with "+ Dodaj pierwszy przepis" CTA
 ### Public Recipes Page (`/recipes/public`)
 
 Similar layout to My Recipes but showing public recipes from all users. Key differences:
+
 - Recipe cards display author name
 - For MVP: Shows random 10 public recipes (no advanced sorting/curation)
 - Actions: View, Favorite, Add to Collection (no Edit/Delete)
@@ -318,6 +326,7 @@ Similar layout to My Recipes but showing public recipes from all users. Key diff
 Comprehensive recipe view with responsive layout:
 
 **Desktop Layout**:
+
 - Left column: Recipe header (title, description, tags, prep time, servings adjuster), ingredients list, preparation steps
 - Right sidebar: Nutrition card with pie chart, action buttons
 
@@ -326,6 +335,7 @@ Comprehensive recipe view with responsive layout:
 **Servings Adjuster**: [−] **4 porcje** [+] buttons that dynamically recalculate ingredient amounts in real-time
 
 **Modified Recipe Display** (when recipe has AI modification):
+
 - Two tabs: "Oryginalny" | "Zmodyfikowany"
 - **Original Tab**:
   - Shows original recipe data
@@ -342,6 +352,7 @@ This tab-based approach supports the MVP constraint of **one modification per re
 ### Collections Page (`/collections`)
 
 Dedicated page showing user's collections in responsive grid:
+
 - Collection cards display: name, recipe count, thumbnail grid of first 3-4 recipes, created date
 - Desktop hover: Edit/Delete icons overlay
 - Mobile: "..." menu button with dropdown for Edit/Delete
@@ -352,6 +363,7 @@ Empty state: "Nie masz jeszcze kolekcji" with "+ Utwórz pierwszą kolekcję" CT
 ### Collection Detail Page (`/collections/[id]`)
 
 Shows recipes within a specific collection:
+
 - Collection name as editable header
 - Same recipe card grid as My Recipes page
 - Pagination for large collections
@@ -360,6 +372,7 @@ Shows recipes within a specific collection:
 ### Favorites Page (`/favorites`)
 
 Simple list of favorited recipes:
+
 - Same card layout as My Recipes page
 - Sorted by date added (most recent first)
 - No search/filtering for MVP (simple list only)
@@ -390,6 +403,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 6. **Przegląd i zapisz**: Summary with edit links to previous steps, submit button
 
 **Custom Tag Creation Flow**:
+
 - Click "+ Dodaj nowy tag" below tag grid
 - Show inline input field or small dialog
 - Text input for tag name (validated against max length)
@@ -399,6 +413,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 - Handle duplicate tag names with clear error message
 
 **Form State Persistence** (addressing localStorage edge case concern):
+
 - Draft saved every 2-3 seconds to localStorage
 - **Namespaced keys** prevent conflicts:
   - New recipe: `draft_recipe_new`
@@ -411,6 +426,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 - Browser confirmation dialog on navigate away with unsaved changes
 
 **Form Validation** (Progressive approach):
+
 - Required fields: Validate on blur
 - Format validation (numbers, lengths): Real-time with 500ms debounce
 - Cross-field validation: On form submit
@@ -420,6 +436,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 - Front-end max length validation must match API/DB constraints
 
 **Edit Mode**:
+
 - Pre-populate all fields with existing recipe data
 - Show all available tags (predefined + all user-created tags from DB) with recipe's current tags pre-checked
 - Same validation and draft behavior as create mode
@@ -455,6 +472,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 8. **Post-Save**: Close modal, reload recipe detail page now showing tabs "Oryginalny" | "Zmodyfikowany", success toast
 
 **Error Handling**:
+
 - API timeout (>5s): Show error in modal with retry button and clear Polish messaging
 - Processing failed: Show error with suggested actions
 - Network error: Toast notification with retry option
@@ -462,11 +480,13 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 ### Collections Management
 
 **Creating Collections**:
+
 - "+ Nowa kolekcja" button on Collections page
 - Dialog with name input (1-100 chars, unique per user), "Utwórz" / "Anuluj" buttons
 - On submit: API call, add to list, show success toast
 
 **Adding Recipes to Collections** (simplified for MVP):
+
 - "Dodaj do kolekcji" button on recipe card/detail page opens dropdown menu or dialog
 - Shows list of user's collections
 - Collections already containing recipe show checkmark + "Już dodano" (disabled)
@@ -475,11 +495,13 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 - **MVP: Add to ONE collection at a time** (no multi-select)
 
 **No Collections Edge Case**:
+
 - When user clicks "Dodaj do kolekcji" but has no collections
 - Skip selection, directly open "Create Collection" dialog with message: "Nie masz jeszcze kolekcji. Utwórz pierwszą!"
 - After creating collection, automatically add recipe to it
 
 **Collection Editing**:
+
 - Edit name: Click name on detail page → inline edit or modal
 - Delete collection: "..." menu → "Usuń kolekcję" → AlertDialog confirmation with context ("Kolekcja zawiera X przepisów")
 - Remove recipe: Button on collection detail page per recipe
@@ -487,12 +509,14 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 ### Favorites System
 
 **Implementation**: Absolute simplicity for MVP
+
 - Heart icon toggle (Lucide-react Heart, outline/filled states)
 - Optimistic UI update: toggle immediately, rollback on API error
 - Success/error feedback via toast notification
 - No additional metadata (notes, categories, etc.)
 
 **Favorites Page**:
+
 - Same card layout as My Recipes
 - Sorted by date added (most recent first)
 - No search/filtering (just simple paginated list)
@@ -500,6 +524,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 ### Search & Filtering
 
 **Search**:
+
 - Prominent search bar at top of recipe list pages
 - Placeholder: "Szukaj przepisów..."
 - Full-text search in title and description (Polish language support via PostgreSQL tsvector)
@@ -507,6 +532,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 - Updates URL query parameter
 
 **Filters**:
+
 - "Filtry" button with count badge (e.g., "Filtry (3)" when active)
 - Opens collapsible panel (desktop) or drawer (mobile, Shadcn/ui Sheet)
 - Options:
@@ -519,6 +545,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 - "Wyczyść filtry" button resets all to defaults
 
 **URL Integration**:
+
 - All filter state persists in URL query parameters
 - Enables shareable filtered views
 - Browser back/forward navigation works correctly
@@ -527,6 +554,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 ### Recipe Display Components
 
 **Recipe Card** (List/Grid View):
+
 - Placeholder image: colored block with recipe initial + icon (chef hat, utensils from Lucide-react), different colors based on tags
 - Title: truncate with `line-clamp-2` after 2 lines
 - Summarized nutrition:
@@ -537,6 +565,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 - Actions (on hover/tap): Heart for favorite, "..." menu for Add to Collection, View, Edit, Delete
 
 **Nutrition Pie Chart**:
+
 - Medium size: 200-250px diameter (desktop), 180-200px (mobile)
 - Show macronutrient distribution: Protein (blue), Carbs (orange), Fat (green), Fiber (if displayed)
 - **Edge Case Handling** (user-specified):
@@ -551,6 +580,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 ### Main Navigation
 
 **Header** (persistent, sticky):
+
 - **Left**: Logo/brand (links to dashboard when logged in, landing when logged out)
 - **Center** (desktop only): Main nav links
   - Dashboard
@@ -611,6 +641,7 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 3. **AI-Specific Errors**: Dedicated error state within modification modal with clear Polish messaging and suggested next steps (for timeouts, rate limits, processing failures)
 
 **Network Error Handling**:
+
 - Transient errors: Toast with "Błąd połączenia. Spróbuj ponownie." and retry button
 - Offline detection: Persistent banner at top "Jesteś offline. Sprawdź połączenie internetowe." (disappears when connection restored)
 - Disable action buttons when offline using `navigator.onLine` detection
@@ -622,12 +653,14 @@ Single page with sidebar navigation (desktop) or tabs (mobile, Shadcn/ui Tabs):
 **Pattern**: Friendly, actionable, consistent across app
 
 Components:
+
 - Large icon from Lucide-react
 - Clear message in Polish
 - Primary CTA button
 - Optional suggestion text
 
 Examples:
+
 - **No Recipes**: "Nie masz jeszcze przepisów" + "+ Dodaj pierwszy przepis" button
 - **No Collections**: "Nie masz jeszcze kolekcji" + "+ Utwórz pierwszą kolekcję" button
 - **No Favorites**: "Nie masz ulubionych przepisów" + suggestion to browse recipes
@@ -638,6 +671,7 @@ Examples:
 **Purpose**: Prevent accidental destructive actions
 
 **Implementation** (Shadcn/ui AlertDialog):
+
 - Clear title: "Usuń przepis?", "Usuń kolekcję?", "Usuń modyfikację?"
 - Descriptive message: "Ta akcja jest nieodwracalna. Przepis zostanie trwale usunięty."
 - Additional context for complex actions: "Kolekcja zawiera 12 przepisów"
@@ -645,6 +679,7 @@ Examples:
 - Default focus: Cancel button for safety
 
 **Use Cases**:
+
 - Delete recipe
 - Delete collection
 - Delete modification (removes modification only, keeps original recipe)
@@ -653,6 +688,7 @@ Examples:
 ### Toast Notifications
 
 **Usage** (Shadcn/ui Toast):
+
 - Success: "Przepis dodany", "Zapisano zmiany", "Dodano do kolekcji"
 - Error: "Błąd podczas zapisywania", "Nie udało się usunąć"
 - Info: "Przepis dodany do ulubionych", "Przywrócono szkic"
@@ -680,6 +716,7 @@ Design for mobile first, progressively enhance for larger screens:
 ### Typography
 
 Responsive scale using Tailwind utilities:
+
 - Page titles: `text-3xl md:text-4xl font-bold`
 - Section headings: `text-xl md:text-2xl font-semibold`
 - Card titles: `text-lg font-medium`
@@ -689,6 +726,7 @@ Responsive scale using Tailwind utilities:
 Consistent spacing: Tailwind scale (`space-y-4`, `gap-6`, etc.)
 
 Max-width constraints:
+
 - Full-width pages: `max-w-7xl mx-auto`
 - Reading content: `max-w-3xl mx-auto`
 
@@ -705,6 +743,7 @@ Max-width constraints:
 ### Leveraging Shadcn/ui
 
 Shadcn/ui components provide excellent baseline accessibility:
+
 - Built-in ARIA attributes
 - Keyboard navigation support
 - Focus management in modals/dialogs
@@ -779,6 +818,7 @@ All API endpoints defined in `.ai/api-plan.md`. Key integration points:
 ### Validation
 
 **Client-side validation using Zod schemas** that match API validation exactly:
+
 - Prevents unnecessary API calls
 - Provides immediate user feedback
 - Ensures front-end enforces same constraints (lengths, ranges, formats)
@@ -806,6 +846,7 @@ All API endpoints defined in `.ai/api-plan.md`. Key integration points:
 **Explicitly NOT implemented in MVP** per user decision: "Let's not cache it in MVP, but it is a viable point for later improvements."
 
 Post-MVP caching strategy would include:
+
 - Reference data (tags, allergens) cached in React Context for session
 - Individual recipe details cached for 5 minutes
 - Cache invalidation on user actions (create, update, delete)
@@ -880,6 +921,7 @@ Post-MVP caching strategy would include:
 ### Post-MVP Roadmap
 
 **High Priority**:
+
 - Auth integration
 - Meal planner
 - Rating system
@@ -887,6 +929,7 @@ Post-MVP caching strategy would include:
 - Multiple modifications with history
 
 **Medium Priority**:
+
 - Admin dashboard
 - Ingredient autocomplete
 - Cooking mode
@@ -894,6 +937,7 @@ Post-MVP caching strategy would include:
 - Caching strategies
 
 **Low Priority**:
+
 - Social features
 - Native apps
 - Multi-language

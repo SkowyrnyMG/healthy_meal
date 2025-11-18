@@ -5,6 +5,7 @@
 This endpoint allows authenticated users to update their own recipes. The endpoint implements proper authorization to ensure users can only modify recipes they own (IDOR protection). The update operation replaces all recipe data including ingredients, steps, nutrition information, and tag associations.
 
 **Key Features:**
+
 - Full recipe update (not partial)
 - Ownership verification before update
 - Tag validation and management
@@ -20,6 +21,7 @@ This endpoint allows authenticated users to update their own recipes. The endpoi
 ### Parameters
 
 **Path Parameters:**
+
 - **recipeId** (required): UUID of the recipe to update
 
 **Request Body (UpdateRecipeCommand):**
@@ -27,6 +29,7 @@ This endpoint allows authenticated users to update their own recipes. The endpoi
 All fields replace existing values:
 
 **Required:**
+
 - `title`: string (1-255 chars, trimmed)
 - `ingredients`: array of objects (1-100 items)
   - `name`: string (1-255 chars)
@@ -45,6 +48,7 @@ All fields replace existing values:
   - `salt`: number (0-100)
 
 **Optional:**
+
 - `description`: string (max 5000 chars)
 - `prepTimeMinutes`: positive integer (max 1440)
 - `isPublic`: boolean (default: false)
@@ -90,6 +94,7 @@ RecipeDetailDTO {
 ### Validation Schemas (Zod)
 
 Reuse existing schemas from POST /api/recipes:
+
 - `RecipeIdParamSchema` - for path parameter validation
 - `CreateRecipeCommandSchema` - for request body validation
 
@@ -122,6 +127,7 @@ Reuse existing schemas from POST /api/recipes:
 ### Error Responses
 
 **400 Bad Request** - Validation failure
+
 ```json
 {
   "error": "Bad Request",
@@ -130,6 +136,7 @@ Reuse existing schemas from POST /api/recipes:
 ```
 
 **401 Unauthorized** - Not authenticated (production only)
+
 ```json
 {
   "error": "Unauthorized",
@@ -138,6 +145,7 @@ Reuse existing schemas from POST /api/recipes:
 ```
 
 **403 Forbidden** - User is not the owner
+
 ```json
 {
   "error": "Forbidden",
@@ -146,6 +154,7 @@ Reuse existing schemas from POST /api/recipes:
 ```
 
 **404 Not Found** - Recipe not found
+
 ```json
 {
   "error": "Not Found",
@@ -154,6 +163,7 @@ Reuse existing schemas from POST /api/recipes:
 ```
 
 **500 Internal Server Error** - Unexpected error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -199,17 +209,20 @@ Reuse existing schemas from POST /api/recipes:
 ## 6. Security Considerations
 
 ### Authentication
+
 - **Development**: Hardcoded userId for testing
 - **Production**: Real Supabase authentication must be enabled
 - **Failure handling**: Return 401 if authentication fails
 
 ### Authorization (IDOR Protection)
+
 - **Ownership verification**: Critical security check
 - **Check timing**: After recipe fetch, before update
 - **Enforcement**: User must be recipe owner (recipe.userId === user.id)
 - **Failure handling**: Return 403 if ownership check fails
 
 ### Input Validation
+
 - **Path parameter**: UUID format validation prevents injection
 - **Request body**: Zod schemas enforce type safety and constraints
 - **String fields**: Trimming prevents whitespace-only values
@@ -218,12 +231,14 @@ Reuse existing schemas from POST /api/recipes:
 - **Step numbers**: Sequential validation prevents logic errors
 
 ### Data Integrity
+
 - **Tag validation**: Verify all tagIds exist before update
 - **Transaction-like behavior**: Delete old tags → insert new tags
 - **Foreign key constraints**: Database enforces referential integrity
 - **Timestamp management**: updated_at automatically updated by database
 
 ### Additional Security
+
 - **SQL Injection**: Mitigated by Supabase SDK parameterization
 - **XSS**: JSON Content-Type header prevents script injection
 - **Mass Assignment**: Explicit field mapping controls what can be updated
@@ -232,6 +247,7 @@ Reuse existing schemas from POST /api/recipes:
 ## 7. Error Handling
 
 ### Validation Errors (400)
+
 - Invalid recipeId UUID format
 - Malformed JSON body
 - Missing required fields
@@ -241,29 +257,34 @@ Reuse existing schemas from POST /api/recipes:
 - Non-existent tag IDs
 
 ### Authentication Errors (401)
+
 - Missing authentication token (production)
 - Invalid or expired token (production)
 - Authentication service failure (production)
 
 ### Authorization Errors (403)
+
 - User is not the recipe owner
 - User attempting to update featured flag (only admins can feature)
 
 ### Not Found Errors (404)
+
 - Recipe with given recipeId doesn't exist
 
 ### Server Errors (500)
+
 - Database connection failure
 - Database query execution error
 - Unexpected runtime errors
 - Service layer exceptions
 
 ### Error Logging Strategy
+
 ```typescript
-console.error('[PUT /api/recipes/[recipeId]] Error:', {
+console.error("[PUT /api/recipes/[recipeId]] Error:", {
   recipeId: context.params.recipeId,
   userId: user?.id,
-  error: error instanceof Error ? error.message : 'Unknown error',
+  error: error instanceof Error ? error.message : "Unknown error",
   stack: error instanceof Error ? error.stack : undefined,
 });
 ```
@@ -271,6 +292,7 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
 ## 8. Performance Considerations
 
 ### Potential Bottlenecks
+
 1. **Tag validation query**: Fetching tags to validate IDs
 2. **Recipe-tag deletion**: Deleting all existing associations
 3. **Recipe-tag insertion**: Bulk inserting new associations
@@ -279,26 +301,31 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
 ### Optimization Strategies
 
 **Database Queries**
+
 - Use parallel queries where possible (tag validation can be separate)
 - Leverage database indexes on recipe_id, user_id, tag_id
 - Use single SELECT with joins for final fetch
 - Bulk operations for recipe_tags (delete all, insert many)
 
 **Validation**
+
 - Early returns for validation failures (fail fast)
 - Reuse validation schemas (no re-compilation)
 - Validate existence before performing expensive operations
 
 **Response Size**
+
 - Recipe detail response is comprehensive but reasonable
 - JSONB fields (ingredients, steps, nutrition) are efficient
 - Tag array is limited to 50 items maximum
 
 **Caching Opportunities**
+
 - Tag validation could use cached tag list (if tags are relatively static)
 - Not applicable for recipe data (must be fresh after update)
 
 ### Expected Performance
+
 - **Typical case**: < 100ms (simple recipe, few tags)
 - **Complex case**: < 300ms (100 ingredients/steps, 50 tags)
 - **Network overhead**: Depends on payload size (1-50KB typical)
@@ -306,16 +333,18 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
 ## 9. Implementation Steps
 
 ### Step 1: Add updateRecipe Service Function
+
 **File**: `src/lib/services/recipe.service.ts`
 
 1. **Function signature**
+
    ```typescript
    export async function updateRecipe(
      supabase: SupabaseClient,
      recipeId: string,
      userId: string,
      command: UpdateRecipeCommand
-   ): Promise<RecipeDetailDTO>
+   ): Promise<RecipeDetailDTO>;
    ```
 
 2. **Tag validation** (if tagIds provided)
@@ -338,6 +367,7 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
    - Return RecipeDetailDTO
 
 ### Step 2: Add PUT Handler to Endpoint
+
 **File**: `src/pages/api/recipes/[recipeId].ts`
 
 1. **Import dependencies**
@@ -385,6 +415,7 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
 ### Step 3: Testing Considerations
 
 **Manual Testing**
+
 1. Test successful update with all fields
 2. Test update with minimal fields (only required)
 3. Test update with new tags
@@ -397,6 +428,7 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
 10. Test invalid tag IDs
 
 **Integration Testing**
+
 - Verify database state after update
 - Verify old tags are removed
 - Verify new tags are added
@@ -404,6 +436,7 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
 - Verify response matches database state
 
 **Security Testing**
+
 - Attempt IDOR attack (update other user's recipe)
 - Attempt to set featured flag
 - Attempt SQL injection in string fields
@@ -412,11 +445,13 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
 ## 10. Additional Notes
 
 ### Relationship to Other Endpoints
+
 - **GET /api/recipes/{recipeId}**: Shares getRecipeById service function
 - **POST /api/recipes**: Shares validation schemas and tag handling logic
 - **DELETE /api/recipes/{recipeId}**: Would share ownership verification pattern
 
 ### Future Enhancements
+
 - Partial updates (PATCH) for efficiency
 - Recipe versioning/history tracking
 - Change notifications to favorited-by users
@@ -425,6 +460,7 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
 - Validation of ingredient substitution compatibility
 
 ### Database Schema Dependencies
+
 - **recipes table**: Main data storage
 - **recipe_tags table**: Many-to-many relationship
 - **tags table**: Tag reference data
@@ -432,6 +468,7 @@ console.error('[PUT /api/recipes/[recipeId]] Error:', {
 - **updated_at trigger**: Automatically updates timestamp
 
 ### Development vs Production Differences
+
 - **Authentication**: Mocked userId vs real Supabase auth
 - **Error messages**: Development may expose more details
 - **Logging**: Production should use structured logging service

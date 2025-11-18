@@ -5,6 +5,7 @@
 This endpoint allows authenticated users to delete their own recipes. The operation includes authorization checks to prevent IDOR (Insecure Direct Object Reference) vulnerabilities by ensuring only the recipe owner can perform the deletion. When a recipe is deleted, all related data (tags associations, favorites, ratings, meal plans, modifications, and collection associations) are automatically removed via database CASCADE constraints.
 
 **Key Features:**
+
 - Authenticated endpoint with owner-only access
 - IDOR protection through ownership verification
 - Automatic cleanup of related data via CASCADE constraints
@@ -48,29 +49,26 @@ type ValidatedRecipeIdParam = z.infer<typeof RecipeIdParamSchema>;
  * @returns void on success
  * @throws Error if recipe not found or user is not the owner
  */
-export async function deleteRecipe(
-  supabase: SupabaseClient,
-  recipeId: string,
-  userId: string
-): Promise<void>
+export async function deleteRecipe(supabase: SupabaseClient, recipeId: string, userId: string): Promise<void>;
 ```
 
 ## 4. Response Details
 
 ### Success Response
+
 - **Status Code**: 204 No Content
 - **Body**: Empty (no content)
 - **Description**: Recipe successfully deleted along with all related data
 
 ### Error Responses
 
-| Status Code | Error Type | Description |
-|------------|------------|-------------|
-| 400 | Bad Request | Invalid UUID format for recipeId parameter |
-| 401 | Unauthorized | User is not authenticated (production only) |
-| 403 | Forbidden | User is not the recipe owner (IDOR protection) |
-| 404 | Not Found | Recipe does not exist |
-| 500 | Internal Server Error | Database error or unexpected server exception |
+| Status Code | Error Type            | Description                                    |
+| ----------- | --------------------- | ---------------------------------------------- |
+| 400         | Bad Request           | Invalid UUID format for recipeId parameter     |
+| 401         | Unauthorized          | User is not authenticated (production only)    |
+| 403         | Forbidden             | User is not the recipe owner (IDOR protection) |
+| 404         | Not Found             | Recipe does not exist                          |
+| 500         | Internal Server Error | Database error or unexpected server exception  |
 
 ### Error Response Format
 
@@ -119,11 +117,13 @@ export async function deleteRecipe(
 ## 6. Security Considerations
 
 ### Authentication
+
 - **Development**: Uses mock user ID (`a85d6d6c-b7d4-4605-9cc4-3743401b67a0`) as specified in `.ai/claude_rules/auth_dev_mock.md`
 - **Production**: Uses Supabase authentication via `context.locals.supabase.auth.getUser()`
 - **Implementation**: Include TODO comment for production authentication switchover
 
 ### Authorization (IDOR Protection)
+
 - **Threat**: User attempts to delete recipes owned by other users
 - **Mitigation**:
   1. Fetch recipe from database before deletion
@@ -132,7 +132,9 @@ export async function deleteRecipe(
   4. Only perform deletion if ownership is verified
 
 ### Database CASCADE Constraints
+
 The following related records are automatically deleted when a recipe is deleted:
+
 - `recipe_tags` (CASCADE on delete)
 - `recipe_modifications` (CASCADE on delete)
 - `favorites` (CASCADE on delete)
@@ -143,12 +145,14 @@ The following related records are automatically deleted when a recipe is deleted
 This ensures data integrity and prevents orphaned records.
 
 ### Input Validation
+
 - Validate `recipeId` is a valid UUID using Zod schema
 - Reject malformed UUIDs with 400 Bad Request
 
 ## 7. Error Handling
 
 ### Validation Errors (400 Bad Request)
+
 ```typescript
 // Invalid UUID format
 {
@@ -158,6 +162,7 @@ This ensures data integrity and prevents orphaned records.
 ```
 
 ### Authentication Errors (401 Unauthorized)
+
 ```typescript
 // Not authenticated (production only)
 {
@@ -167,6 +172,7 @@ This ensures data integrity and prevents orphaned records.
 ```
 
 ### Authorization Errors (403 Forbidden)
+
 ```typescript
 // User is not the recipe owner
 {
@@ -176,6 +182,7 @@ This ensures data integrity and prevents orphaned records.
 ```
 
 ### Not Found Errors (404 Not Found)
+
 ```typescript
 // Recipe does not exist
 {
@@ -185,6 +192,7 @@ This ensures data integrity and prevents orphaned records.
 ```
 
 ### Server Errors (500 Internal Server Error)
+
 ```typescript
 // Unexpected error or database failure
 {
@@ -194,7 +202,9 @@ This ensures data integrity and prevents orphaned records.
 ```
 
 ### Error Logging
+
 All errors should be logged with context:
+
 ```typescript
 console.error("[DELETE /api/recipes/[recipeId]] Error:", {
   recipeId: context.params.recipeId,
@@ -207,21 +217,25 @@ console.error("[DELETE /api/recipes/[recipeId]] Error:", {
 ## 8. Performance Considerations
 
 ### Database Operations
+
 - **Single Query Pattern**: Fetch recipe once to verify existence and ownership before deletion
 - **CASCADE Performance**: Database handles CASCADE deletes efficiently at the constraint level
 - **Index Usage**: UUID primary keys are indexed, ensuring fast lookups
 
 ### Potential Bottlenecks
+
 1. **Recipe Lookup**: Single SELECT query by UUID (fast with primary key index)
 2. **Ownership Verification**: In-memory comparison after fetch (negligible overhead)
 3. **Deletion**: Single DELETE query with automatic CASCADE (handled by PostgreSQL)
 
 ### Optimization Strategies
+
 - **Transaction Safety**: Supabase automatically handles transactions for CASCADE deletes
 - **Error Early Return**: Validate input and check ownership before attempting deletion
 - **No N+1 Queries**: All related data is deleted via CASCADE constraints, not application code
 
 ### Expected Performance
+
 - **Latency**: < 100ms for typical recipe deletion (single DB round trip)
 - **Throughput**: Limited by database write capacity, not application code
 - **Scalability**: Scales linearly with database capacity
@@ -229,6 +243,7 @@ console.error("[DELETE /api/recipes/[recipeId]] Error:", {
 ## 9. Implementation Steps
 
 ### Step 1: Add deleteRecipe function to recipe.service.ts
+
 Create a new service function to handle recipe deletion with ownership verification:
 
 ```typescript
@@ -239,11 +254,7 @@ Create a new service function to handle recipe deletion with ownership verificat
  * @param userId - ID of the user attempting to delete (for ownership verification)
  * @throws Error if recipe not found or user is not the owner
  */
-export async function deleteRecipe(
-  supabase: SupabaseClient,
-  recipeId: string,
-  userId: string
-): Promise<void> {
+export async function deleteRecipe(supabase: SupabaseClient, recipeId: string, userId: string): Promise<void> {
   // 1. Fetch recipe to verify existence and ownership
   const recipe = await getRecipeById(supabase, recipeId);
 
@@ -257,10 +268,7 @@ export async function deleteRecipe(
   }
 
   // 3. Delete recipe (CASCADE constraints handle related data)
-  const { error } = await supabase
-    .from("recipes")
-    .delete()
-    .eq("id", recipeId);
+  const { error } = await supabase.from("recipes").delete().eq("id", recipeId);
 
   if (error) {
     throw error;
@@ -269,11 +277,13 @@ export async function deleteRecipe(
 ```
 
 **Key Points:**
+
 - Reuse existing `getRecipeById` function for recipe lookup
 - Throw descriptive errors that the API handler can map to HTTP status codes
 - Let database CASCADE constraints handle related data cleanup
 
 ### Step 2: Add DELETE handler to /api/recipes/[recipeId].ts
+
 Add the DELETE route handler to the existing file:
 
 ```typescript
@@ -344,11 +354,7 @@ export const DELETE: APIRoute = async (context) => {
     // DELETE RECIPE
     // ========================================
 
-    await deleteRecipe(
-      context.locals.supabase,
-      validatedParams.recipeId,
-      user.id
-    );
+    await deleteRecipe(context.locals.supabase, validatedParams.recipeId, user.id);
 
     // ========================================
     // SUCCESS RESPONSE
@@ -405,6 +411,7 @@ export const DELETE: APIRoute = async (context) => {
 ```
 
 **Key Points:**
+
 - Follows existing pattern from GET/PUT handlers in the same file
 - Uses guard clauses for error handling (early returns)
 - Places happy path last
@@ -412,6 +419,7 @@ export const DELETE: APIRoute = async (context) => {
 - Comprehensive error logging with context
 
 ### Step 3: Add import for deleteRecipe function
+
 At the top of `/api/recipes/[recipeId].ts`, add the import:
 
 ```typescript
@@ -419,9 +427,11 @@ import { getRecipeById, updateRecipe, deleteRecipe } from "../../../lib/services
 ```
 
 ### Step 4: Export prerender = false
+
 Ensure the file has `export const prerender = false` at the top (already present, verify it remains).
 
 ### Step 5: Test the endpoint
+
 After implementation, test the following scenarios:
 
 1. **Happy Path**: Delete own recipe → 204 No Content
@@ -432,7 +442,9 @@ After implementation, test the following scenarios:
 6. **Error Handling**: Simulate database error → 500 Internal Server Error
 
 ### Step 6: Verify CASCADE cleanup
+
 After deleting a recipe, query the following tables to ensure CASCADE deletes worked:
+
 - `recipe_tags` - should have no entries for deleted recipe
 - `favorites` - should have no entries for deleted recipe
 - `collection_recipes` - should have no entries for deleted recipe

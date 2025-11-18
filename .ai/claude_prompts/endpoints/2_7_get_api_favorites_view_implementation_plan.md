@@ -5,6 +5,7 @@
 The GET /api/favorites endpoint retrieves a paginated list of the authenticated user's favorite recipes. Each favorite includes embedded recipe information such as title, description, nutrition data, and preparation time. The endpoint supports pagination through query parameters and returns metadata about the total number of favorites and available pages.
 
 **Key Features:**
+
 - Retrieves user-specific favorites only (authorization enforced)
 - Supports pagination with configurable page size
 - Returns embedded recipe details for each favorite
@@ -33,6 +34,7 @@ The GET /api/favorites endpoint retrieves a paginated list of the authenticated 
 ### Existing DTOs (from `src/types.ts`)
 
 **FavoriteDTO** (lines 259-269):
+
 ```typescript
 export interface FavoriteDTO {
   recipeId: string;
@@ -48,6 +50,7 @@ export interface FavoriteDTO {
 ```
 
 **PaginationDTO** (lines 438-443):
+
 ```typescript
 export interface PaginationDTO {
   page: number;
@@ -58,6 +61,7 @@ export interface PaginationDTO {
 ```
 
 **NutritionDTO** (lines 89-96):
+
 ```typescript
 export interface NutritionDTO {
   calories: number;
@@ -145,6 +149,7 @@ interface FavoriteQueryResult {
 ### Error Responses
 
 **400 Bad Request** - Invalid query parameters:
+
 ```json
 {
   "error": "Bad Request",
@@ -153,6 +158,7 @@ interface FavoriteQueryResult {
 ```
 
 **401 Unauthorized** - Not authenticated (production only):
+
 ```json
 {
   "error": "Unauthorized",
@@ -161,6 +167,7 @@ interface FavoriteQueryResult {
 ```
 
 **500 Internal Server Error** - Unexpected server error:
+
 ```json
 {
   "error": "Internal Server Error",
@@ -216,10 +223,11 @@ export async function getUserFavorites(
   userId: string,
   page: number = 1,
   limit: number = 20
-): Promise<{ favorites: FavoriteDTO[]; pagination: PaginationDTO }>
+): Promise<{ favorites: FavoriteDTO[]; pagination: PaginationDTO }>;
 ```
 
 **Responsibilities:**
+
 - Execute parallel count and data queries
 - Handle database errors
 - Map database results to DTOs
@@ -229,16 +237,19 @@ export async function getUserFavorites(
 ## 6. Security Considerations
 
 ### Authentication
+
 - **Development**: Use mocked userId `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - **Production**: Validate user session with `context.locals.supabase.auth.getUser()`
 - Return 401 Unauthorized if authentication fails
 
 ### Authorization
+
 - **User Isolation**: Filter favorites by authenticated userId
 - **IDOR Prevention**: userId comes from session, not from request parameters
 - **Data Access Control**: Users can only access their own favorites
 
 ### Input Validation
+
 - **Query Parameters**: Validate with Zod schema before processing
 - **Type Safety**: Use TypeScript for compile-time type checking
 - **Range Validation**:
@@ -246,10 +257,12 @@ export async function getUserFavorites(
   - 1 ≤ limit ≤ 100
 
 ### Data Exposure
+
 - **No Sensitive Data**: Favorites and recipes are user-specific, no cross-user data leak
 - **Error Messages**: Return generic error messages, no sensitive information in errors
 
 ### SQL Injection Prevention
+
 - **Parameterized Queries**: Supabase SDK handles query parameterization
 - **No Raw SQL**: Use Supabase query builder only
 
@@ -257,14 +270,14 @@ export async function getUserFavorites(
 
 ### Error Scenarios and Responses
 
-| Scenario | Status Code | Error Type | Message |
-|----------|-------------|------------|---------|
-| Invalid page (< 1) | 400 | Bad Request | "Number must be greater than or equal to 1" |
-| Invalid limit (< 1 or > 100) | 400 | Bad Request | "Number must be less than or equal to 100" |
-| Invalid limit type | 400 | Bad Request | "Expected number, received string" |
-| Missing authentication (production) | 401 | Unauthorized | "Authentication required" |
-| Database query error | 500 | Internal Server Error | "An unexpected error occurred" |
-| Unexpected exception | 500 | Internal Server Error | "An unexpected error occurred" |
+| Scenario                            | Status Code | Error Type            | Message                                     |
+| ----------------------------------- | ----------- | --------------------- | ------------------------------------------- |
+| Invalid page (< 1)                  | 400         | Bad Request           | "Number must be greater than or equal to 1" |
+| Invalid limit (< 1 or > 100)        | 400         | Bad Request           | "Number must be less than or equal to 100"  |
+| Invalid limit type                  | 400         | Bad Request           | "Expected number, received string"          |
+| Missing authentication (production) | 401         | Unauthorized          | "Authentication required"                   |
+| Database query error                | 500         | Internal Server Error | "An unexpected error occurred"              |
+| Unexpected exception                | 500         | Internal Server Error | "An unexpected error occurred"              |
 
 ### Error Handling Strategy
 

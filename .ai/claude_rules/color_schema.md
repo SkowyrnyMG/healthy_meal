@@ -44,6 +44,7 @@ white      - #ffffff  - Backgrounds, cards, buttons
 ### Headers & Navigation
 
 **LandingHeader:**
+
 - Background: `white/80` (with backdrop-blur)
 - Logo text: `gray-900` (hover: `green-600`)
 - Navigation links: `gray-700` (hover: `green-600`)
@@ -52,6 +53,7 @@ white      - #ffffff  - Backgrounds, cards, buttons
 - Sticky positioning on desktop
 
 **MobileMenu:**
+
 - Navigation text: `gray-700` (hover: `green-600`)
 - Divider: `gray-200`
 - Auth buttons: Same as header
@@ -59,17 +61,21 @@ white      - #ffffff  - Backgrounds, cards, buttons
 ### Hero Section
 
 **Background:**
+
 - Gradient: `from-green-50 to-white`
 
 **Typography:**
+
 - H1: `gray-900` with `green-600` accent word
 - Subheadline: `gray-600`
 
 **Buttons:**
+
 - Primary CTA: `green-600` (hover: `green-700`)
 - Secondary: `green-600` border, `green-600` text (hover: `green-50` background)
 
 **Illustration:**
+
 - Gradient: `from-green-100 to-green-200`
 - Icon: `green-600`
 - Decorative blurs: `green-400`, `green-500`
@@ -77,6 +83,7 @@ white      - #ffffff  - Backgrounds, cards, buttons
 ### Content Sections
 
 **FeaturesSection:**
+
 - Section background: `white` (default)
 - Card borders: `border-2` (hover: `green-600`)
 - Icon backgrounds: `green-100`
@@ -85,12 +92,14 @@ white      - #ffffff  - Backgrounds, cards, buttons
 - Descriptions: `gray-600`
 
 **HowItWorksSection:**
+
 - Section background: `gray-50`
 - Number badges: `green-600` background with white text
 - Card styling: Same as FeaturesSection
 - Connecting arrows: `green-600`
 
 **SocialProofSection:**
+
 - Headings: `gray-900`
 - Descriptions: `gray-600`
 - Placeholder cards: `gray-50` background, `gray-300` dashed border
@@ -98,6 +107,7 @@ white      - #ffffff  - Backgrounds, cards, buttons
 - Stats numbers: `green-600` (bold)
 
 **FinalCTASection:**
+
 - Background gradient: `from-green-600 to-green-700`
 - Icon background: `white/20`
 - All text: `white` or `green-50`
@@ -109,6 +119,7 @@ white      - #ffffff  - Backgrounds, cards, buttons
 **Background:** `gray-50`
 
 **Elements:**
+
 - Logo text: `gray-900`
 - Description: `gray-600`
 - Social icons: `gray-200` background, `gray-600` icon (hover: `green-600` background, white icon)
@@ -176,6 +187,7 @@ Placeholder:       gray-400
 ### When to Use Green
 
 ✅ **Use green for:**
+
 - Primary call-to-action buttons
 - Brand-related elements (logo accents, headings highlights)
 - Interactive hover states
@@ -185,6 +197,7 @@ Placeholder:       gray-400
 - Decorative gradient elements
 
 ❌ **Avoid green for:**
+
 - Long-form body text (use gray-600)
 - Disabled states
 - Error messages
@@ -192,6 +205,7 @@ Placeholder:       gray-400
 ### When to Use Gray
 
 ✅ **Use gray for:**
+
 - All body text and descriptions (gray-600)
 - Navigation links (gray-700)
 - Headings (gray-900)
@@ -202,21 +216,25 @@ Placeholder:       gray-400
 ### Background Combinations
 
 **High Contrast (Primary Content):**
+
 ```
 white background + gray-900 headings + gray-600 body
 ```
 
 **Subtle Differentiation (Sections):**
+
 ```
 gray-50 background + gray-900 headings + gray-600 body
 ```
 
 **Bold Conversion (CTAs):**
+
 ```
 green-600/700 gradient + white text
 ```
 
 **Soft Highlight (Hero):**
+
 ```
 green-50 to white gradient + gray-900/600 text
 ```
@@ -224,20 +242,19 @@ green-50 to white gradient + gray-900/600 text
 ## Implementation Examples
 
 ### Primary Button
+
 ```html
-<button class="bg-green-600 text-white hover:bg-green-700">
-  Zacznij za darmo
-</button>
+<button class="bg-green-600 text-white hover:bg-green-700">Zacznij za darmo</button>
 ```
 
 ### Secondary Button
+
 ```html
-<button class="border border-green-600 text-green-600 hover:bg-green-50">
-  Dowiedz się więcej
-</button>
+<button class="border border-green-600 text-green-600 hover:bg-green-50">Dowiedz się więcej</button>
 ```
 
 ### Icon Badge
+
 ```html
 <div class="bg-green-100 rounded-lg">
   <Icon class="text-green-600" />
@@ -245,13 +262,13 @@ green-50 to white gradient + gray-900/600 text
 ```
 
 ### Card Hover Effect
+
 ```html
-<Card class="border-2 hover:border-green-600 hover:shadow-lg">
-  ...
-</Card>
+<Card class="border-2 hover:border-green-600 hover:shadow-lg"> ... </Card>
 ```
 
 ### Section Background
+
 ```html
 <section class="bg-gray-50">
   <!-- Alternating section background -->

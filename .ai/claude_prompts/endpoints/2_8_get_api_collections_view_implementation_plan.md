@@ -5,6 +5,7 @@
 The GET /api/collections endpoint retrieves a list of all recipe collections belonging to the authenticated user. Each collection includes its unique identifier, name, recipe count, and creation timestamp. This endpoint enables users to view their organizational structure for recipes, facilitating navigation to specific collections for detailed viewing.
 
 **Key characteristics:**
+
 - Read-only operation (no data modification)
 - Returns all collections owned by the authenticated user
 - Includes aggregated recipe count for each collection
@@ -50,6 +51,7 @@ interface GetCollectionsResponse {
 ```
 
 ### No Command Models Required
+
 This is a read-only endpoint with no input payload, so no command models are needed.
 
 ## 4. Response Details
@@ -71,6 +73,7 @@ This is a read-only endpoint with no input payload, so no command models are nee
 ```
 
 **Response characteristics:**
+
 - Returns an array of CollectionDTO objects
 - Array may be empty if user has no collections
 - Collections ordered by creation date (newest first)
@@ -79,6 +82,7 @@ This is a read-only endpoint with no input payload, so no command models are nee
 ### Error Responses
 
 - **401 Unauthorized**: User not authenticated or authentication token invalid
+
   ```json
   {
     "error": "Unauthorized",
@@ -97,6 +101,7 @@ This is a read-only endpoint with no input payload, so no command models are nee
 ## 5. Data Flow
 
 ### Request Flow:
+
 1. **Request received** at `/api/collections` endpoint
 2. **Authentication**: Extract and validate authenticated user from `context.locals.supabase`
 3. **Service invocation**: Call `CollectionService.getUserCollections(supabase, userId)`
@@ -131,10 +136,7 @@ Create or update `src/lib/services/collection.service.ts`:
 
 ```typescript
 export class CollectionService {
-  static async getUserCollections(
-    supabase: SupabaseClient,
-    userId: string
-  ): Promise<CollectionDTO[]> {
+  static async getUserCollections(supabase: SupabaseClient, userId: string): Promise<CollectionDTO[]> {
     // Implementation details in Implementation Steps section
   }
 }
@@ -143,20 +145,24 @@ export class CollectionService {
 ## 6. Security Considerations
 
 ### Authentication
+
 - **Requirement**: User must be authenticated via Supabase auth
 - **Development**: Use mocked userId `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - **Production**: Uncomment real authentication block (see `.ai/claude_rules/auth_dev_mock.md`)
 
 ### Authorization
+
 - **Ownership verification**: Query automatically filters by authenticated userId
 - **Data isolation**: Ensure the WHERE clause includes `user_id = $authenticatedUserId`
 - **No user input to validate**: Since there are no parameters, SQL injection risk is minimal
 
 ### Data Validation
+
 - **userId**: Validated by authentication mechanism (Supabase returns valid UUID)
 - **No query parameters**: No additional validation needed
 
 ### Potential Threats
+
 1. **Authorization Bypass**: Mitigated by filtering results by authenticated userId
 2. **Information Disclosure**: Only return collections owned by the user
 3. **DoS via Large Result Sets**: No pagination could allow very large responses - monitor and add pagination if needed
@@ -189,26 +195,27 @@ try {
   // Service call
   // Response formatting
 } catch (error) {
-  console.error('[GET /api/collections] Error:', {
+  console.error("[GET /api/collections] Error:", {
     userId,
-    error: error instanceof Error ? error.message : 'Unknown error',
+    error: error instanceof Error ? error.message : "Unknown error",
     stack: error instanceof Error ? error.stack : undefined,
   });
 
   return new Response(
     JSON.stringify({
-      error: 'Internal Server Error',
-      message: 'Failed to retrieve collections',
+      error: "Internal Server Error",
+      message: "Failed to retrieve collections",
     }),
     {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     }
   );
 }
 ```
 
 ### Logging Strategy
+
 - Log all errors with structured context (userId, timestamp, error message)
 - Use console.error for error-level logs
 - Include stack traces for debugging
@@ -217,11 +224,13 @@ try {
 ## 8. Performance Considerations
 
 ### Potential Bottlenecks
+
 1. **No Pagination**: Could return thousands of collections for power users
 2. **Aggregation Query**: COUNT on collection_recipes requires table scan
 3. **Multiple Collections**: N+1 query problem if not properly joined
 
 ### Optimization Strategies
+
 1. **Database Indexing**:
    - Ensure index on `collections.user_id` for fast filtering
    - Index on `collection_recipes.collection_id` for efficient counting
@@ -240,6 +249,7 @@ try {
    - Include pagination metadata in response
 
 ### Database Query Performance
+
 - Single query with LEFT JOIN and aggregation
 - Expected execution time: <50ms for typical user with <100 collections
 - Scales linearly with number of collections and recipes
@@ -247,30 +257,31 @@ try {
 ## 9. Implementation Steps
 
 ### Step 1: Create Collection Service
+
 **File**: `src/lib/services/collection.service.ts`
 
 1. Create new service file if it doesn't exist
 2. Implement `getUserCollections` method:
+
    ```typescript
-   import type { SupabaseClient } from '@/db/supabase.client';
-   import type { CollectionDTO } from '@/types';
+   import type { SupabaseClient } from "@/db/supabase.client";
+   import type { CollectionDTO } from "@/types";
 
    export class CollectionService {
-     static async getUserCollections(
-       supabase: SupabaseClient,
-       userId: string
-     ): Promise<CollectionDTO[]> {
+     static async getUserCollections(supabase: SupabaseClient, userId: string): Promise<CollectionDTO[]> {
        const { data, error } = await supabase
-         .from('collections')
-         .select(`
+         .from("collections")
+         .select(
+           `
            id,
            user_id,
            name,
            created_at,
            collection_recipes(count)
-         `)
-         .eq('user_id', userId)
-         .order('created_at', { ascending: false });
+         `
+         )
+         .eq("user_id", userId)
+         .order("created_at", { ascending: false });
 
        if (error) {
          throw error;
@@ -288,49 +299,45 @@ try {
    ```
 
 ### Step 2: Create API Route Handler
+
 **File**: `src/pages/api/collections/index.ts`
 
 1. Create the file structure: `src/pages/api/collections/index.ts`
 2. Implement the GET handler:
+
    ```typescript
-   import type { APIRoute } from 'astro';
-   import { CollectionService } from '@/lib/services/collection.service';
+   import type { APIRoute } from "astro";
+   import { CollectionService } from "@/lib/services/collection.service";
 
    export const prerender = false;
 
    export const GET: APIRoute = async (context) => {
      try {
        // Authentication (mocked for development)
-       const userId = 'a85d6d6c-b7d4-4605-9cc4-3743401b67a0';
+       const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
 
        // Retrieve user collections
-       const collections = await CollectionService.getUserCollections(
-         context.locals.supabase,
-         userId
-       );
+       const collections = await CollectionService.getUserCollections(context.locals.supabase, userId);
 
        // Return success response
-       return new Response(
-         JSON.stringify({ collections }),
-         {
-           status: 200,
-           headers: { 'Content-Type': 'application/json' },
-         }
-       );
+       return new Response(JSON.stringify({ collections }), {
+         status: 200,
+         headers: { "Content-Type": "application/json" },
+       });
      } catch (error) {
-       console.error('[GET /api/collections] Error:', {
-         error: error instanceof Error ? error.message : 'Unknown error',
+       console.error("[GET /api/collections] Error:", {
+         error: error instanceof Error ? error.message : "Unknown error",
          stack: error instanceof Error ? error.stack : undefined,
        });
 
        return new Response(
          JSON.stringify({
-           error: 'Internal Server Error',
-           message: 'Failed to retrieve collections',
+           error: "Internal Server Error",
+           message: "Failed to retrieve collections",
          }),
          {
            status: 500,
-           headers: { 'Content-Type': 'application/json' },
+           headers: { "Content-Type": "application/json" },
          }
        );
      }
@@ -338,11 +345,13 @@ try {
    ```
 
 ### Step 3: Add Authentication Block
+
 1. Include the mocked authentication code from `.ai/claude_rules/auth_dev_mock.md`
 2. Add TODO comment for production authentication
 3. Ensure the commented production code is ready for uncommenting
 
 ### Step 4: Test the Endpoint
+
 1. Start the development server: `npm run dev`
 2. Test with curl or Postman:
    ```bash
@@ -353,24 +362,28 @@ try {
 5. Test with user that has multiple collections
 
 ### Step 5: Verify Database Queries
+
 1. Check Supabase dashboard for query performance
 2. Verify indexes exist on `collections.user_id` and `collection_recipes.collection_id`
 3. Monitor query execution time
 4. Ensure no N+1 query problems
 
 ### Step 6: Error Handling Testing
+
 1. Test with invalid/expired authentication token (should return 401)
 2. Simulate database connection failure (should return 500)
 3. Verify error logs contain useful debugging information
 4. Ensure error responses don't leak internal implementation details
 
 ### Step 7: Code Quality Checks
+
 1. Run linter: `npm run lint`
 2. Fix any linting issues: `npm run lint:fix`
 3. Format code: `npm run format`
 4. Review code for adherence to project guidelines
 
 ### Step 8: Documentation
+
 1. Update API documentation if it exists
 2. Add JSDoc comments to service methods
 3. Document any assumptions or limitations

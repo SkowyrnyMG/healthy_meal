@@ -5,6 +5,7 @@
 This endpoint retrieves a specific recipe collection for the authenticated user, including paginated recipes within that collection. It verifies collection ownership and returns detailed collection information with embedded recipe data.
 
 **Key Features:**
+
 - Retrieves collection by ID with ownership verification
 - Returns paginated list of recipes in the collection
 - Provides detailed recipe information (title, description, nutrition)
@@ -28,6 +29,7 @@ This endpoint retrieves a specific recipe collection for the authenticated user,
 ### DTOs (Already Defined in src/types.ts)
 
 **CollectionDetailDTO**: Response structure for collection with recipes
+
 ```typescript
 interface CollectionDetailDTO {
   id: string;
@@ -40,6 +42,7 @@ interface CollectionDetailDTO {
 ```
 
 **CollectionRecipeDTO**: Recipe information within a collection
+
 ```typescript
 interface CollectionRecipeDTO {
   recipeId: string;
@@ -54,6 +57,7 @@ interface CollectionRecipeDTO {
 ```
 
 **PaginationDTO**: Pagination metadata
+
 ```typescript
 interface PaginationDTO {
   page: number;
@@ -64,6 +68,7 @@ interface PaginationDTO {
 ```
 
 **NutritionDTO**: Nutrition information
+
 ```typescript
 interface NutritionDTO {
   calories: number;
@@ -78,11 +83,13 @@ interface NutritionDTO {
 ### Validation Schemas (To Be Created)
 
 **CollectionIdParamSchema**: Validates collectionId path parameter
+
 ```typescript
 const CollectionIdParamSchema = z.string().uuid("Invalid collection ID format");
 ```
 
 **QueryParamsSchema**: Validates pagination query parameters
+
 ```typescript
 const QueryParamsSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -93,6 +100,7 @@ const QueryParamsSchema = z.object({
 ### Service Types (To Be Created in collection.service.ts)
 
 **Database Query Result Interface**:
+
 ```typescript
 interface CollectionWithRecipesQueryResult {
   id: string;
@@ -160,6 +168,7 @@ interface CollectionWithRecipesQueryResult {
 ### Error Responses
 
 **400 Bad Request**: Invalid parameters
+
 ```json
 {
   "error": "Bad Request",
@@ -168,6 +177,7 @@ interface CollectionWithRecipesQueryResult {
 ```
 
 **401 Unauthorized**: Not authenticated (production only)
+
 ```json
 {
   "error": "Unauthorized",
@@ -176,6 +186,7 @@ interface CollectionWithRecipesQueryResult {
 ```
 
 **404 Not Found**: Collection not found or unauthorized access
+
 ```json
 {
   "error": "Not Found",
@@ -184,6 +195,7 @@ interface CollectionWithRecipesQueryResult {
 ```
 
 **500 Internal Server Error**: Unexpected error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -221,6 +233,7 @@ interface CollectionWithRecipesQueryResult {
 ### Database Queries
 
 **Query 1: Fetch Collection with Ownership Check**
+
 ```sql
 SELECT id, user_id, name, created_at
 FROM collections
@@ -229,6 +242,7 @@ LIMIT 1;
 ```
 
 **Query 2: Count Total Recipes in Collection**
+
 ```sql
 SELECT COUNT(*) as total
 FROM collection_recipes
@@ -236,6 +250,7 @@ WHERE collection_id = ?;
 ```
 
 **Query 3: Fetch Paginated Recipes**
+
 ```sql
 SELECT
   cr.recipe_id,
@@ -256,17 +271,20 @@ LIMIT ? OFFSET ?;
 ## 6. Security Considerations
 
 ### Authentication
+
 - **Development**: Mocked userId (`a85d6d6c-b7d4-4605-9cc4-3743401b67a0`)
 - **Production**: Use `context.locals.supabase.auth.getUser()` to get authenticated user
 - Code includes commented production auth ready to enable
 
 ### Authorization
+
 - **Ownership Verification**: Only collection owner can access collection
 - **Anti-Enumeration**: Return 404 (not 403) for both non-existent and unauthorized collections
   - Prevents attackers from determining which collections exist
   - Users cannot distinguish between "collection doesn't exist" and "collection exists but not yours"
 
 ### Input Validation
+
 - **UUID Validation**: Prevents SQL injection through path parameter
 - **Query Parameter Validation**:
   - Page must be positive integer (prevents negative values, strings)
@@ -275,11 +293,13 @@ LIMIT ? OFFSET ?;
 - **Zod Schemas**: Provide type safety and runtime validation
 
 ### SQL Injection Prevention
+
 - Supabase uses parameterized queries
 - All user inputs are validated before database queries
 - UUID validation ensures only valid formats are used
 
 ### Rate Limiting Considerations
+
 - Not implemented at endpoint level
 - Should be handled at infrastructure level (API Gateway, middleware)
 - Consider implementing if collection queries become performance bottleneck
@@ -324,6 +344,7 @@ export class CollectionNotFoundError extends Error {
 ### Error Logging Format
 
 **Expected Errors (console.info)**:
+
 ```typescript
 console.info("[GET /api/collections/{collectionId}] Collection not found:", {
   userId,
@@ -333,6 +354,7 @@ console.info("[GET /api/collections/{collectionId}] Collection not found:", {
 ```
 
 **Unexpected Errors (console.error)**:
+
 ```typescript
 console.error("[GET /api/collections/{collectionId}] Error:", {
   userId,
@@ -432,6 +454,7 @@ console.error("[GET /api/collections/{collectionId}] Error:", {
 ### Step 3: Testing Considerations
 
 **Manual Testing**:
+
 1. Test with valid collectionId and default pagination
 2. Test with custom page and limit values
 3. Test with invalid collectionId (non-UUID)
@@ -441,6 +464,7 @@ console.error("[GET /api/collections/{collectionId}] Error:", {
 7. Test with empty collection (no recipes)
 
 **Test Cases**:
+
 - Valid request → 200 OK with correct data structure
 - Invalid UUID → 400 Bad Request
 - Non-existent collection → 404 Not Found

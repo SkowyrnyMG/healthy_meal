@@ -5,6 +5,7 @@
 This endpoint enables authenticated users to browse and discover public recipes shared by all users in the system. Unlike GET /api/recipes which returns only the authenticated user's own recipes, this endpoint provides access to the community's public recipe collection.
 
 **Key Characteristics:**
+
 - Returns public recipes from all users (not limited to authenticated user)
 - Requires authentication (user must be logged in to browse)
 - Supports full-text search, filtering by tags, calories, and prep time
@@ -22,16 +23,16 @@ This endpoint enables authenticated users to browse and discover public recipes 
 
 **All parameters are optional query parameters:**
 
-| Parameter | Type | Validation | Default | Description |
-|-----------|------|------------|---------|-------------|
-| `search` | string | 1-255 characters, trimmed | - | Full-text search in recipe title and description |
-| `tags` | string | Comma-separated UUIDs | - | Filter recipes by tag IDs |
-| `maxCalories` | number | Integer, 1-10000 | - | Maximum calories per serving |
-| `maxPrepTime` | number | Integer, 1-1440 | - | Maximum preparation time in minutes |
-| `page` | number | Integer, min 1 | 1 | Page number for pagination |
-| `limit` | number | Integer, 1-100 | 20 | Number of results per page |
-| `sortBy` | enum | "createdAt" \| "updatedAt" \| "title" \| "prepTime" | "createdAt" | Field to sort by |
-| `sortOrder` | enum | "asc" \| "desc" | "desc" | Sort direction |
+| Parameter     | Type   | Validation                                          | Default     | Description                                      |
+| ------------- | ------ | --------------------------------------------------- | ----------- | ------------------------------------------------ |
+| `search`      | string | 1-255 characters, trimmed                           | -           | Full-text search in recipe title and description |
+| `tags`        | string | Comma-separated UUIDs                               | -           | Filter recipes by tag IDs                        |
+| `maxCalories` | number | Integer, 1-10000                                    | -           | Maximum calories per serving                     |
+| `maxPrepTime` | number | Integer, 1-1440                                     | -           | Maximum preparation time in minutes              |
+| `page`        | number | Integer, min 1                                      | 1           | Page number for pagination                       |
+| `limit`       | number | Integer, 1-100                                      | 20          | Number of results per page                       |
+| `sortBy`      | enum   | "createdAt" \| "updatedAt" \| "title" \| "prepTime" | "createdAt" | Field to sort by                                 |
+| `sortOrder`   | enum   | "asc" \| "desc"                                     | "desc"      | Sort direction                                   |
 
 **Note**: The `isPublic` parameter is NOT available in this endpoint. All results are implicitly filtered to public recipes only.
 
@@ -49,6 +50,7 @@ GET /api/recipes/public?page=2&limit=50&maxPrepTime=30
 ### DTOs (from `src/types.ts`)
 
 **RecipeListItemDTO** - Response data structure for recipe list items:
+
 ```typescript
 interface RecipeListItemDTO {
   id: string;
@@ -67,6 +69,7 @@ interface RecipeListItemDTO {
 ```
 
 **NutritionDTO** - Nutrition information per serving:
+
 ```typescript
 interface NutritionDTO {
   calories: number;
@@ -79,6 +82,7 @@ interface NutritionDTO {
 ```
 
 **TagDTO** - Tag information:
+
 ```typescript
 interface TagDTO {
   id: string;
@@ -89,6 +93,7 @@ interface TagDTO {
 ```
 
 **PaginationDTO** - Pagination metadata:
+
 ```typescript
 interface PaginationDTO {
   page: number;
@@ -99,13 +104,14 @@ interface PaginationDTO {
 ```
 
 **RecipeQueryParams** - Query parameters interface:
+
 ```typescript
 interface RecipeQueryParams {
   search?: string;
   tags?: string;
   maxCalories?: number;
   maxPrepTime?: number;
-  isPublic?: boolean;  // Will be hardcoded to true
+  isPublic?: boolean; // Will be hardcoded to true
   page?: number;
   limit?: number;
   sortBy?: "createdAt" | "updatedAt" | "title" | "prepTime";
@@ -116,15 +122,19 @@ interface RecipeQueryParams {
 ### Validation Schema
 
 **PublicRecipeQueryParamsSchema** - New Zod schema for validating query parameters:
+
 ```typescript
 const PublicRecipeQueryParamsSchema = z.object({
   search: z.string().trim().min(1).max(255).optional(),
-  tags: z.string().optional().transform((val) => {
-    if (!val) return undefined;
-    const uuids = val.split(",").map((s) => s.trim());
-    z.array(z.string().uuid()).parse(uuids);
-    return val;
-  }),
+  tags: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      const uuids = val.split(",").map((s) => s.trim());
+      z.array(z.string().uuid()).parse(uuids);
+      return val;
+    }),
   maxCalories: z.coerce.number().int().min(1).max(10000).optional(),
   maxPrepTime: z.coerce.number().int().min(1).max(1440).optional(),
   // Note: isPublic is NOT included - it's hardcoded to true in service
@@ -183,6 +193,7 @@ const PublicRecipeQueryParamsSchema = z.object({
 ### Error Responses
 
 **400 Bad Request** - Invalid query parameters:
+
 ```json
 {
   "error": "Bad Request",
@@ -191,6 +202,7 @@ const PublicRecipeQueryParamsSchema = z.object({
 ```
 
 **401 Unauthorized** - Not authenticated (production only):
+
 ```json
 {
   "error": "Unauthorized",
@@ -199,6 +211,7 @@ const PublicRecipeQueryParamsSchema = z.object({
 ```
 
 **500 Internal Server Error** - Server error:
+
 ```json
 {
   "error": "Internal Server Error",
@@ -241,11 +254,13 @@ const PublicRecipeQueryParamsSchema = z.object({
 ### Database Interactions
 
 **Tables Involved:**
+
 - `recipes` - Main recipe data
 - `recipe_tags` - Many-to-many junction table
 - `tags` - Tag definitions
 
 **Query Pattern:**
+
 ```sql
 -- Count query (for pagination)
 SELECT COUNT(*) FROM recipes
@@ -267,6 +282,7 @@ LIMIT [limit] OFFSET [offset]
 ```
 
 **Full-Text Search:**
+
 - Uses PostgreSQL's `search_vector` column on recipes table
 - Configured with `tsvector` and GIN index for performance
 - Search configuration: "simple" mode with "plain" type
@@ -276,10 +292,12 @@ LIMIT [limit] OFFSET [offset]
 ### Authentication & Authorization
 
 **Current Implementation (Development):**
+
 - Mock authentication with hardcoded userId
 - TODO comment marks where real auth should be enabled
 
 **Production Requirements:**
+
 - Authenticate user via Supabase session: `context.locals.supabase.auth.getUser()`
 - Return 401 Unauthorized if not authenticated
 - No authorization needed beyond authentication (all users can view public recipes)
@@ -316,20 +334,21 @@ LIMIT [limit] OFFSET [offset]
 
 ### Potential Threats & Mitigations
 
-| Threat | Mitigation |
-|--------|-----------|
-| Unauthenticated access | Require valid Supabase session (production) |
-| Private recipe exposure | Hardcode `is_public = true` in service |
-| Parameter pollution | Explicitly exclude `isPublic` from Zod schema |
-| Large result sets | Enforce max limit of 100 items |
-| Malicious search strings | Zod validation + Supabase parameterization |
-| Tag UUID injection | Validate each UUID with Zod |
+| Threat                   | Mitigation                                    |
+| ------------------------ | --------------------------------------------- |
+| Unauthenticated access   | Require valid Supabase session (production)   |
+| Private recipe exposure  | Hardcode `is_public = true` in service        |
+| Parameter pollution      | Explicitly exclude `isPublic` from Zod schema |
+| Large result sets        | Enforce max limit of 100 items                |
+| Malicious search strings | Zod validation + Supabase parameterization    |
+| Tag UUID injection       | Validate each UUID with Zod                   |
 
 ## 7. Error Handling
 
 ### Validation Errors (400 Bad Request)
 
 **Trigger Conditions:**
+
 - Empty or whitespace-only search string (after trim)
 - Search string > 255 characters
 - Invalid UUID format in tags parameter
@@ -338,6 +357,7 @@ LIMIT [limit] OFFSET [offset]
 - page < 1 or limit < 1 or limit > 100
 
 **Handling:**
+
 ```typescript
 try {
   validatedParams = PublicRecipeQueryParamsSchema.parse(rawParams);
@@ -358,18 +378,23 @@ try {
 ### Authentication Errors (401 Unauthorized)
 
 **Trigger Conditions (Production):**
+
 - Missing authentication token
 - Invalid or expired session
 - User not found
 
 **Handling:**
+
 ```typescript
-const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
+const {
+  data: { user },
+  error: authError,
+} = await context.locals.supabase.auth.getUser();
 if (authError || !user) {
   return new Response(
     JSON.stringify({
       error: "Unauthorized",
-      message: "Authentication required"
+      message: "Authentication required",
     }),
     { status: 401, headers: { "Content-Type": "application/json" } }
   );
@@ -379,12 +404,14 @@ if (authError || !user) {
 ### Database Errors (500 Internal Server Error)
 
 **Trigger Conditions:**
+
 - Supabase connection failure
 - Query execution errors
 - Timeout errors
 - Unexpected service errors
 
 **Handling:**
+
 ```typescript
 catch (error) {
   console.error("[GET /api/recipes/public] Error:", {
@@ -405,12 +432,14 @@ catch (error) {
 ### Error Logging Strategy
 
 **What to Log:**
+
 - All 500 errors with full stack trace
 - Endpoint name in log prefix: `[GET /api/recipes/public]`
 - Error message and type
 - Do NOT log sensitive data (user tokens, passwords)
 
 **What NOT to Expose to Client:**
+
 - Internal error details
 - Stack traces
 - Database schema information
@@ -441,6 +470,7 @@ catch (error) {
 ### Optimization Strategies
 
 1. **Database Indexes**
+
    ```sql
    -- Required indexes (should already exist)
    CREATE INDEX idx_recipes_is_public ON recipes(is_public);
@@ -506,10 +536,7 @@ export async function getPublicRecipes(
   } = params;
 
   // Build base query for count (separate from data query to avoid Supabase pagination issues)
-  let countQuery = supabase
-    .from("recipes")
-    .select("*", { count: "exact", head: true })
-    .eq("is_public", true); // Hardcoded - only public recipes
+  let countQuery = supabase.from("recipes").select("*", { count: "exact", head: true }).eq("is_public", true); // Hardcoded - only public recipes
 
   // Build data query
   let dataQuery = supabase
@@ -615,6 +642,7 @@ export async function getPublicRecipes(
 ```
 
 **Key Differences from `getUserRecipes()`:**
+
 - No `userId` parameter
 - No `.eq("user_id", userId)` filter
 - Hardcoded `.eq("is_public", true)` filter
@@ -779,6 +807,7 @@ export const GET: APIRoute = async (context) => {
 After implementation, test the following scenarios:
 
 **Basic Functionality:**
+
 - [ ] GET `/api/recipes/public` returns paginated public recipes
 - [ ] Response includes both `recipes` array and `pagination` object
 - [ ] Recipes have all expected fields (id, title, description, etc.)
@@ -786,6 +815,7 @@ After implementation, test the following scenarios:
 - [ ] Only public recipes are returned (`isPublic: true`)
 
 **Filtering:**
+
 - [ ] Search parameter filters by title/description
 - [ ] Tags parameter filters by tag IDs (single and multiple)
 - [ ] maxCalories filters correctly
@@ -793,12 +823,14 @@ After implementation, test the following scenarios:
 - [ ] Multiple filters work together (AND logic)
 
 **Sorting:**
+
 - [ ] sortBy="createdAt" with sortOrder="desc" (default)
 - [ ] sortBy="title" with sortOrder="asc"
 - [ ] sortBy="prepTime" with sortOrder="asc"
 - [ ] sortBy="updatedAt" with sortOrder="desc"
 
 **Pagination:**
+
 - [ ] Default pagination (page=1, limit=20)
 - [ ] Custom pagination (page=2, limit=10)
 - [ ] Pagination metadata is accurate (total, totalPages)
@@ -806,6 +838,7 @@ After implementation, test the following scenarios:
 - [ ] Empty result set returns empty array with pagination
 
 **Validation:**
+
 - [ ] Invalid search (empty after trim) returns 400
 - [ ] Search > 255 chars returns 400
 - [ ] Invalid UUID in tags returns 400
@@ -817,11 +850,13 @@ After implementation, test the following scenarios:
 - [ ] limit > 100 returns 400
 
 **Error Handling:**
+
 - [ ] Database errors return 500
 - [ ] Error messages don't expose internal details
 - [ ] Errors are logged with proper context
 
 **Security:**
+
 - [ ] Private recipes are NOT returned (even with parameter manipulation)
 - [ ] Users from different accounts see the same public recipes
 - [ ] No SQL injection via search parameter

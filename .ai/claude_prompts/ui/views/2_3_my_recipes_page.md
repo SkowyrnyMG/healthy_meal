@@ -3,12 +3,13 @@ As a senior frontend developer, your task is to create a detailed implementation
 First, review the following information:
 
 1. Product Requirements Document (PRD):
-<prd>
-`.ai/prd.md`
-</prd>
+   <prd>
+   `.ai/prd.md`
+   </prd>
 
 2. View Description:
-<view_description>
+   <view_description>
+
 ### 2.3 My Recipes Page
 
 **Path:** `/recipes`
@@ -16,6 +17,7 @@ First, review the following information:
 **Main Purpose:** Display user's personal recipe collection with search, filtering, and sorting capabilities. Primary interface for finding and managing recipes.
 
 **Key Information to Display:**
+
 - User's recipe collection in responsive grid
 - Active search query and filters
 - Recipe count and pagination info
@@ -24,6 +26,7 @@ First, review the following information:
 **Key View Components:**
 
 **Layout Components:**
+
 - `<RecipeListLayout>` - Main container with sidebar (desktop) or top sections (mobile)
 - `<SearchBar>` - Prominent text input with search icon, placeholder: "Szukaj przepisów..."
 - `<FilterButton>` - Button with count badge (e.g., "Filtry (3)") when filters active
@@ -38,6 +41,7 @@ First, review the following information:
 - `<Pagination>` - Page numbers, prev/next buttons (20 items per page)
 
 **Recipe Cards:**
+
 - `<RecipeCard>` (full version)
   - Colored placeholder with initial + icon
   - Title (line-clamp-2)
@@ -48,6 +52,7 @@ First, review the following information:
   - Actions: Favorite heart, "..." menu (Edit, Delete, View, Add to Collection, Modify with AI)
 
 **Interactive Components:**
+
 - Search input with 500ms debounce
 - Filter panel slide-in/slide-out animation
 - Active filter chip removal
@@ -56,6 +61,7 @@ First, review the following information:
 - Pagination navigation
 
 **UX Considerations:**
+
 - All filter state persists in URL query parameters
 - Shareable filtered URLs
 - Browser back/forward navigation support
@@ -66,6 +72,7 @@ First, review the following information:
 - Smooth transitions between filter changes
 
 **Accessibility Considerations:**
+
 - Search bar with proper label (visible or aria-label)
 - Filter panel keyboard navigation (Tab, Enter, Escape)
 - Checkbox/slider ARIA states
@@ -74,22 +81,27 @@ First, review the following information:
 - Keyboard-accessible pagination
 
 **Security Considerations:**
+
 - Display only user's own recipes
 - Recipe ownership verification before Edit/Delete actions
 - XSS protection in search query display
 
 **Empty States:**
+
 - No recipes at all: "Nie masz jeszcze przepisów" + "+ Dodaj pierwszy przepis" CTA
 - No results from search/filter: "Nie znaleziono przepisów pasujących do kryteriów" + "Wyczyść filtry" button
 
 **URL State Example:**
+
 ```
 /recipes?search=kurczak&tags=uuid1,uuid2&maxCalories=500&maxPrepTime=30&sortBy=prepTime&sortOrder=asc&page=2
 ```
+
 </view_description>
 
 3. User Stories:
-<user_stories>
+   <user_stories>
+
 #### US-010: Browsing Existing Recipes
 
 As a user, I want to browse my recipes to find interesting items.
@@ -125,7 +137,8 @@ Acceptance Criteria:
 </user_stories>
 
 1. Endpoint Description:
-<endpoint_description>
+   <endpoint_description>
+
 #### GET /api/profile
 
 **Description**: Get current user's profile
@@ -251,32 +264,36 @@ Acceptance Criteria:
   ]
 }
 ```
+
 </endpoint_description>
 
 1. Endpoint Implementation:
-<endpoint_implementation>
-`src/pages/api/profile.ts`
-`src/pages/api/recipes.ts`
-`src/pages/api/tags.ts`
-</endpoint_implementation>
+   <endpoint_implementation>
+   `src/pages/api/profile.ts`
+   `src/pages/api/recipes.ts`
+   `src/pages/api/tags.ts`
+   </endpoint_implementation>
 
 1. Type Definitions:
-<type_definitions>
-`src/types.ts`
-</type_definitions>
+   <type_definitions>
+   `src/types.ts`
+   </type_definitions>
 
 1. Tech Stack:
-<tech_stack>
-`.ai/tech-stack.md`
-</tech_stack>
+   <tech_stack>
+   `.ai/tech-stack.md`
+   </tech_stack>
 
 Before creating the final implementation plan, conduct analysis and planning inside <implementation_breakdown> tags in your thinking block. This section can be quite long, as it's important to be thorough.
 
 In your implementation breakdown, execute the following steps:
+
 1. For each input section (PRD, User Stories, Endpoint Description, Endpoint Implementation, Type Definitions, Tech Stack):
-  - Summarize key points
- - List any requirements or constraints
- - Note any potential challenges or important issues
+
+- Summarize key points
+- List any requirements or constraints
+- Note any potential challenges or important issues
+
 2. Extract and list key requirements from the PRD
 3. List all needed main components, along with a brief description of their purpose, needed types, handled events, and validation conditions
 4. Create a high-level component tree diagram
@@ -295,12 +312,14 @@ After conducting the analysis, provide an implementation plan in Markdown format
 2. View Routing: Specify the path where the view should be accessible.
 3. Component Structure: Outline of main components and their hierarchy.
 4. Component Details: For each component, describe:
- - Component description, its purpose and what it consists of
- - Main HTML elements and child components that build the component
- - Handled events
- - Validation conditions (detailed conditions, according to API)
- - Types (DTO and ViewModel) required by the component
- - Props that the component accepts from parent (component interface)
+
+- Component description, its purpose and what it consists of
+- Main HTML elements and child components that build the component
+- Handled events
+- Validation conditions (detailed conditions, according to API)
+- Types (DTO and ViewModel) required by the component
+- Props that the component accepts from parent (component interface)
+
 5. Types: Detailed description of types required for view implementation, including exact breakdown of any new types or view models by fields and types.
 6. State Management: Detailed description of how state is managed in the view, specifying whether a custom hook is required.
 7. API Integration: Explanation of how to integrate with the provided endpoint. Precisely indicate request and response types.
@@ -319,16 +338,21 @@ Here's an example of what the output file should look like (content is to be rep
 # View Implementation Plan [View Name]
 
 ## 1. Overview
+
 [Brief description of the view and its purpose]
 
 ## 2. View Routing
+
 [Path where the view should be accessible]
 
 ## 3. Component Structure
+
 [Outline of main components and their hierarchy]
 
 ## 4. Component Details
+
 ### [Component Name 1]
+
 - Component description [description]
 - Main elements: [description]
 - Handled interactions: [list]
@@ -337,29 +361,38 @@ Here's an example of what the output file should look like (content is to be rep
 - Props: [list]
 
 ### [Component Name 2]
+
 [...]
 
 ## 5. Types
+
 [Detailed description of required types]
 
 ## 6. State Management
+
 [Description of state management in the view]
 
 ## 7. API Integration
+
 [Explanation of integration with provided endpoint, indication of request and response types]
 
 ## 8. User Interactions
+
 [Detailed description of user interactions]
 
 ## 9. Conditions and Validation
+
 [Detailed description of conditions and their validation]
 
 ## 10. Error Handling
+
 [Description of handling potential errors]
+
 ## 11. Implementation Steps
+
 1. [Step 1]
 2. [Step 2]
 3. [...]
 ```
 
-Begin analysis and planning now. Your final output should consist solely of the implementation plan in English in markdown format, which you will save in the .ai/claude_prompts/ui/views/2_3_{view-name}-view-implementation-plan.md file and should not duplicate or repeat any work done in the implementation breakdown.
+Begin analysis and planning now. Your final output should consist solely of the implementation plan in English in markdown format, which you will save in the .ai/claude*prompts/ui/views/2_3*{view-name}-view-implementation-plan.md file and should not duplicate or repeat any work done in the implementation breakdown.

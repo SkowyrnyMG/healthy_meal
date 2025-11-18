@@ -5,6 +5,7 @@
 This endpoint allows authenticated users to delete their recipe collections. When a collection is deleted, all associated collection_recipes entries are automatically removed through database cascade deletion. The endpoint implements anti-enumeration security patterns to prevent unauthorized users from discovering collection IDs.
 
 **Key Features:**
+
 - Deletes a specific collection by ID
 - Verifies user ownership before deletion
 - Automatic cascade deletion of collection recipes
@@ -27,6 +28,7 @@ This endpoint allows authenticated users to delete their recipe collections. Whe
 ### Validation Schemas (Zod)
 
 **CollectionIdParamSchema** (already exists in `[collectionId].ts`):
+
 ```typescript
 const CollectionIdParamSchema = z.string().uuid("Invalid collection ID format");
 ```
@@ -34,6 +36,7 @@ const CollectionIdParamSchema = z.string().uuid("Invalid collection ID format");
 ### Service Function Signature
 
 **New function to add to `collection.service.ts`**:
+
 ```typescript
 /**
  * Delete a collection for a user
@@ -44,11 +47,7 @@ const CollectionIdParamSchema = z.string().uuid("Invalid collection ID format");
  * @throws CollectionNotFoundError if collection not found or user is not authorized (anti-enumeration)
  * @throws Error if database query fails
  */
-async function deleteCollection(
-  supabase: SupabaseClient,
-  userId: string,
-  collectionId: string
-): Promise<void>
+async function deleteCollection(supabase: SupabaseClient, userId: string, collectionId: string): Promise<void>;
 ```
 
 ### Error Classes (already exist)
@@ -59,24 +58,26 @@ async function deleteCollection(
 ## 4. Response Details
 
 ### Success Response
+
 - **Status Code**: 204 No Content
 - **Response Body**: Empty (no content)
 - **Headers**: None required
 
 ### Error Responses
 
-| Status Code | Error Type | Response Body | Scenario |
-|------------|-----------|---------------|----------|
-| 400 | Bad Request | `{"error": "Bad Request", "message": "Invalid collection ID format"}` | collectionId is not a valid UUID |
-| 401 | Unauthorized | `{"error": "Unauthorized", "message": "Authentication required"}` | User not authenticated (currently mocked) |
-| 404 | Not Found | `{"error": "Not Found", "message": "Collection not found"}` | Collection doesn't exist OR user doesn't own it (anti-enumeration) |
-| 500 | Internal Server Error | `{"error": "Internal Server Error", "message": "Failed to delete collection"}` | Unexpected database or server error |
+| Status Code | Error Type            | Response Body                                                                  | Scenario                                                           |
+| ----------- | --------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| 400         | Bad Request           | `{"error": "Bad Request", "message": "Invalid collection ID format"}`          | collectionId is not a valid UUID                                   |
+| 401         | Unauthorized          | `{"error": "Unauthorized", "message": "Authentication required"}`              | User not authenticated (currently mocked)                          |
+| 404         | Not Found             | `{"error": "Not Found", "message": "Collection not found"}`                    | Collection doesn't exist OR user doesn't own it (anti-enumeration) |
+| 500         | Internal Server Error | `{"error": "Internal Server Error", "message": "Failed to delete collection"}` | Unexpected database or server error                                |
 
 **Note**: 403 Forbidden is converted to 404 Not Found to implement anti-enumeration pattern.
 
 ## 5. Data Flow
 
 ### Request Flow
+
 1. **Authentication**: Verify user is authenticated (mocked for development)
 2. **Path Parameter Extraction**: Extract `collectionId` from URL path
 3. **Validation**: Validate `collectionId` is a valid UUID using Zod
@@ -84,6 +85,7 @@ async function deleteCollection(
 5. **Success Response**: Return 204 No Content
 
 ### Service Layer Flow (`deleteCollection` function)
+
 1. **Fetch Collection**: Query `collections` table for collection with matching `id` and `user_id`
 2. **Ownership Verification**: Check if collection exists and belongs to the authenticated user
    - If not found: throw `CollectionNotFoundError`
@@ -93,6 +95,7 @@ async function deleteCollection(
 5. **Return**: Function completes successfully (void return)
 
 ### Database Operations
+
 ```sql
 -- Step 1: Fetch and verify ownership
 SELECT id, user_id FROM collections
@@ -108,11 +111,13 @@ DELETE FROM collections WHERE id = $collectionId;
 ## 6. Security Considerations
 
 ### Authentication
+
 - **Development**: Using mocked userId (`a85d6d6c-b7d4-4605-9cc4-3743401b67a0`)
 - **Production**: Must uncomment Supabase authentication block
 - Return 401 Unauthorized if authentication fails
 
 ### Authorization
+
 - **Ownership Verification**: Only allow users to delete their own collections
 - **Anti-Enumeration Pattern**:
   - Return 404 for both "collection not found" and "user doesn't own collection"
@@ -120,11 +125,13 @@ DELETE FROM collections WHERE id = $collectionId;
   - Implemented by throwing `CollectionNotFoundError` for both scenarios
 
 ### Input Validation
+
 - **UUID Validation**: Strictly validate `collectionId` is a valid UUID format
 - **Zod Schema**: Use existing `CollectionIdParamSchema` for validation
 - **Early Return**: Return 400 Bad Request for invalid formats before database queries
 
 ### Cascade Deletion Security
+
 - **Database-Enforced**: Cascade deletion is handled by database constraints
 - **No Orphans**: Ensures no orphaned `collection_recipes` entries remain
 - **Atomic Operation**: Deletion is transactional (database handles atomicity)
@@ -132,6 +139,7 @@ DELETE FROM collections WHERE id = $collectionId;
 ## 7. Error Handling
 
 ### Validation Errors (400 Bad Request)
+
 ```typescript
 try {
   validatedCollectionId = CollectionIdParamSchema.parse(collectionId);
@@ -150,6 +158,7 @@ try {
 ```
 
 ### Business Logic Errors (404 Not Found)
+
 ```typescript
 if (error instanceof CollectionNotFoundError) {
   console.info("[DELETE /api/collections/{collectionId}] Collection not found:", {
@@ -169,6 +178,7 @@ if (error instanceof CollectionNotFoundError) {
 ```
 
 ### Unexpected Errors (500 Internal Server Error)
+
 ```typescript
 // Log unexpected errors with full details
 console.error("[DELETE /api/collections/{collectionId}] Error:", {
@@ -189,6 +199,7 @@ return new Response(
 ```
 
 ### Error Logging Strategy
+
 - **console.info**: For expected business logic errors (404, 403)
 - **console.error**: For unexpected errors with stack traces
 - **Consistent Format**: Include userId, collectionId, error message in all logs
@@ -197,6 +208,7 @@ return new Response(
 ## 8. Performance Considerations
 
 ### Database Queries
+
 - **Single Query for Verification**: Combine existence and ownership check in one query
   - Use `.eq("id", collectionId).eq("user_id", userId).single()`
   - Reduces round trips to database
@@ -204,12 +216,14 @@ return new Response(
 - **Cascade Efficiency**: Database handles cascade deletion efficiently
 
 ### Optimization Strategies
+
 1. **Combined Verification Query**: Check existence and ownership in single database call
 2. **Early Validation**: Validate UUID format before any database queries
 3. **No Response Body**: 204 No Content requires no serialization overhead
 4. **Database Cascade**: Let PostgreSQL handle cascade deletion (faster than application-level)
 
 ### Potential Bottlenecks
+
 - **Cascade Deletion**: If collection has thousands of recipes, cascade deletion might take time
   - Mitigated by: Database handles this efficiently with proper indexing
   - Not a concern for typical use case (collections typically have < 100 recipes)
@@ -217,6 +231,7 @@ return new Response(
   - Mitigated by: Minimize number of queries (combined verification)
 
 ### Scalability Notes
+
 - DELETE operations are generally fast (single row deletion)
 - Cascade deletion on `collection_recipes` is index-assisted
 - No pagination needed (single resource deletion)
@@ -225,6 +240,7 @@ return new Response(
 ## 9. Implementation Steps
 
 ### Step 1: Create Service Function in `collection.service.ts`
+
 1. Add `deleteCollection` function to the service file
 2. Implement logic to:
    - Query collection with ownership verification in single query
@@ -234,6 +250,7 @@ return new Response(
 3. Add comprehensive JSDoc comments explaining parameters and errors
 
 ### Step 2: Add DELETE Handler to `src/pages/api/collections/[collectionId].ts`
+
 1. Export `DELETE` constant as APIRoute
 2. Add JSDoc comment with endpoint description and examples
 3. Implement authentication block (mocked for development)
@@ -242,6 +259,7 @@ return new Response(
 6. Return 204 No Content on success
 
 ### Step 3: Implement Error Handling
+
 1. Handle Zod validation errors (400 Bad Request)
 2. Handle `CollectionNotFoundError` (404 Not Found)
 3. Handle unexpected errors (500 Internal Server Error)
@@ -249,10 +267,12 @@ return new Response(
 5. Ensure anti-enumeration pattern (403 returns as 404)
 
 ### Step 4: Import Service Function
+
 1. Add `deleteCollection` to imports from `collection.service`
 2. Ensure error classes are already imported (`CollectionNotFoundError`)
 
 ### Step 5: Test the Implementation
+
 1. Test successful deletion (204 No Content)
 2. Test invalid UUID format (400 Bad Request)
 3. Test non-existent collection (404 Not Found)
@@ -261,11 +281,13 @@ return new Response(
 6. Test authentication failure (401 Unauthorized - when auth is enabled)
 
 ### Step 6: Verify Database Cascade Behavior
+
 1. Confirm `collection_recipes` entries are automatically deleted
 2. Verify no orphaned records remain
 3. Test with collection containing multiple recipes
 
 ### Step 7: Documentation and Code Quality
+
 1. Ensure all functions have proper JSDoc comments
 2. Follow existing code style in the file
 3. Use consistent error handling patterns

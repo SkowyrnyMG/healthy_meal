@@ -7,6 +7,7 @@
 **Purpose:** Allow authenticated users to add recipes to their personal favorites collection. This endpoint validates that the recipe exists and is accessible to the user (either public or owned by the user) before creating the favorite relationship.
 
 **Key Behaviors:**
+
 - Creates a favorite relationship between the authenticated user and a recipe
 - Validates recipe accessibility based on ownership and public visibility
 - Prevents duplicate favorites through composite primary key constraint
@@ -30,9 +31,11 @@
 ### Parameters
 
 **Required:**
+
 - `recipeId` (string, UUID): The ID of the recipe to add to favorites
 
 **Optional:**
+
 - None
 
 ### Validation Rules
@@ -72,7 +75,7 @@ Note: The response uses a simplified favorite object, not the full `FavoriteDTO`
 
 ```typescript
 const AddFavoriteSchema = z.object({
-  recipeId: z.string().uuid("Invalid recipe ID format")
+  recipeId: z.string().uuid("Invalid recipe ID format"),
 });
 ```
 
@@ -85,7 +88,7 @@ export async function addRecipeToFavorites(
   supabase: SupabaseClient,
   userId: string,
   recipeId: string
-): Promise<{ recipeId: string; createdAt: string }>
+): Promise<{ recipeId: string; createdAt: string }>;
 ```
 
 ### Custom Error Classes
@@ -132,6 +135,7 @@ export class RecipeAlreadyFavoritedError extends Error {
 ### Error Responses
 
 #### 400 Bad Request
+
 ```json
 {
   "error": "Bad Request",
@@ -140,11 +144,13 @@ export class RecipeAlreadyFavoritedError extends Error {
 ```
 
 Triggered by:
+
 - Invalid JSON in request body
 - Missing recipeId field
 - Invalid UUID format
 
 #### 401 Unauthorized
+
 ```json
 {
   "error": "Unauthorized",
@@ -153,9 +159,11 @@ Triggered by:
 ```
 
 Triggered by:
+
 - Missing or invalid authentication (currently mocked for development)
 
 #### 403 Forbidden
+
 ```json
 {
   "error": "Forbidden",
@@ -164,9 +172,11 @@ Triggered by:
 ```
 
 Triggered by:
+
 - Recipe is private (is_public = false) and belongs to another user
 
 #### 404 Not Found
+
 ```json
 {
   "error": "Not Found",
@@ -175,9 +185,11 @@ Triggered by:
 ```
 
 Triggered by:
+
 - Recipe ID doesn't exist in the database
 
 #### 409 Conflict
+
 ```json
 {
   "error": "Conflict",
@@ -186,9 +198,11 @@ Triggered by:
 ```
 
 Triggered by:
+
 - Recipe is already in the user's favorites list
 
 #### 500 Internal Server Error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -197,6 +211,7 @@ Triggered by:
 ```
 
 Triggered by:
+
 - Database errors
 - Unexpected exceptions
 
@@ -250,6 +265,7 @@ Triggered by:
 ### Database Interactions
 
 **Query 1: Verify Recipe Exists and Check Accessibility**
+
 ```typescript
 const { data: recipe, error } = await supabase
   .from("recipes")
@@ -259,6 +275,7 @@ const { data: recipe, error } = await supabase
 ```
 
 **Query 2: Check if Already Favorited**
+
 ```typescript
 const { data: existing, error } = await supabase
   .from("favorites")
@@ -269,12 +286,13 @@ const { data: existing, error } = await supabase
 ```
 
 **Query 3: Insert Favorite**
+
 ```typescript
 const { data, error } = await supabase
   .from("favorites")
   .insert({
     user_id: userId,
-    recipe_id: recipeId
+    recipe_id: recipeId,
   })
   .select("recipe_id, created_at")
   .single();
@@ -304,10 +322,12 @@ const { data, error } = await supabase
 ### Authentication
 
 **Development:**
+
 - Using mocked userId: `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - Authentication check commented out
 
 **Production:**
+
 - Uncomment Supabase auth check: `context.locals.supabase.auth.getUser()`
 - Return 401 if authentication fails
 - Extract userId from authenticated user session
@@ -315,11 +335,13 @@ const { data, error } = await supabase
 ### Authorization
 
 **Recipe Accessibility Rules:**
+
 1. User can favorite their own recipes (regardless of public status)
 2. User can favorite public recipes (is_public = true)
 3. User CANNOT favorite private recipes owned by other users
 
 **Implementation:**
+
 ```typescript
 // Recipe is accessible if:
 const isAccessible = recipe.is_public || recipe.user_id === userId;
@@ -331,14 +353,17 @@ if (!isAccessible) {
 ### Input Validation
 
 **Layer 1: JSON Parsing**
+
 - Validate request body is valid JSON
 - Return 400 if parsing fails
 
 **Layer 2: Schema Validation**
+
 - Validate recipeId is present and valid UUID using Zod
 - Return 400 with specific error message if validation fails
 
 **Layer 3: Business Logic Validation**
+
 - Verify recipe exists in database
 - Verify recipe is accessible to user
 - Verify recipe not already favorited
@@ -358,18 +383,21 @@ if (!isAccessible) {
 ### Data Integrity
 
 **Database Constraints:**
+
 - Composite primary key (user_id, recipe_id) prevents duplicate favorites
 - Foreign key on recipe_id ensures recipe exists (CASCADE DELETE)
 - Foreign key on user_id ensures user profile exists (CASCADE DELETE)
 - NOT NULL constraints on both columns
 
 **Application-Level Checks:**
+
 - Explicit recipe existence check
 - Explicit duplicate check for better error messaging
 
 ### Row Level Security (RLS)
 
 **Favorites Table Policies:**
+
 - Users can only INSERT favorites for themselves
 - RLS enforced at database level using `auth.uid()`
 - Additional application-level checks for defense in depth
@@ -379,6 +407,7 @@ if (!isAccessible) {
 ### Error Handling Strategy
 
 **Pattern:** Early returns with guard clauses
+
 - Handle errors at the beginning of functions
 - Use early returns for error conditions
 - Place happy path last for improved readability
@@ -386,41 +415,45 @@ if (!isAccessible) {
 
 ### Error Mapping
 
-| Service Error | HTTP Status | Response Message |
-|---------------|-------------|------------------|
-| `RecipeNotFoundError` | 404 | "Recipe not found" |
-| `RecipeNotAccessibleError` | 403 | "Cannot favorite private recipes from other users" |
-| `RecipeAlreadyFavoritedError` | 409 | "Recipe already in favorites" |
-| JSON parsing error | 400 | "Invalid JSON in request body" |
-| Zod validation error | 400 | Zod error message (e.g., "Invalid recipe ID format") |
-| Database error | 500 | "An unexpected error occurred" |
-| Unknown error | 500 | "An unexpected error occurred" |
+| Service Error                 | HTTP Status | Response Message                                     |
+| ----------------------------- | ----------- | ---------------------------------------------------- |
+| `RecipeNotFoundError`         | 404         | "Recipe not found"                                   |
+| `RecipeNotAccessibleError`    | 403         | "Cannot favorite private recipes from other users"   |
+| `RecipeAlreadyFavoritedError` | 409         | "Recipe already in favorites"                        |
+| JSON parsing error            | 400         | "Invalid JSON in request body"                       |
+| Zod validation error          | 400         | Zod error message (e.g., "Invalid recipe ID format") |
+| Database error                | 500         | "An unexpected error occurred"                       |
+| Unknown error                 | 500         | "An unexpected error occurred"                       |
 
 ### Error Logging
 
 **Info Level (Expected Business Logic Errors):**
+
 ```typescript
 console.info("[POST /api/favorites] Conflict:", {
   userId,
   recipeId,
-  error: error.message
+  error: error.message,
 });
 ```
 
 Use for:
+
 - 409 Conflict (duplicate favorite attempts)
 
 **Error Level (Unexpected Errors):**
+
 ```typescript
 console.error("[POST /api/favorites] Error:", {
   userId,
   recipeId,
   error: error instanceof Error ? error.message : "Unknown error",
-  stack: error instanceof Error ? error.stack : undefined
+  stack: error instanceof Error ? error.stack : undefined,
 });
 ```
 
 Use for:
+
 - Database errors
 - 500 Internal Server Error
 - Unexpected exceptions
@@ -467,6 +500,7 @@ export const POST: APIRoute = async (context) => {
 ### Database Query Optimization
 
 **Current Approach: 3 Sequential Queries**
+
 1. Check recipe exists and accessibility (1 query)
 2. Check if already favorited (1 query)
 3. Insert favorite (1 query)
@@ -474,10 +508,12 @@ export const POST: APIRoute = async (context) => {
 **Optimization Opportunities:**
 
 **Option 1: Combine Queries 1 & 2**
+
 - Use a single query with LEFT JOIN to check both recipe existence/accessibility and existing favorite
 - Reduces round trips from 3 to 2
 
 **Option 2: Optimistic Insert**
+
 - Attempt insert directly
 - Handle constraints violations (UNIQUE, FOREIGN KEY) and map to appropriate errors
 - Best case: 1 query (insert succeeds)
@@ -485,17 +521,20 @@ export const POST: APIRoute = async (context) => {
 - Trade-off: Less clear error messages, requires error code parsing
 
 **Recommendation for Initial Implementation:**
+
 - Use 3 sequential queries for clarity and explicit error handling
 - Optimize later if performance metrics indicate need
 
 ### Indexing
 
 **Existing Indexes:**
+
 - Primary key on favorites (user_id, recipe_id) - automatically indexed
 - Primary key on recipes (id) - automatically indexed
 - Foreign key on recipes (user_id) - should be indexed
 
 **Query Analysis:**
+
 - Query 1: Uses recipes.id (indexed via PK) ✓
 - Query 2: Uses favorites (user_id, recipe_id) (indexed via composite PK) ✓
 - Query 3: Insert operation ✓
@@ -505,16 +544,19 @@ export const POST: APIRoute = async (context) => {
 ### Expected Performance
 
 **Estimated Query Times:**
+
 - Recipe lookup: ~5ms (indexed PK lookup)
 - Favorite check: ~5ms (indexed composite PK lookup)
 - Insert: ~10ms (write operation)
 - **Total: ~20ms** (excluding network latency)
 
 **Bottlenecks:**
+
 - Network latency to Supabase (if hosted remotely)
 - Write performance on favorites table (unlikely with low volume)
 
 **Monitoring Metrics:**
+
 - P50, P95, P99 latency
 - Error rate by status code
 - Favorites created per minute
@@ -523,9 +565,11 @@ export const POST: APIRoute = async (context) => {
 ## 9. Implementation Steps
 
 ### Step 1: Create Custom Error Classes
+
 **File:** `src/lib/services/favorite.service.ts`
 
 Add three custom error classes:
+
 - `RecipeNotFoundError`
 - `RecipeNotAccessibleError`
 - `RecipeAlreadyFavoritedError`
@@ -533,16 +577,19 @@ Add three custom error classes:
 Follow the pattern from `allergen.service.ts:8-36` for error class structure.
 
 ### Step 2: Implement Service Function
+
 **File:** `src/lib/services/favorite.service.ts`
 
 Create `addRecipeToFavorites` function:
 
 **Inputs:**
+
 - `supabase: SupabaseClient`
 - `userId: string`
 - `recipeId: string`
 
 **Logic:**
+
 1. Query recipe by ID, select: id, user_id, is_public
 2. Check if recipe exists (throw `RecipeNotFoundError` if not)
 3. Check accessibility: `is_public || user_id === userId`
@@ -555,28 +602,32 @@ Create `addRecipeToFavorites` function:
 **Returns:** `Promise<{ recipeId: string; createdAt: string }>`
 
 **Error Handling:**
+
 - Wrap Supabase errors and throw with context
 - Use explicit error handling for PGRST116 (not found)
 
 ### Step 3: Create Zod Validation Schema
+
 **File:** `src/pages/api/favorites.ts`
 
 Add validation schema after imports, before route handlers:
 
 ```typescript
 const AddFavoriteSchema = z.object({
-  recipeId: z.string().uuid("Invalid recipe ID format")
+  recipeId: z.string().uuid("Invalid recipe ID format"),
 });
 ```
 
 Follow the pattern from `src/pages/api/profile/allergens.ts:17-19`.
 
 ### Step 4: Implement POST Handler
+
 **File:** `src/pages/api/favorites.ts`
 
 Add POST handler export after the existing GET handler.
 
 **Structure:**
+
 1. **Authentication Section**
    - Use mocked auth from `.ai/claude_rules/auth_dev_mock.md`
    - Copy pattern from `src/pages/api/profile/allergens.ts:100-122`
@@ -636,11 +687,7 @@ Add comprehensive JSDoc comment above POST handler:
 Ensure all error classes are exported so they can be imported in the API route:
 
 ```typescript
-export {
-  RecipeNotFoundError,
-  RecipeNotAccessibleError,
-  RecipeAlreadyFavoritedError
-};
+export { RecipeNotFoundError, RecipeNotAccessibleError, RecipeAlreadyFavoritedError };
 ```
 
 ### Step 7: Update API Route Imports
@@ -655,7 +702,7 @@ import {
   addRecipeToFavorites,
   RecipeNotFoundError,
   RecipeNotAccessibleError,
-  RecipeAlreadyFavoritedError
+  RecipeAlreadyFavoritedError,
 } from "../../lib/services/favorite.service";
 ```
 
@@ -664,6 +711,7 @@ import {
 Test all scenarios using curl or API client:
 
 **Test 1: Successful favorite creation (201)**
+
 ```bash
 curl -X POST http://localhost:3000/api/favorites \
   -H "Content-Type: application/json" \
@@ -671,6 +719,7 @@ curl -X POST http://localhost:3000/api/favorites \
 ```
 
 **Test 2: Invalid UUID format (400)**
+
 ```bash
 curl -X POST http://localhost:3000/api/favorites \
   -H "Content-Type: application/json" \
@@ -678,6 +727,7 @@ curl -X POST http://localhost:3000/api/favorites \
 ```
 
 **Test 3: Recipe not found (404)**
+
 ```bash
 curl -X POST http://localhost:3000/api/favorites \
   -H "Content-Type: application/json" \
@@ -685,6 +735,7 @@ curl -X POST http://localhost:3000/api/favorites \
 ```
 
 **Test 4: Private recipe from another user (403)**
+
 ```bash
 curl -X POST http://localhost:3000/api/favorites \
   -H "Content-Type: application/json" \
@@ -692,6 +743,7 @@ curl -X POST http://localhost:3000/api/favorites \
 ```
 
 **Test 5: Duplicate favorite (409)**
+
 ```bash
 # Run same request twice
 curl -X POST http://localhost:3000/api/favorites \
@@ -700,6 +752,7 @@ curl -X POST http://localhost:3000/api/favorites \
 ```
 
 **Test 6: Invalid JSON (400)**
+
 ```bash
 curl -X POST http://localhost:3000/api/favorites \
   -H "Content-Type: application/json" \
@@ -739,6 +792,7 @@ Confirm the newly added favorite is in the response list.
 This implementation plan provides a comprehensive guide for implementing the POST /api/favorites endpoint. The plan follows the established patterns in the codebase, particularly mirroring the structure from `POST /api/profile/allergens`.
 
 **Key Implementation Points:**
+
 1. Create 3 custom error classes for specific business logic errors
 2. Implement service function with 3-step validation (exists, accessible, not duplicate)
 3. Add POST handler with proper authentication, validation, and error handling

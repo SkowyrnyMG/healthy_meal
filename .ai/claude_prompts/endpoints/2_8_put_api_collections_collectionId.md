@@ -4,6 +4,7 @@ Before we begin, review the following information:
 
 1. Route API specification:
    <route_api_specification>
+
 #### PUT /api/collections/{collectionId}
 
 **Description**: Update collection name
@@ -37,7 +38,7 @@ Before we begin, review the following information:
 - 403 Forbidden: Collection belongs to another user
 - 404 Not Found: Collection not found
 - 409 Conflict: Collection with this name already exists
-</route_api_specification>
+  </route_api_specification>
 
 2. Related database resources:
    <related_db_resources>
@@ -47,6 +48,7 @@ Before we begin, review the following information:
 ### User → Profile (1:1)
 
 - `profiles.user_id` → `auth.users.id` (CASCADE on delete)
+
 ### User ↔ Allergens (M:M via user_allergens)
 
 - `user_allergens.user_id` → `profiles.user_id` (CASCADE on delete)

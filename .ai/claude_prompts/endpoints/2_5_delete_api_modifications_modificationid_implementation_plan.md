@@ -5,6 +5,7 @@
 This endpoint allows authenticated users to delete their own recipe modifications. It implements proper authorization to prevent IDOR (Insecure Direct Object Reference) attacks by ensuring users can only delete modifications they own.
 
 **Key Features:**
+
 - Deletes a recipe modification by ID
 - Verifies user ownership before deletion
 - Returns 204 No Content on success
@@ -28,13 +29,13 @@ This endpoint allows authenticated users to delete their own recipe modification
 ```typescript
 // Reuse existing schema from GET handler
 const ModificationIdParamSchema = z.object({
-  modificationId: z.string().uuid("Modification ID must be a valid UUID")
+  modificationId: z.string().uuid("Modification ID must be a valid UUID"),
 });
 
 type ValidatedModificationIdParam = z.infer<typeof ModificationIdParamSchema>;
 ```
 
-*Note: This schema already exists in the GET handler in the same file and can be reused.*
+_Note: This schema already exists in the GET handler in the same file and can be reused._
 
 ### Service Function (to be created in modification.service.ts)
 
@@ -52,31 +53,33 @@ export async function deleteModification(
   supabase: SupabaseClient,
   modificationId: string,
   userId: string
-): Promise<void>
+): Promise<void>;
 ```
 
 ## 4. Response Details
 
 ### Success Response
+
 - **Status**: 204 No Content
 - **Headers**: None
 - **Body**: null (no content)
 
 ### Error Responses
 
-| Status Code | Error Type | Message | Scenario |
-|------------|-----------|---------|----------|
-| 400 | Bad Request | "Modification ID must be a valid UUID" | Invalid UUID format for modificationId |
-| 401 | Unauthorized | "Authentication required" | User not authenticated (production only) |
-| 403 | Forbidden | "You don't have permission to delete this modification" | User doesn't own the modification |
-| 404 | Not Found | "Modification not found" | Modification doesn't exist OR user doesn't own it |
-| 500 | Internal Server Error | "An unexpected error occurred" | Database errors or unexpected exceptions |
+| Status Code | Error Type            | Message                                                 | Scenario                                          |
+| ----------- | --------------------- | ------------------------------------------------------- | ------------------------------------------------- |
+| 400         | Bad Request           | "Modification ID must be a valid UUID"                  | Invalid UUID format for modificationId            |
+| 401         | Unauthorized          | "Authentication required"                               | User not authenticated (production only)          |
+| 403         | Forbidden             | "You don't have permission to delete this modification" | User doesn't own the modification                 |
+| 404         | Not Found             | "Modification not found"                                | Modification doesn't exist OR user doesn't own it |
+| 500         | Internal Server Error | "An unexpected error occurred"                          | Database errors or unexpected exceptions          |
 
 **Security Note**: For IDOR protection, return 404 for both non-existent modifications AND modifications owned by other users. This prevents attackers from discovering which modification IDs exist.
 
 ## 5. Data Flow
 
 ### Request Flow
+
 1. **Request Reception**: Astro API route receives DELETE request with modificationId in URL path
 2. **Authentication** (Mocked): Extract/verify user identity (currently hardcoded for development)
 3. **Path Parameter Extraction**: Extract `modificationId` from `context.params`
@@ -87,6 +90,7 @@ export async function deleteModification(
 8. **Success Response**: Return HTTP 204 No Content
 
 ### Database Operations
+
 1. **SELECT Query**: Fetch modification by ID to verify existence and ownership
    ```sql
    SELECT id, user_id
@@ -101,6 +105,7 @@ export async function deleteModification(
    ```
 
 ### Cascade Effects
+
 - **No child records**: Recipe modifications don't have dependent records
 - **Parent cascade**: If a recipe is deleted, its modifications are automatically deleted (CASCADE on `original_recipe_id` foreign key)
 
@@ -109,11 +114,13 @@ export async function deleteModification(
 ### Primary Security Threat: IDOR (Insecure Direct Object Reference)
 
 **Attack Scenario**:
+
 - Attacker discovers or guesses modification IDs
 - Attempts to delete modifications belonging to other users
 - Could disrupt other users' data
 
 **Mitigation Strategy**:
+
 1. **Ownership Verification**: Always verify `user_id` matches authenticated user before deletion
 2. **Information Hiding**: Return 404 for both non-existent and unauthorized modifications (don't reveal existence)
 3. **UUID Usage**: ModificationIds are UUIDs, making them hard to guess
@@ -122,12 +129,14 @@ export async function deleteModification(
 ### Authentication & Authorization
 
 **Development Mode** (Current):
+
 ```typescript
 // MOCK: Hardcoded user ID for development
 const user = { id: "a85d6d6c-b7d4-4605-9cc4-3743401b67a0" };
 ```
 
 **Production Mode** (To be enabled):
+
 ```typescript
 const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
 if (authError || !user) {
@@ -138,11 +147,13 @@ if (authError || !user) {
 ### Error Message Strategy
 
 **Secure Approach**:
+
 - Never reveal whether a modification exists if user doesn't own it
 - Use same error message (404) for both "not found" and "not authorized"
 - Log detailed errors server-side but return generic messages to client
 
 **Example**:
+
 - Modification doesn't exist → 404: "Modification not found"
 - Modification exists but belongs to another user → 404: "Modification not found"
 - This prevents attackers from enumerating valid modification IDs
@@ -152,9 +163,11 @@ if (authError || !user) {
 ### Validation Errors (400 Bad Request)
 
 **Cause**: Invalid input format
+
 - ModificationId is not a valid UUID
 
 **Handling**:
+
 ```typescript
 try {
   validatedParams = ModificationIdParamSchema.parse(rawParams);
@@ -168,12 +181,14 @@ try {
 ### Business Logic Errors (403 Forbidden, 404 Not Found)
 
 **Service Layer Throws**:
+
 - `"Modification not found"` → Map to 404
 - `"You don't have permission to delete this modification"` → Map to 403
 
 **Note**: In production, consider mapping 403 to 404 for security (information hiding)
 
 **Handling Pattern**:
+
 ```typescript
 catch (error) {
   if (error instanceof Error) {
@@ -190,11 +205,13 @@ catch (error) {
 ### Server Errors (500 Internal Server Error)
 
 **Causes**:
+
 - Database connection failures
 - Unexpected exceptions
 - Invalid database state
 
 **Handling**:
+
 1. Log full error details server-side
 2. Return generic error message to client
 3. Don't leak internal implementation details
@@ -211,6 +228,7 @@ console.error("[DELETE /api/modifications/[modificationId]] Error:", {
 ```
 
 **Logged Information**:
+
 - Endpoint identifier
 - ModificationId (for debugging)
 - UserId (for security auditing)
@@ -222,17 +240,21 @@ console.error("[DELETE /api/modifications/[modificationId]] Error:", {
 ### Database Query Performance
 
 **Query 1: Verification**
+
 ```sql
 SELECT id, user_id FROM recipe_modifications WHERE id = $1
 ```
+
 - Uses primary key index
 - Expected time: <5ms
 - Returns single row or null
 
 **Query 2: Deletion**
+
 ```sql
 DELETE FROM recipe_modifications WHERE id = $1 AND user_id = $2
 ```
+
 - Uses primary key and indexed user_id
 - Expected time: <5ms
 - Affects single row
@@ -242,15 +264,18 @@ DELETE FROM recipe_modifications WHERE id = $1 AND user_id = $2
 ### Optimization Opportunities
 
 **Current Approach**: Two separate queries for clarity and better error messages
+
 - Pros: Clear error differentiation (not found vs. forbidden)
 - Cons: Requires two database round trips
 
 **Alternative Approach**: Single DELETE with RETURNING clause
+
 ```sql
 DELETE FROM recipe_modifications
 WHERE id = $1 AND user_id = $2
 RETURNING id
 ```
+
 - Pros: Single database query, slightly faster
 - Cons: Can't differentiate between "not found" and "not authorized"
 
@@ -278,6 +303,7 @@ RETURNING id
 **File**: `src/lib/services/modification.service.ts`
 
 **Implementation**:
+
 ```typescript
 /**
  * Delete a recipe modification
@@ -362,6 +388,7 @@ export const DELETE: APIRoute = async (context) => {
 ### Step 3: Implement authentication (mocked)
 
 **Code Section**:
+
 ```typescript
 // ========================================
 // AUTHENTICATION (MOCK FOR DEVELOPMENT)
@@ -388,6 +415,7 @@ const user = { id: "a85d6d6c-b7d4-4605-9cc4-3743401b67a0" };
 ### Step 4: Implement path parameter validation
 
 **Code Section**:
+
 ```typescript
 try {
   // ========================================
@@ -423,16 +451,13 @@ try {
 ### Step 5: Call service and return response
 
 **Code Section**:
+
 ```typescript
 // ========================================
 // DELETE MODIFICATION
 // ========================================
 
-await deleteModification(
-  context.locals.supabase,
-  validatedParams.modificationId,
-  user.id
-);
+await deleteModification(context.locals.supabase, validatedParams.modificationId, user.id);
 
 // ========================================
 // SUCCESS RESPONSE
@@ -446,6 +471,7 @@ return new Response(null, {
 ### Step 6: Implement error handling
 
 **Code Section**:
+
 ```typescript
 } catch (error) {
   // Handle specific business logic errors
@@ -496,6 +522,7 @@ return new Response(null, {
 ### Step 7: Add imports
 
 **Add to top of file**:
+
 ```typescript
 import { deleteModification } from "../../../lib/services/modification.service";
 ```
@@ -536,6 +563,7 @@ import { deleteModification } from "../../../lib/services/modification.service";
    - Verify detailed error logged to console
 
 **Verification Steps**:
+
 - Check HTTP status codes match specification
 - Verify response headers (Content-Type for errors, none for 204)
 - Check error messages are user-friendly
@@ -549,6 +577,7 @@ import { deleteModification } from "../../../lib/services/modification.service";
 This implementation plan provides comprehensive guidance for implementing the DELETE /api/modifications/{modificationId} endpoint. The endpoint follows established patterns from the codebase (especially the DELETE recipe endpoint) and implements proper security measures to prevent IDOR attacks.
 
 **Key Implementation Points**:
+
 1. Create `deleteModification` service function with ownership verification
 2. Add DELETE handler to existing `[modificationId].ts` file
 3. Reuse existing validation schemas

@@ -3,9 +3,11 @@
 ## Interactive Elements in Astro Components
 
 ### Problem
+
 Astro components are server-rendered. Using React components (like Shadcn Button) with `onClick` handlers doesn't work without `client:*` directives. The `onClick` attribute in server-rendered components outputs as a string, not executable JavaScript.
 
 ### Solution
+
 **Use native HTML buttons with client-side scripts:**
 
 ```astro
@@ -21,10 +23,10 @@ Astro components are server-rendered. Using React components (like Shadcn Button
 </button>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     const btn = document.querySelector('[data-action="my-action"]');
     if (btn) {
-      btn.addEventListener('click', () => {
+      btn.addEventListener("click", () => {
         // Your action here
       });
     }
@@ -33,6 +35,7 @@ Astro components are server-rendered. Using React components (like Shadcn Button
 ```
 
 **Key points:**
+
 - Use `data-*` attributes for JavaScript targeting
 - Use Shadcn CSS classes directly on HTML elements
 - Add `<script>` tags for client-side interactivity
@@ -83,7 +86,7 @@ export default function MyComponent() {
 ```astro
 <script>
   /* eslint-disable prettier/prettier */
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     // Your code here
   });
 </script>
@@ -94,9 +97,7 @@ export default function MyComponent() {
 ```astro
 ---
 /* eslint-disable prettier/prettier */
-const items = [
-  { key: 'value' }
-];
+const items = [{ key: "value" }];
 ---
 ```
 
@@ -108,7 +109,7 @@ const items = [
 import type { LucideIcon } from "lucide-react";
 
 interface Feature {
-  icon: LucideIcon;  // ✅ Correct
+  icon: LucideIcon; // ✅ Correct
   // icon: any;      // ❌ Avoid
   title: string;
 }

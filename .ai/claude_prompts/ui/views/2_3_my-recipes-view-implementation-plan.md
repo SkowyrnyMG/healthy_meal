@@ -5,6 +5,7 @@
 The My Recipes Page is a comprehensive recipe management interface that allows users to browse, search, filter, and manage their personal recipe collection. The page displays recipes in a responsive grid layout with advanced filtering capabilities including search by title, filtering by tags, maximum calories, and preparation time. All filter states are persisted in URL query parameters to enable shareability and browser navigation support. The interface provides quick actions for favoriting, editing, deleting, and modifying recipes with AI.
 
 **Key Features:**
+
 - Responsive grid layout (1 column mobile, 2-3 tablet, 3-4 desktop)
 - Real-time search with 500ms debounce
 - Advanced filtering (tags, calories, prep time)
@@ -20,6 +21,7 @@ The My Recipes Page is a comprehensive recipe management interface that allows u
 **Route Type:** Protected (requires authentication)
 
 **URL State Example:**
+
 ```
 /recipes?search=kurczak&tags=uuid1,uuid2&maxCalories=500&maxPrepTime=30&sortBy=prepTime&sortOrder=asc&page=2
 ```
@@ -70,20 +72,24 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Server-side rendered page component that fetches initial data and renders the React client component.
 
 **Responsibilities:**
+
 - Authenticate user via Supabase session
 - Redirect unauthenticated users to login (for now auth is mocked on backend)
 - Pass initial data to client component
 - Render page layout
 
 **Main Elements:**
+
 - Astro layout wrapper
 - RecipeListLayout React component with client:load directive
 
 **Server-side Logic:**
+
 - Check authentication status
 - No initial data fetch (client handles this for better URL state management)
 
 **Props Passed to Client:**
+
 - User ID (from session)
 
 ### RecipeListLayout (React)
@@ -91,6 +97,7 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Main container component managing the entire recipe list interface with sidebar/top sections based on screen size.
 
 **Main Elements:**
+
 - `<div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6">` - Responsive container
 - SearchBar component
 - FilterButton component (visible on mobile only)
@@ -98,24 +105,29 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 - ContentArea with grid and pagination
 
 **Handled Interactions:**
+
 - Initialize filters from URL on mount
 - Sync filter state to URL
 - Handle browser back/forward navigation
 - Manage filter panel visibility (mobile)
 
 **Handled Validation:**
+
 - None (validation happens in child components)
 
 **Types:**
+
 - `RecipeListItemDTO[]` - Recipe data
 - `PaginationDTO` - Pagination metadata
 - `TagDTO[]` - Available tags
 - `RecipeListFilters` - Current filter state (ViewModel)
 
 **Props:**
+
 - `userId: string` - Current authenticated user ID
 
 **State Management:**
+
 - Uses custom `useRecipeFilters` hook for filter state
 - Uses `useRecipeList` hook for data fetching
 
@@ -124,24 +136,29 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Search input with debounced text search functionality and search icon.
 
 **Main Elements:**
+
 - `<Input>` from Shadcn/ui with search icon
 - Placeholder: "Szukaj przepisów..."
 - Clear button (X) when text is present
 
 **Handled Interactions:**
+
 - Text input with 500ms debounce
 - Clear search button click
 - Enter key to trigger immediate search
 
 **Handled Validation:**
+
 - Min length: 1 character (trimmed)
 - Max length: 255 characters
 - Automatically trims whitespace
 
 **Types:**
+
 - `string | undefined` - Search query value
 
 **Props:**
+
 - `value: string | undefined` - Current search value
 - `onChange: (value: string | undefined) => void` - Callback for search changes
 
@@ -150,21 +167,26 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Mobile-only button that shows filter count and opens the filter panel as a Sheet.
 
 **Main Elements:**
+
 - `<Button variant="outline">` from Shadcn/ui
 - Filter icon
 - Badge with count when filters are active
 - Text: "Filtry" or "Filtry (N)" where N is active filter count
 
 **Handled Interactions:**
+
 - Click to open/close filter panel Sheet
 
 **Handled Validation:**
+
 - None
 
 **Types:**
+
 - `number` - Active filter count
 
 **Props:**
+
 - `activeFilterCount: number` - Number of active filters
 - `onClick: () => void` - Callback to toggle filter panel
 
@@ -173,6 +195,7 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Collapsible panel (desktop) or drawer/sheet (mobile) containing all filter controls. Uses Shadcn/ui Sheet component for mobile.
 
 **Main Elements:**
+
 - Desktop: `<aside className="w-64 space-y-6">`
 - Mobile: `<Sheet>` component from Shadcn/ui
 - TagFilterSection component
@@ -182,6 +205,7 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 - Apply and Clear buttons
 
 **Handled Interactions:**
+
 - Tag selection/deselection
 - Slider value changes
 - Sort option selection
@@ -190,6 +214,7 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 - Close sheet (mobile)
 
 **Handled Validation:**
+
 - Tag UUIDs must be valid
 - Max calories: 1-10000
 - Max prep time: 1-1440 minutes
@@ -197,10 +222,12 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 - Sort order: "asc" | "desc"
 
 **Types:**
+
 - `RecipeFilters` - Current filter values (ViewModel)
 - `TagDTO[]` - Available tags
 
 **Props:**
+
 - `filters: RecipeFilters` - Current filter state
 - `tags: TagDTO[]` - Available tags for selection
 - `onFiltersChange: (filters: RecipeFilters) => void` - Callback when filters change
@@ -214,23 +241,28 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Multi-select checkbox group for filtering by recipe tags.
 
 **Main Elements:**
+
 - Section label: "Kategorie"
 - Checkbox list from Shadcn/ui
 - Scrollable container for long tag lists
 
 **Handled Interactions:**
+
 - Checkbox toggle for each tag
 - Select all / deselect all (optional)
 
 **Handled Validation:**
+
 - Selected tag IDs must exist in available tags
 - Maximum 50 tags (per API)
 
 **Types:**
+
 - `TagDTO[]` - Available tags
 - `string[]` - Selected tag IDs
 
 **Props:**
+
 - `tags: TagDTO[]` - Available tags
 - `selectedTagIds: string[]` - Currently selected tag IDs
 - `onChange: (tagIds: string[]) => void` - Callback when selection changes
@@ -240,24 +272,29 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Range slider for filtering recipes by maximum calories per serving.
 
 **Main Elements:**
+
 - `<Slider>` from Shadcn/ui
 - Label: "Maksymalna kaloryczność"
 - Current value display: "do X kcal"
 - Range: 0-10000 kcal
 
 **Handled Interactions:**
+
 - Slider drag
 - Value input (optional)
 
 **Handled Validation:**
+
 - Min: 1 kcal (when set)
 - Max: 10000 kcal
 - Integer values only
 
 **Types:**
+
 - `number | undefined` - Max calories value
 
 **Props:**
+
 - `value: number | undefined` - Current max calories
 - `onChange: (value: number | undefined) => void` - Callback when value changes
 
@@ -266,24 +303,29 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Range slider for filtering recipes by maximum preparation time.
 
 **Main Elements:**
+
 - `<Slider>` from Shadcn/ui
 - Label: "Maksymalny czas przygotowania"
 - Current value display: "do X min"
 - Range: 0-1440 minutes (24 hours)
 
 **Handled Interactions:**
+
 - Slider drag
 - Value input (optional)
 
 **Handled Validation:**
+
 - Min: 1 minute (when set)
 - Max: 1440 minutes
 - Integer values only
 
 **Types:**
+
 - `number | undefined` - Max prep time value
 
 **Props:**
+
 - `value: number | undefined` - Current max prep time
 - `onChange: (value: number | undefined) => void` - Callback when value changes
 
@@ -292,6 +334,7 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Dropdown menu for selecting sort field and order.
 
 **Main Elements:**
+
 - `<Select>` from Shadcn/ui
 - Label: "Sortowanie"
 - Options:
@@ -303,16 +346,20 @@ RecipesPage (Astro page: src/pages/recipes.astro)
   - "Czas przygotowania malejąco" (prepTime, desc)
 
 **Handled Interactions:**
+
 - Select option from dropdown
 
 **Handled Validation:**
+
 - Sort by: "createdAt" | "updatedAt" | "title" | "prepTime"
 - Sort order: "asc" | "desc"
 
 **Types:**
+
 - `SortOption` - Combined sort field and order (ViewModel)
 
 **Props:**
+
 - `value: SortOption` - Current sort selection
 - `onChange: (value: SortOption) => void` - Callback when sort changes
 
@@ -321,21 +368,26 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Displays active filters as removable chips for quick filter management.
 
 **Main Elements:**
+
 - Container: `<div className="flex flex-wrap gap-2">`
 - `<Badge>` components from Shadcn/ui with X button
 - Chips for: search query, selected tags, max calories, max prep time
 
 **Handled Interactions:**
+
 - Click X button to remove individual filter
 - "Wyczyść wszystko" button to clear all filters
 
 **Handled Validation:**
+
 - None
 
 **Types:**
+
 - `RecipeFilters` - Current filter state
 
 **Props:**
+
 - `filters: RecipeFilters` - Active filters
 - `tags: TagDTO[]` - All tags (for displaying tag names)
 - `onRemoveFilter: (filterKey: string, value?: string) => void` - Callback to remove filter
@@ -345,49 +397,62 @@ RecipesPage (Astro page: src/pages/recipes.astro)
 **Description:** Responsive grid layout displaying recipe cards.
 
 **Main Elements:**
+
 - `<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">`
 - RecipeCard components
 
 **Handled Interactions:**
+
 - None (interactions handled by child components)
 
 **Handled Validation:**
+
 - None
 
 **Types:**
+
 - `RecipeListItemDTO[]` - Recipe data
 
 **Props:**
+
 - `recipes: RecipeListItemDTO[]` - Recipes to display
 - `onRecipeUpdate: (recipeId: string) => void` - Callback when recipe is updated/deleted
 
 ### RecipeCard (React)
+
 Use existing RecipeCard component `src/components/RecipeCard.tsx` with minor adjustments for this view.
+
 ### EmptyState (React)
 
 **Description:** Displays appropriate message when no recipes are found.
 
 **Main Elements:**
+
 - Icon (search or empty box)
 - Heading text
 - Description text
 - CTA button
 
 **States:**
+
 - No recipes at all: "Nie masz jeszcze przepisów" + "+ Dodaj pierwszy przepis" button
 - No results from filters: "Nie znaleziono przepisów pasujących do kryteriów" + "Wyczyść filtry" button
 
 **Handled Interactions:**
+
 - Click "Dodaj pierwszy przepis" to navigate to create recipe page
 - Click "Wyczyść filtry" to clear all active filters
 
 **Handled Validation:**
+
 - None
 
 **Types:**
+
 - `EmptyStateType: "no-recipes" | "no-results"` (ViewModel)
 
 **Props:**
+
 - `type: EmptyStateType` - Type of empty state to display
 - `onClearFilters?: () => void` - Callback to clear filters (for "no-results" type)
 - `onAddRecipe?: () => void` - Callback to add recipe (for "no-recipes" type)
@@ -397,23 +462,28 @@ Use existing RecipeCard component `src/components/RecipeCard.tsx` with minor adj
 **Description:** Page navigation controls with page numbers and prev/next buttons.
 
 **Main Elements:**
+
 - Previous button (disabled on page 1)
 - Page number buttons (show current, adjacent pages, first/last with ellipsis)
 - Next button (disabled on last page)
 - Results count: "Wyświetlanie X-Y z Z przepisów"
 
 **Handled Interactions:**
+
 - Click page number to navigate to that page
 - Click prev/next buttons
 - Keyboard navigation (Arrow keys)
 
 **Handled Validation:**
+
 - Page number must be >= 1 and <= totalPages
 
 **Types:**
+
 - `PaginationDTO` - Pagination metadata
 
 **Props:**
+
 - `pagination: PaginationDTO` - Current pagination state
 - `onPageChange: (page: number) => void` - Callback when page changes
 
@@ -422,19 +492,24 @@ Use existing RecipeCard component `src/components/RecipeCard.tsx` with minor adj
 **Description:** Placeholder skeletons displayed while recipes are being fetched.
 
 **Main Elements:**
+
 - Grid of skeleton cards matching RecipeCard layout
 - Shimmer animation effect
 
 **Handled Interactions:**
+
 - None
 
 **Handled Validation:**
+
 - None
 
 **Types:**
+
 - None
 
 **Props:**
+
 - `count?: number` - Number of skeleton cards to display (default: 8)
 
 ## 5. Types
@@ -443,11 +518,11 @@ Use existing RecipeCard component `src/components/RecipeCard.tsx` with minor adj
 
 ```typescript
 // Used as-is from existing types
-RecipeListItemDTO
-TagDTO
-NutritionDTO
-PaginationDTO
-RecipeQueryParams
+RecipeListItemDTO;
+TagDTO;
+NutritionDTO;
+PaginationDTO;
+RecipeQueryParams;
 ```
 
 ### New ViewModels (to be added)
@@ -458,22 +533,22 @@ RecipeQueryParams
  * Maps to RecipeQueryParams for API calls
  */
 interface RecipeFilters {
-  search?: string;           // Search query (1-255 chars, trimmed)
-  tagIds?: string[];         // Selected tag UUIDs
-  maxCalories?: number;      // Max calories per serving (1-10000)
-  maxPrepTime?: number;      // Max prep time in minutes (1-1440)
-  sortBy: 'createdAt' | 'updatedAt' | 'title' | 'prepTime';
-  sortOrder: 'asc' | 'desc';
-  page: number;              // Current page (min: 1)
+  search?: string; // Search query (1-255 chars, trimmed)
+  tagIds?: string[]; // Selected tag UUIDs
+  maxCalories?: number; // Max calories per serving (1-10000)
+  maxPrepTime?: number; // Max prep time in minutes (1-1440)
+  sortBy: "createdAt" | "updatedAt" | "title" | "prepTime";
+  sortOrder: "asc" | "desc";
+  page: number; // Current page (min: 1)
 }
 
 /**
  * Combined sort option for dropdown
  */
 interface SortOption {
-  label: string;             // Display label in Polish
-  sortBy: 'createdAt' | 'updatedAt' | 'title' | 'prepTime';
-  sortOrder: 'asc' | 'desc';
+  label: string; // Display label in Polish
+  sortBy: "createdAt" | "updatedAt" | "title" | "prepTime";
+  sortOrder: "asc" | "desc";
 }
 
 /**
@@ -483,41 +558,43 @@ interface RecipeCardViewModel {
   id: string;
   title: string;
   description: string;
-  initial: string;           // First letter of title for placeholder
-  colorClass: string;        // Tailwind class for placeholder background
+  initial: string; // First letter of title for placeholder
+  colorClass: string; // Tailwind class for placeholder background
   calories: number;
   protein: number;
-  prepTime: string;          // Formatted: "30 min" or "1 godz 15 min"
+  prepTime: string; // Formatted: "30 min" or "1 godz 15 min"
   servings: number;
-  primaryTags: TagDTO[];     // First 1-2 tags for display
-  totalTags: number;         // Total number of tags
-  isFavorite: boolean;       // Whether recipe is in user's favorites
+  primaryTags: TagDTO[]; // First 1-2 tags for display
+  totalTags: number; // Total number of tags
+  isFavorite: boolean; // Whether recipe is in user's favorites
 }
 
 /**
  * Empty state type
  */
-type EmptyStateType = 'no-recipes' | 'no-results';
+type EmptyStateType = "no-recipes" | "no-results";
 
 /**
  * Filter chip item for active filters display
  */
 interface FilterChip {
-  key: string;               // Unique identifier for the filter
-  label: string;             // Display label
-  value?: string;            // Optional value (for tag removal)
-  onRemove: () => void;      // Callback to remove this filter
+  key: string; // Unique identifier for the filter
+  label: string; // Display label
+  value?: string; // Optional value (for tag removal)
+  onRemove: () => void; // Callback to remove this filter
 }
 ```
 
 ### Type Mapping
 
 **API to ViewModel:**
+
 - `RecipeQueryParams` → `RecipeFilters`: Client-side filter state
 - `RecipeListItemDTO` → `RecipeCardViewModel`: Enhanced with computed display properties
 - `PaginationDTO`: Used directly, no transformation needed
 
 **ViewModel to API:**
+
 - `RecipeFilters` → `RecipeQueryParams`: Convert for API calls
 - `tagIds: string[]` → `tags: string` (comma-separated)
 
@@ -532,15 +609,18 @@ interface FilterChip {
 **Location:** `src/components/hooks/useRecipeFilters.ts`
 
 **State:**
+
 - `filters: RecipeFilters` - Current filter state
 - `isFilterPanelOpen: boolean` - Filter panel visibility (mobile)
 
 **Effects:**
+
 - On mount: Parse URL query parameters and initialize filter state
 - On filter change: Update URL query parameters (debounced)
 - On popstate: Update filter state from URL (browser back/forward)
 
 **Methods:**
+
 ```typescript
 {
   filters: RecipeFilters;
@@ -565,16 +645,19 @@ interface FilterChip {
 **Location:** `src/components/hooks/useRecipeList.ts`
 
 **State:**
+
 - `recipes: RecipeListItemDTO[]` - Recipe data
 - `pagination: PaginationDTO | null` - Pagination metadata
 - `isLoading: boolean` - Loading state
 - `error: string | null` - Error message
 
 **Effects:**
+
 - On filter change: Fetch recipes from API
 - Debounce search queries (500ms)
 
 **Methods:**
+
 ```typescript
 {
   recipes: RecipeListItemDTO[];
@@ -592,14 +675,17 @@ interface FilterChip {
 **Location:** `src/components/hooks/useTags.ts`
 
 **State:**
+
 - `tags: TagDTO[]` - Available tags
 - `isLoading: boolean` - Loading state
 - `error: string | null` - Error message
 
 **Effects:**
+
 - On mount: Fetch tags from API (cached)
 
 **Methods:**
+
 ```typescript
 {
   tags: TagDTO[];
@@ -615,13 +701,16 @@ interface FilterChip {
 **Location:** `src/components/hooks/useFavorites.ts`
 
 **State:**
+
 - `favoriteIds: Set<string>` - Set of favorite recipe IDs
 - `isLoading: boolean` - Loading state
 
 **Effects:**
+
 - On mount: Fetch user's favorites
 
 **Methods:**
+
 ```typescript
 {
   favoriteIds: Set<string>;
@@ -633,12 +722,14 @@ interface FilterChip {
 ### URL State Synchronization
 
 All filter state is synchronized with URL query parameters to enable:
+
 - Shareable filtered URLs
 - Browser back/forward navigation
 - Bookmark support
 - Direct linking to filtered views
 
 **Implementation Approach:**
+
 1. Parse URL on mount using `URLSearchParams`
 2. Update URL when filters change using `history.pushState` (not `replaceState` to support back button)
 3. Listen to `popstate` event for browser navigation
@@ -655,6 +746,7 @@ All filter state is synchronized with URL query parameters to enable:
 **Request:** None (GET request, no parameters)
 
 **Response Type:**
+
 ```typescript
 {
   tags: TagDTO[]
@@ -662,13 +754,15 @@ All filter state is synchronized with URL query parameters to enable:
 ```
 
 **Error Handling:**
+
 - 500: Show error toast, use empty array as fallback
 
 **Implementation:**
+
 ```typescript
-const response = await fetch('/api/tags');
+const response = await fetch("/api/tags");
 if (!response.ok) {
-  throw new Error('Failed to fetch tags');
+  throw new Error("Failed to fetch tags");
 }
 const { tags } = await response.json();
 ```
@@ -680,6 +774,7 @@ const { tags } = await response.json();
 **Request Type:** `RecipeQueryParams`
 
 **Query Parameters:**
+
 - `search`: string (optional, 1-255 chars)
 - `tags`: string (optional, comma-separated UUIDs)
 - `maxCalories`: number (optional, 1-10000)
@@ -690,6 +785,7 @@ const { tags } = await response.json();
 - `sortOrder`: string (default: "desc")
 
 **Response Type:**
+
 ```typescript
 {
   recipes: RecipeListItemDTO[];
@@ -698,28 +794,30 @@ const { tags } = await response.json();
 ```
 
 **Error Handling:**
+
 - 400: Show validation error toast
 - 401: Redirect to login
 - 500: Show error toast, display error state
 
 **Implementation:**
+
 ```typescript
 const queryParams = new URLSearchParams();
-if (filters.search) queryParams.set('search', filters.search);
-if (filters.tagIds?.length) queryParams.set('tags', filters.tagIds.join(','));
-if (filters.maxCalories) queryParams.set('maxCalories', filters.maxCalories.toString());
-if (filters.maxPrepTime) queryParams.set('maxPrepTime', filters.maxPrepTime.toString());
-queryParams.set('page', filters.page.toString());
-queryParams.set('sortBy', filters.sortBy);
-queryParams.set('sortOrder', filters.sortOrder);
+if (filters.search) queryParams.set("search", filters.search);
+if (filters.tagIds?.length) queryParams.set("tags", filters.tagIds.join(","));
+if (filters.maxCalories) queryParams.set("maxCalories", filters.maxCalories.toString());
+if (filters.maxPrepTime) queryParams.set("maxPrepTime", filters.maxPrepTime.toString());
+queryParams.set("page", filters.page.toString());
+queryParams.set("sortBy", filters.sortBy);
+queryParams.set("sortOrder", filters.sortOrder);
 
 const response = await fetch(`/api/recipes?${queryParams.toString()}`);
 if (!response.ok) {
   if (response.status === 401) {
-    window.location.href = '/login';
+    window.location.href = "/login";
     return;
   }
-  throw new Error('Failed to fetch recipes');
+  throw new Error("Failed to fetch recipes");
 }
 const data = await response.json();
 ```
@@ -737,6 +835,7 @@ const data = await response.json();
 ### Search Interaction
 
 **Flow:**
+
 1. User types in search bar
 2. Input is debounced (500ms)
 3. After debounce, `setSearch` is called
@@ -747,6 +846,7 @@ const data = await response.json();
 8. Results update in grid
 
 **Edge Cases:**
+
 - Empty search: Clears search filter
 - Search with no results: Shows "no-results" empty state
 - Search with filters: Combines with existing filters
@@ -754,6 +854,7 @@ const data = await response.json();
 ### Filter Interaction
 
 **Desktop Flow:**
+
 1. User interacts with filter controls in sidebar
 2. Filter state updates immediately (controlled inputs)
 3. User clicks "Zastosuj" button
@@ -762,6 +863,7 @@ const data = await response.json();
 6. Active filter chips appear
 
 **Mobile Flow:**
+
 1. User clicks "Filtry" button
 2. Sheet opens with filter controls
 3. User adjusts filters
@@ -772,6 +874,7 @@ const data = await response.json();
 8. Badge on filter button shows count
 
 **Clear Filters:**
+
 1. User clicks "Wyczyść filtry" in panel or on empty state
 2. All filter values reset to defaults (except page)
 3. URL updates
@@ -781,6 +884,7 @@ const data = await response.json();
 ### Active Filter Chip Removal
 
 **Flow:**
+
 1. User clicks X on a filter chip
 2. That specific filter is removed from state
 3. URL updates
@@ -788,12 +892,14 @@ const data = await response.json();
 5. Chip disappears
 
 **Tag Chip Removal:**
+
 - Removes only that specific tag
 - Other tags remain active
 
 ### Pagination Interaction
 
 **Flow:**
+
 1. User clicks page number or prev/next button
 2. Page number updates in filter state
 3. URL updates
@@ -803,22 +909,26 @@ const data = await response.json();
 7. Results update
 
 **Keyboard Navigation:**
+
 - Left/Right arrows: Previous/Next page
 - Tab: Navigate through page buttons
 
 ### Recipe Card Interactions
 
 **Favorite Toggle:**
+
 1. User clicks heart icon
 2. Optimistic update: Icon fills/unfills immediately
 3. API request sent to add/remove favorite
 4. On error: Revert optimistic update, show error toast
 
 **Recipe Card Click:**
+
 1. User clicks anywhere on card (except action buttons)
 2. Navigate to `/recipes/:id` detail page
 
 **More Actions Menu:**
+
 1. User clicks "..." menu button
 2. Dropdown menu opens
 3. User selects action:
@@ -833,6 +943,7 @@ const data = await response.json();
 ### Sort Interaction
 
 **Flow:**
+
 1. User opens sort dropdown
 2. User selects sort option
 3. Sort state updates
@@ -843,6 +954,7 @@ const data = await response.json();
 ### Browser Navigation
 
 **Back/Forward:**
+
 1. User clicks browser back/forward button
 2. `popstate` event fires
 3. Filter state updates from URL
@@ -854,42 +966,49 @@ const data = await response.json();
 ### Filter Value Validation
 
 **Search Query:**
+
 - **Condition:** Must be 1-255 characters after trimming
 - **Component:** SearchBar
 - **Validation:** Client-side trim and length check before API call
 - **Effect:** Invalid values are rejected, user sees validation message
 
 **Tag IDs:**
+
 - **Condition:** Must be valid UUIDs from available tags list
 - **Component:** TagFilterSection
 - **Validation:** Client-side check against fetched tags
 - **Effect:** Only valid tags can be selected
 
 **Max Calories:**
+
 - **Condition:** Must be integer between 1-10000
 - **Component:** CaloriesSlider
 - **Validation:** Slider component enforces range, API validates
 - **Effect:** Values outside range are clamped
 
 **Max Prep Time:**
+
 - **Condition:** Must be integer between 1-1440 minutes
 - **Component:** PrepTimeSlider
 - **Validation:** Slider component enforces range, API validates
 - **Effect:** Values outside range are clamped
 
 **Page Number:**
+
 - **Condition:** Must be >= 1 and <= totalPages
 - **Component:** Pagination
 - **Validation:** Client-side check, buttons disabled when out of range
 - **Effect:** Invalid page numbers trigger reset to page 1
 
 **Sort By:**
+
 - **Condition:** Must be one of: "createdAt", "updatedAt", "title", "prepTime"
 - **Component:** SortDropdown
 - **Validation:** Dropdown only allows valid options
 - **Effect:** Invalid values default to "createdAt"
 
 **Sort Order:**
+
 - **Condition:** Must be "asc" or "desc"
 - **Component:** SortDropdown
 - **Validation:** Dropdown only allows valid options
@@ -898,6 +1017,7 @@ const data = await response.json();
 ### Recipe Ownership Validation
 
 **Edit/Delete Actions:**
+
 - **Condition:** User must own the recipe (recipe.userId matches current user)
 - **Component:** RecipeCard more actions menu
 - **Validation:** Server-side verification when action is performed
@@ -909,11 +1029,13 @@ const data = await response.json();
 ### Empty State Conditions
 
 **No Recipes at All:**
+
 - **Condition:** `recipes.length === 0 && activeFilterCount === 0`
 - **Component:** EmptyState
 - **Effect:** Show "Nie masz jeszcze przepisów" with add recipe CTA
 
 **No Results from Filters:**
+
 - **Condition:** `recipes.length === 0 && activeFilterCount > 0`
 - **Component:** EmptyState
 - **Effect:** Show "Nie znaleziono przepisów" with clear filters CTA
@@ -921,11 +1043,13 @@ const data = await response.json();
 ### Loading State Conditions
 
 **Initial Load:**
+
 - **Condition:** `isLoading === true && recipes.length === 0`
 - **Component:** LoadingSkeletons
 - **Effect:** Show full grid of skeleton cards
 
 **Pagination Load:**
+
 - **Condition:** `isLoading === true && recipes.length > 0`
 - **Component:** Existing grid with opacity overlay + spinner
 - **Effect:** Show existing recipes with loading overlay
@@ -933,11 +1057,13 @@ const data = await response.json();
 ### Filter Badge Visibility
 
 **Filter Button Badge:**
+
 - **Condition:** `activeFilterCount > 0`
 - **Component:** FilterButton
 - **Effect:** Badge with count appears on button text
 
 **Active Filter Chips:**
+
 - **Condition:** Individual filters are set
 - **Component:** ActiveFilterChips
 - **Effect:** Show chip for each active filter
@@ -949,6 +1075,7 @@ const data = await response.json();
 **Scenario:** API request fails due to network issue
 
 **Handling:**
+
 - Catch fetch errors
 - Display error toast: "Nie udało się pobrać przepisów. Spróbuj ponownie."
 - Show retry button in toast
@@ -960,6 +1087,7 @@ const data = await response.json();
 **Scenario:** Invalid query parameters sent to API
 
 **Handling:**
+
 - Parse error response
 - Display specific validation error in toast
 - Reset invalid filter to default value
@@ -971,6 +1099,7 @@ const data = await response.json();
 **Scenario:** User session expired or not authenticated
 
 **Handling:**
+
 - Redirect to login page: `window.location.href = '/login'`
 - Preserve current URL in redirect query: `/login?redirect=/recipes?...`
 - After login, redirect back to preserved URL
@@ -980,6 +1109,7 @@ const data = await response.json();
 **Scenario:** Profile not found (edge case)
 
 **Handling:**
+
 - Display error toast: "Profil nie został znaleziony"
 - Offer to create profile or contact support
 - Should not happen in normal flow
@@ -989,6 +1119,7 @@ const data = await response.json();
 **Scenario:** Internal server error
 
 **Handling:**
+
 - Display error toast: "Wystąpił błąd serwera. Spróbuj ponownie później."
 - Show error state component with retry button
 - Log full error details to console
@@ -999,6 +1130,7 @@ const data = await response.json();
 **Scenario:** Cannot fetch available tags
 
 **Handling:**
+
 - Show warning toast: "Nie udało się pobrać kategorii"
 - Hide tag filter section or show with disabled state
 - Allow other filters to work normally
@@ -1009,6 +1141,7 @@ const data = await response.json();
 **Scenario:** API call to add/remove favorite fails
 
 **Handling:**
+
 - Revert optimistic UI update
 - Display error toast: "Nie udało się zaktualizować ulubionych"
 - Keep heart button interactive for retry
@@ -1019,6 +1152,7 @@ const data = await response.json();
 **Scenario:** Delete API call fails
 
 **Handling:**
+
 - Keep recipe in list (don't remove optimistically)
 - Display error toast: "Nie udało się usunąć przepisu"
 - Close confirmation dialog
@@ -1029,6 +1163,7 @@ const data = await response.json();
 **Scenario:** No recipes found but unclear why
 
 **Handling:**
+
 - Check if filters are active
 - Show appropriate empty state message
 - Provide clear CTA to resolve (clear filters or add recipe)
@@ -1039,6 +1174,7 @@ const data = await response.json();
 **Scenario:** Invalid URL parameters (manually edited URL)
 
 **Handling:**
+
 - Validate each parameter during parsing
 - Replace invalid values with defaults
 - Clean URL by pushing corrected parameters
@@ -1050,6 +1186,7 @@ const data = await response.json();
 **Scenario:** User types in search, then navigates away before debounce completes
 
 **Handling:**
+
 - Cancel pending debounced calls on unmount
 - Use cleanup function in useEffect
 - Prevent memory leaks from stale API calls
@@ -1064,6 +1201,7 @@ const data = await response.json();
    - Export all new types
 
 2. **Set up component directory structure**
+
    ```
    src/components/recipes/
    ├── RecipeListLayout.tsx

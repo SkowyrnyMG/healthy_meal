@@ -32,6 +32,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 ### 1.2 Technology Stack
 
 **Core Technologies:**
+
 - Astro 5 (multi-page routing, SSR, partial hydration)
 - React 19 (interactive components)
 - TypeScript 5 (full type safety)
@@ -40,17 +41,20 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Lucide React (icon library)
 
 **Supporting Libraries:**
+
 - Zod (validation schemas matching API)
 - Chart.js (nutrition pie charts)
 - React Hook Form + Shadcn/ui Field component (form management)
 
 **Backend Integration:**
+
 - Supabase (PostgreSQL database, authentication)
 - OpenRouter.ai via OpenAI SDK (AI recipe modifications)
 
 ### 1.3 Design System Foundations
 
 **Typography Scale (Responsive):**
+
 - Page titles: `text-3xl md:text-4xl font-bold`
 - Section headings: `text-xl md:text-2xl font-semibold`
 - Card titles: `text-lg font-medium`
@@ -60,12 +64,14 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Spacing System:** Tailwind default scale (4px base unit)
 
 **Color System:**
+
 - Primary: Defined by Shadcn/ui theme (neutral base)
 - Semantic colors: Success (green), Warning (yellow), Error (red), Info (blue)
 - Nutrition indicators: Protein (blue), Carbs (orange), Fat (green)
 - Calorie badges: Green (<400 kcal), Yellow (400-600 kcal), Orange (>600 kcal)
 
 **Breakpoints:**
+
 - Mobile: < 768px
 - Tablet: 768px - 1024px
 - Desktop: > 1024px
@@ -83,6 +89,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Main Purpose:** Marketing page to attract new users and explain the application's value proposition. Encourages registration.
 
 **Key Information to Display:**
+
 - Hero section with headline: "Dopasuj przepisy do swojej diety z pomocą AI"
 - Value proposition: AI-powered recipe modification for personalized dietary needs
 - Features highlights: calorie adjustment, protein increase, ingredient substitutions
@@ -93,6 +100,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Key View Components:**
 
 **Layout Components:**
+
 - `<LandingHeader>` - Logo, navigation links (Features, How It Works, Pricing), Login/Register buttons
 - `<HeroSection>` - Large headline, subheadline, primary CTA, hero image/illustration
 - `<FeaturesSection>` - 3-4 feature cards with icons, titles, descriptions
@@ -102,11 +110,13 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - `<Footer>` - Links, copyright, contact
 
 **Interactive Components:**
+
 - Smooth scroll navigation to sections
 - CTA button hover/press states
 - Mobile hamburger menu
 
 **UX Considerations:**
+
 - Clear, action-oriented language in Polish
 - High-contrast CTAs for visibility
 - Fast page load (minimal JavaScript, optimized images)
@@ -114,6 +124,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Sticky header on scroll (desktop)
 
 **Accessibility Considerations:**
+
 - Proper heading hierarchy (H1 for main headline)
 - ARIA labels for icon-only buttons
 - Keyboard navigation support
@@ -121,6 +132,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Sufficient color contrast ratios
 
 **Security Considerations:**
+
 - No sensitive data on public page
 - HTTPS enforced
 - No external script injections
@@ -134,6 +146,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Main Purpose:** Post-login landing page serving as navigation hub. Provides quick access to user's recipes, favorites, and public recipes. Designed to "shorten user time to reach any destination in the application."
 
 **Key Information to Display:**
+
 - Personalized welcome banner with user's name
 - Last 4-6 user recipes (recent activity)
 - Last 4-6 favorited recipes
@@ -143,6 +156,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Key View Components:**
 
 **Layout Components:**
+
 - `<DashboardLayout>` - Overall container with max-width constraint, responsive padding
 - `<WelcomeBanner>` - Greeting message ("Witaj, [Name]!"), quick action CTA
 - `<RecipeSectionRow>` - Reusable component for horizontally scrolling recipe rows
@@ -152,6 +166,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - `<Footer>` - Consistent app footer
 
 **Recipe Cards:**
+
 - `<RecipeCard>` (summarized version)
   - Colored placeholder image with recipe initial + icon
   - Recipe title (truncated with line-clamp-2)
@@ -162,12 +177,14 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
   - Quick actions: Favorite heart icon, "..." menu
 
 **Interactive Components:**
+
 - Horizontal scroll containers with touch/swipe support
 - Quick action "+ Dodaj przepis" button (fixed or prominent)
 - Recipe card tap/click navigation
 - Favorite toggle (optimistic UI)
 
 **UX Considerations:**
+
 - Immediate visual feedback on favorite toggle
 - Loading skeletons for recipe sections (if >500ms load time)
 - Empty state messages if user has no recipes/favorites
@@ -176,17 +193,20 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Clear visual separation between sections
 
 **Accessibility Considerations:**
+
 - Keyboard navigation for scrollable sections (arrow keys)
 - Screen reader announcements for section counts
 - Proper ARIA labels for icon-only actions
 - Focus management when navigating between sections
 
 **Security Considerations:**
+
 - User authentication required
 - Display only user's own recipes and favorites
 - Public recipes filtered for appropriate content
 
 **Empty States:**
+
 - No recent recipes: "Nie masz jeszcze przepisów" + "+ Dodaj pierwszy przepis" button
 - No favorites: "Nie masz ulubionych przepisów" + suggestion to browse recipes
 - No public recipes available: Unlikely, but show placeholder message
@@ -200,6 +220,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Main Purpose:** Display user's personal recipe collection with search, filtering, and sorting capabilities. Primary interface for finding and managing recipes.
 
 **Key Information to Display:**
+
 - User's recipe collection in responsive grid
 - Active search query and filters
 - Recipe count and pagination info
@@ -208,6 +229,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Key View Components:**
 
 **Layout Components:**
+
 - `<RecipeListLayout>` - Main container with sidebar (desktop) or top sections (mobile)
 - `<SearchBar>` - Prominent text input with search icon, placeholder: "Szukaj przepisów..."
 - `<FilterButton>` - Button with count badge (e.g., "Filtry (3)") when filters active
@@ -222,6 +244,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - `<Pagination>` - Page numbers, prev/next buttons (20 items per page)
 
 **Recipe Cards:**
+
 - `<RecipeCard>` (full version)
   - Colored placeholder with initial + icon
   - Title (line-clamp-2)
@@ -232,6 +255,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
   - Actions: Favorite heart, "..." menu (Edit, Delete, View, Add to Collection, Modify with AI)
 
 **Interactive Components:**
+
 - Search input with 500ms debounce
 - Filter panel slide-in/slide-out animation
 - Active filter chip removal
@@ -240,6 +264,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Pagination navigation
 
 **UX Considerations:**
+
 - All filter state persists in URL query parameters
 - Shareable filtered URLs
 - Browser back/forward navigation support
@@ -250,6 +275,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Smooth transitions between filter changes
 
 **Accessibility Considerations:**
+
 - Search bar with proper label (visible or aria-label)
 - Filter panel keyboard navigation (Tab, Enter, Escape)
 - Checkbox/slider ARIA states
@@ -258,15 +284,18 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Keyboard-accessible pagination
 
 **Security Considerations:**
+
 - Display only user's own recipes
 - Recipe ownership verification before Edit/Delete actions
 - XSS protection in search query display
 
 **Empty States:**
+
 - No recipes at all: "Nie masz jeszcze przepisów" + "+ Dodaj pierwszy przepis" CTA
 - No results from search/filter: "Nie znaleziono przepisów pasujących do kryteriów" + "Wyczyść filtry" button
 
 **URL State Example:**
+
 ```
 /recipes?search=kurczak&tags=uuid1,uuid2&maxCalories=500&maxPrepTime=30&sortBy=prepTime&sortOrder=asc&page=2
 ```
@@ -280,6 +309,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Main Purpose:** Browse recipes shared by other users. Discover new meal ideas and inspiration from the community.
 
 **Key Information to Display:**
+
 - Public recipes from all users
 - Recipe author information
 - Same search/filter capabilities as My Recipes
@@ -288,19 +318,23 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Key View Components:**
 
 **Layout Components:**
+
 - Same as My Recipes page: `<RecipeListLayout>`, `<SearchBar>`, `<FilterPanel>`, `<RecipeGrid>`, `<Pagination>`
 
 **Recipe Cards:**
+
 - `<PublicRecipeCard>` (variant of RecipeCard)
   - All same elements as RecipeCard
   - **Additional**: Author name/avatar display
   - **Action differences**: No Edit/Delete buttons, only View, Favorite, Add to Collection
 
 **Interactive Components:**
+
 - Same search and filtering as My Recipes
 - Author name click could navigate to author profile (future feature, not MVP)
 
 **UX Considerations:**
+
 - For MVP: Display 10 random public recipes (no advanced curation/sorting by popularity)
 - Clear visual distinction between public and user's own recipes (author badge)
 - Same URL-based filtering approach
@@ -308,19 +342,23 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Refresh shows different random recipes
 
 **Accessibility Considerations:**
+
 - Same as My Recipes page
 - Author information accessible to screen readers
 
 **Security Considerations:**
+
 - Display only recipes with `isPublic: true`
 - No access to Edit/Delete for recipes owned by others
 - User can favorite/add to collection any public recipe
 
 **Empty States:**
+
 - No public recipes available: "Brak publicznych przepisów" (unlikely in production)
 - No results from search/filter: Same as My Recipes page
 
 **Future Enhancements (Post-MVP):**
+
 - Featured/trending recipes
 - Sort by popularity, rating, most favorited
 - Author profiles with recipe collections
@@ -334,6 +372,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Main Purpose:** Display full recipe information including ingredients, preparation steps, nutrition values. Primary interface for viewing, modifying with AI, and managing individual recipes.
 
 **Key Information to Display:**
+
 - Complete recipe data (title, description, tags, prep time, servings)
 - Full ingredients list with amounts
 - Step-by-step preparation instructions
@@ -346,6 +385,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Layout Components:**
 
 **Desktop Layout (Two-Column):**
+
 - Left column (main content):
   - `<RecipeHeader>` - Title, description, tags, metadata (prep time, servings)
   - `<ServingsAdjuster>` - [−] **4 porcje** [+] buttons
@@ -356,11 +396,13 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
   - `<ActionButtons>` - Stacked action buttons
 
 **Mobile Layout (Single Column):**
+
 - All sections stacked vertically
 - Nutrition card appears after recipe header
 - Action buttons sticky at bottom or in floating action menu
 
 **Tab Interface (when modification exists):**
+
 - `<TabNavigation>` - "Oryginalny" | "Zmodyfikowany" tabs
 - **Original Tab:**
   - Shows original recipe data
@@ -374,6 +416,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Core Components:**
 
 `<RecipeHeader>`
+
 - Title (H1)
 - Description paragraph
 - Tag badges (clickable to filter)
@@ -381,22 +424,26 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Author name (if public recipe)
 
 `<ServingsAdjuster>`
+
 - Decrement button [−]
 - Current servings display: "4 porcje"
 - Increment button [+]
 - Real-time ingredient amount recalculation using ratio: `newAmount = originalAmount × (newServings / originalServings)`
 
 `<IngredientsList>`
+
 - Each ingredient shows: amount, unit, name
 - Amounts update dynamically with servings adjustment
 - Responsive layout (multi-column on desktop if space allows)
 
 `<PreparationSteps>`
+
 - Simple numbered list (auto-numbered with CSS or explicit)
 - Each step as paragraph
 - No checkboxes or cooking mode features (excluded from MVP)
 
 `<NutritionCard>`
+
 - Total calories prominently displayed
 - `<NutritionPieChart>` - Pie chart for macros (see section 5.4 for details)
 - Macronutrient breakdown list:
@@ -407,6 +454,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
   - Sól: Xg
 
 `<ActionButtons>`
+
 - Primary: "Modyfikuj z AI" (prominent button with sparkles icon)
 - Secondary actions:
   - "Edytuj" (only on Original tab)
@@ -416,6 +464,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
   - "Usuń modyfikację" (only on Modified tab, if modification exists)
 
 **Interactive Components:**
+
 - Tab switching (if modification exists)
 - Servings increment/decrement with real-time updates
 - Favorite toggle (optimistic UI)
@@ -425,6 +474,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Delete modification confirmation
 
 **UX Considerations:**
+
 - Responsive layout shift (two-column to single-column)
 - Ingredient amounts update smoothly with servings changes
 - Clear visual distinction between Original and Modified tabs
@@ -435,6 +485,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Tab state not persisted in URL (simpler UX)
 
 **Accessibility Considerations:**
+
 - Proper heading hierarchy (H1 recipe title, H2 for sections)
 - Tab panel accessibility (ARIA tabs pattern from Shadcn/ui)
 - Servings adjuster keyboard support (arrow keys or +/- keys)
@@ -443,17 +494,20 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 - Chart has text alternative (legend with actual values)
 
 **Security Considerations:**
+
 - Recipe ownership check for Edit/Delete actions
 - Public recipes viewable by all authenticated users
 - Private recipes only viewable by owner
 - Modification ownership verified before deletion
 
 **Empty/Error States:**
+
 - Recipe not found: "Nie znaleziono przepisu" with back button
 - Recipe access denied: "Nie masz dostępu do tego przepisu"
 - Failed to load modification: Toast error, show original only
 
 **Future Enhancements (Post-MVP):**
+
 - Recipe rating display (stars, "Did you cook this?" status)
 - Comments section
 - Print-friendly view
@@ -469,6 +523,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Main Purpose:** Multi-step wizard for creating new recipes or editing existing ones. Collects all recipe data in organized, user-friendly steps.
 
 **Key Information to Display:**
+
 - Progress indicator showing current step (1 of 6)
 - Form fields for current step
 - Validation errors (inline and summary)
@@ -478,6 +533,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Key View Components:**
 
 **Layout Components:**
+
 - `<RecipeFormWizard>` - Container managing multi-step state
 - `<ProgressIndicator>` - Visual step indicator (1 of 6, progress bar, or breadcrumb-style)
 - `<StepContainer>` - Content area for current step
@@ -488,6 +544,7 @@ HealthyMeal is a mobile-first, Polish-language web application built using Astro
 **Step 1: Podstawowe informacje (Basic Info)**
 
 `<BasicInfoStep>`
+
 - Title input (text, required, 1-255 chars)
 - Description textarea (optional, multiline)
 - Servings input (number, required, min 1)
@@ -499,6 +556,7 @@ Validation: Required fields on blur, character limits real-time with 500ms debou
 **Step 2: Składniki (Ingredients)**
 
 `<IngredientsStep>`
+
 - Dynamic ingredient list
 - Each ingredient row: Name (text), Amount (number), Unit (text)
 - Three-column layout on desktop, stacked on mobile
@@ -512,6 +570,7 @@ Validation: Each ingredient requires all three fields
 **Step 3: Kroki przygotowania (Preparation Steps)**
 
 `<StepsStep>`
+
 - Dynamic ordered list
 - Each step: Text area for instruction
 - Auto-numbered (1, 2, 3...)
@@ -526,6 +585,7 @@ Note: No drag-to-reorder for MVP (simple add/remove only)
 **Step 4: Wartości odżywcze (Nutrition Values)**
 
 `<NutritionStep>`
+
 - 6 input fields in 2-column grid:
   - Kalorie (kcal) - number, required, ≥0
   - Białko (g) - number, required, ≥0
@@ -541,6 +601,7 @@ Validation: Non-negative numbers, required fields
 **Step 5: Tagi (Tags)**
 
 `<TagsStep>`
+
 - Checkbox grid (3 cols desktop, 2 tablet, 1 mobile)
 - Shows all available tags (15-20 predefined + user-created custom tags)
 - Maximum 5 tags selectable
@@ -548,6 +609,7 @@ Validation: Non-negative numbers, required fields
 - "+ Dodaj nowy tag" button below grid
 
 `<CustomTagCreation>` (inline or dialog):
+
 - Text input for tag name (1-100 chars)
 - Auto-generate slug (lowercase, hyphens, no special chars)
 - "Dodaj" / "Anuluj" buttons
@@ -559,6 +621,7 @@ Validation: Max 5 tags, unique tag names
 **Step 6: Przegląd i zapisz (Review & Submit)**
 
 `<ReviewStep>`
+
 - Summary of all entered data
 - Sections: Basic Info, Ingredients, Steps, Nutrition, Tags
 - Edit links for each section (navigate back to specific step)
@@ -567,6 +630,7 @@ Validation: Max 5 tags, unique tag names
 **Form State Management:**
 
 **LocalStorage Draft Persistence:**
+
 - Auto-save every 2-3 seconds
 - Namespaced keys to prevent conflicts:
   - New recipe: `draft_recipe_new`
@@ -576,7 +640,9 @@ Validation: Max 5 tags, unique tag names
   {
     "timestamp": "2025-10-18T12:00:00Z",
     "step": 3,
-    "data": { /* form data */ }
+    "data": {
+      /* form data */
+    }
   }
   ```
 - Auto-expire drafts older than 24 hours
@@ -586,6 +652,7 @@ Validation: Max 5 tags, unique tag names
 - Browser confirmation on navigate away with unsaved changes
 
 **Validation Strategy (Progressive):**
+
 - Required fields: Validate on blur
 - Format validation (numbers, lengths): Real-time with 500ms debounce
 - Cross-field validation: On next step or submit
@@ -595,6 +662,7 @@ Validation: Max 5 tags, unique tag names
 - Front-end max length validation must match API/DB constraints
 
 **Edit Mode Differences:**
+
 - Pre-populate all fields with existing recipe data
 - Load all user's tags (predefined + custom) with recipe's current tags pre-checked
 - Same wizard interface
@@ -602,6 +670,7 @@ Validation: Max 5 tags, unique tag names
 - Submit button: "Zapisz zmiany" instead of "Zapisz przepis"
 
 **Interactive Components:**
+
 - Step navigation (Previous/Next buttons)
 - Dynamic add/remove for ingredients and steps
 - Tag checkboxes with max limit enforcement
@@ -611,6 +680,7 @@ Validation: Max 5 tags, unique tag names
 - Loading state on submit
 
 **UX Considerations:**
+
 - Clear step progression indicator
 - Ability to navigate back to previous steps
 - Unsaved changes warning
@@ -621,6 +691,7 @@ Validation: Max 5 tags, unique tag names
 - Success toast and redirect to recipe detail on successful save
 
 **Accessibility Considerations:**
+
 - Proper form labels (visible, not just placeholders)
 - Helpful placeholder text for examples
 - Error messages associated with fields (ARIA)
@@ -629,17 +700,20 @@ Validation: Max 5 tags, unique tag names
 - Required field indicators (asterisk + label)
 
 **Security Considerations:**
+
 - Client-side validation matches server-side (Zod schemas)
 - XSS protection in text inputs
 - Recipe ownership verified on edit (server-side)
 - CSRF protection on form submit
 
 **Empty/Error States:**
+
 - API error on submit: Toast notification with retry option
 - Tag creation failure: Inline error in tag creation dialog
 - Draft restoration failure: Silent fail, start fresh
 
 **Future Enhancements (Post-MVP):**
+
 - Ingredient autocomplete
 - Drag-to-reorder steps
 - Nutrition calculator integration
@@ -656,6 +730,7 @@ Validation: Max 5 tags, unique tag names
 **Main Purpose:** Display user's recipe collections. Provides organizational structure for grouping related recipes.
 
 **Key Information to Display:**
+
 - All user's collections in grid layout
 - Collection name, recipe count, preview thumbnails
 - Quick actions for each collection (Edit, Delete)
@@ -664,6 +739,7 @@ Validation: Max 5 tags, unique tag names
 **Key View Components:**
 
 **Layout Components:**
+
 - `<CollectionsLayout>` - Main container with max-width
 - `<PageHeader>` - Title "Moje Kolekcje", "+ Nowa kolekcja" button
 - `<CollectionGrid>` - Responsive grid (1 col mobile, 2 tablet, 3-4 desktop)
@@ -671,6 +747,7 @@ Validation: Max 5 tags, unique tag names
 **Collection Cards:**
 
 `<CollectionCard>`
+
 - Collection name (H3)
 - Recipe count: "X przepisów"
 - Thumbnail grid of first 3-4 recipes (colored placeholders)
@@ -681,6 +758,7 @@ Validation: Max 5 tags, unique tag names
 **Create Collection Dialog:**
 
 `<CreateCollectionDialog>` (Shadcn/ui Dialog)
+
 - Text input for collection name (1-100 chars, unique per user)
 - "Utwórz" / "Anuluj" buttons
 - Validation: Required, max length, uniqueness
@@ -688,6 +766,7 @@ Validation: Max 5 tags, unique tag names
 **Edit Collection Dialog:**
 
 `<EditCollectionDialog>` (same as Create)
+
 - Pre-populated with current name
 - "Zapisz" / "Anuluj" buttons
 - Validation: Same as create
@@ -695,12 +774,14 @@ Validation: Max 5 tags, unique tag names
 **Delete Collection Confirmation:**
 
 `<DeleteCollectionDialog>` (Shadcn/ui AlertDialog)
+
 - Title: "Usuń kolekcję?"
 - Message: "Ta akcja jest nieodwracalna. Kolekcja '[name]' zostanie trwale usunięta."
 - Context: "Kolekcja zawiera X przepisów" (recipes remain, only collection deleted)
 - Buttons: "Usuń" (destructive red), "Anuluj"
 
 **Interactive Components:**
+
 - Collection card click → navigate to collection detail
 - "+ Nowa kolekcja" button → open create dialog
 - Edit icon → open edit dialog
@@ -708,6 +789,7 @@ Validation: Max 5 tags, unique tag names
 - Mobile "..." menu with actions
 
 **UX Considerations:**
+
 - Loading skeletons for collections (if >500ms)
 - Empty state when no collections
 - Success toasts on create/edit/delete
@@ -716,19 +798,23 @@ Validation: Max 5 tags, unique tag names
 - Thumbnail preview gives visual context
 
 **Accessibility Considerations:**
+
 - Collection cards keyboard accessible (Enter to open)
 - Edit/Delete actions keyboard accessible
 - Dialog focus management (Shadcn/ui handles)
 - Screen reader announcements for collection count
 
 **Security Considerations:**
+
 - Display only user's own collections
 - Collection ownership verified before edit/delete
 
 **Empty State:**
+
 - No collections: Large icon, "Nie masz jeszcze kolekcji", "+ Utwórz pierwszą kolekcję" CTA
 
 **Future Enhancements (Post-MVP):**
+
 - Collection sharing (public collections)
 - Collection categories/tags
 - Sort collections (alphabetical, date, recipe count)
@@ -743,6 +829,7 @@ Validation: Max 5 tags, unique tag names
 **Main Purpose:** Display recipes within a specific collection. Allows viewing, removing recipes, and editing collection name.
 
 **Key Information to Display:**
+
 - Collection name (editable)
 - Number of recipes in collection
 - Recipe grid (same as My Recipes page)
@@ -751,6 +838,7 @@ Validation: Max 5 tags, unique tag names
 **Key View Components:**
 
 **Layout Components:**
+
 - `<CollectionDetailLayout>` - Main container
 - `<CollectionHeader>` - Collection name, recipe count, edit name button
 - `<RecipeGrid>` - Responsive grid (same as My Recipes)
@@ -759,6 +847,7 @@ Validation: Max 5 tags, unique tag names
 **Collection Header:**
 
 `<CollectionHeader>`
+
 - Collection name (H1, inline editable or click to edit)
 - Recipe count: "X przepisów w kolekcji"
 - "Edytuj nazwę" button (pencil icon)
@@ -767,6 +856,7 @@ Validation: Max 5 tags, unique tag names
 **Recipe Cards:**
 
 `<CollectionRecipeCard>` (variant)
+
 - Same as RecipeCard on My Recipes
 - Action difference: "Usuń z kolekcji" instead of "Delete recipe"
 - Favorite toggle available
@@ -775,17 +865,20 @@ Validation: Max 5 tags, unique tag names
 **Remove from Collection:**
 
 `<RemoveFromCollectionDialog>` (Shadcn/ui AlertDialog)
+
 - Title: "Usuń z kolekcji?"
 - Message: "Przepis '[title]' zostanie usunięty z kolekcji '[collection name]'. Sam przepis nie zostanie usunięty."
 - Buttons: "Usuń z kolekcji", "Anuluj"
 
 **Interactive Components:**
+
 - Edit collection name (inline edit or dialog)
 - Remove recipe from collection
 - Favorite toggle
 - Delete collection (redirects to /collections after confirmation)
 
 **UX Considerations:**
+
 - Loading skeletons for recipes
 - Empty state if collection has no recipes
 - Success toasts on remove
@@ -793,18 +886,22 @@ Validation: Max 5 tags, unique tag names
 - Pagination for large collections
 
 **Accessibility Considerations:**
+
 - Editable collection name keyboard accessible
 - Recipe cards keyboard navigable
 - Remove action keyboard accessible
 
 **Security Considerations:**
+
 - Collection ownership verified
 - Only show recipes user has access to (own + public)
 
 **Empty State:**
+
 - No recipes in collection: "Ta kolekcja jest pusta", "Dodaj przepisy do kolekcji" with link to browse recipes
 
 **Future Enhancements (Post-MVP):**
+
 - Bulk remove recipes
 - Sort recipes within collection
 - Add notes to recipes in collection
@@ -819,6 +916,7 @@ Validation: Max 5 tags, unique tag names
 **Main Purpose:** Display user's favorited recipes in simple list format. Quick access to most-liked recipes.
 
 **Key Information to Display:**
+
 - All favorited recipes
 - Date added (for sorting)
 - Recipe count
@@ -826,6 +924,7 @@ Validation: Max 5 tags, unique tag names
 **Key View Components:**
 
 **Layout Components:**
+
 - `<FavoritesLayout>` - Main container
 - `<PageHeader>` - Title "Ulubione przepisy", count
 - `<RecipeGrid>` - Responsive grid (same as My Recipes)
@@ -834,20 +933,24 @@ Validation: Max 5 tags, unique tag names
 **Recipe Cards:**
 
 `<FavoriteRecipeCard>` (same as RecipeCard)
+
 - Heart icon filled (favorited state)
 - All standard recipe card elements
 - Actions: View, Unfavorite, Add to Collection, Edit (if own recipe), Delete (if own recipe)
 
 **Sorting:**
+
 - Default: Date added (most recent first)
 - No search/filtering for MVP (simple paginated list)
 
 **Interactive Components:**
+
 - Favorite toggle (removes from list with optimistic UI)
 - Recipe card actions menu
 - Pagination
 
 **UX Considerations:**
+
 - Loading skeletons on initial load
 - Empty state if no favorites
 - Optimistic removal (unfavorite removes from list immediately)
@@ -855,17 +958,21 @@ Validation: Max 5 tags, unique tag names
 - Clear indication of favorited status (filled heart)
 
 **Accessibility Considerations:**
+
 - Heart toggle keyboard accessible
 - Screen reader announcement: "Usunięto z ulubionych"
 
 **Security Considerations:**
+
 - Display user's own favorites only
 - Can favorite any accessible recipe (own + public)
 
 **Empty State:**
+
 - No favorites: Heart icon, "Nie masz ulubionych przepisów", "Przeglądaj przepisy i dodaj do ulubionych" with link to public recipes
 
 **Future Enhancements (Post-MVP):**
+
 - Search within favorites
 - Filter favorites by tags
 - Sort by different criteria
@@ -880,6 +987,7 @@ Validation: Max 5 tags, unique tag names
 **Main Purpose:** Centralized settings page for user profile data, dietary preferences, allergens, and disliked ingredients. Organized into tabbed sections for clarity.
 
 **Key Information to Display:**
+
 - User profile data (weight, age, gender, activity level)
 - Dietary preferences (diet type, target goal, target value)
 - Selected allergens
@@ -891,11 +999,13 @@ Validation: Max 5 tags, unique tag names
 **Layout Components:**
 
 **Desktop:**
+
 - `<SettingsLayout>` - Two-column layout
 - Sidebar navigation (left): List of setting sections
 - Content area (right): Active section content
 
 **Mobile:**
+
 - `<SettingsLayout>` - Single column
 - `<TabNavigation>` (Shadcn/ui Tabs): Horizontal tabs for sections
 - Content area: Active tab content
@@ -905,6 +1015,7 @@ Validation: Max 5 tags, unique tag names
 **1. Podstawowe dane (Basic Info) - Tab/Section**
 
 `<BasicInfoSection>`
+
 - Form fields:
   - Waga (kg) - number input, 40-200 range
   - Wiek - number input, 13-100 range
@@ -916,6 +1027,7 @@ Validation: Max 5 tags, unique tag names
 **2. Preferencje żywieniowe (Dietary Preferences)**
 
 `<DietaryPreferencesSection>`
+
 - Form fields:
   - Typ diety - select dropdown (high_protein, keto, vegetarian, weight_gain, weight_loss, balanced)
   - Cel - select dropdown (lose_weight, gain_weight, maintain_weight)
@@ -926,6 +1038,7 @@ Validation: Max 5 tags, unique tag names
 **3. Alergeny (Allergens)**
 
 `<AllergensSection>`
+
 - Multi-select from predefined allergen list (fetched from API)
 - Checkbox grid (3 cols desktop, 2 tablet, 1 mobile)
 - Selected allergens highlighted/checked
@@ -934,6 +1047,7 @@ Validation: Max 5 tags, unique tag names
 **4. Nielubiane składniki (Disliked Ingredients)**
 
 `<DislikedIngredientsSection>`
+
 - Dynamic list of disliked ingredients
 - Each item: ingredient name, remove button (X icon)
 - "+ Dodaj składnik" button
@@ -943,12 +1057,14 @@ Validation: Max 5 tags, unique tag names
 **5. Konto (Account)**
 
 `<AccountSection>`
+
 - Display email (read-only or editable in future)
 - "Zmień hasło" button → opens password change dialog
 - "Wyloguj" button (secondary/destructive)
 - "Usuń konto" button (destructive, future feature)
 
 `<ChangePasswordDialog>` (Shadcn/ui Dialog)
+
 - Current password input
 - New password input (min 8 chars)
 - Confirm new password input
@@ -956,6 +1072,7 @@ Validation: Max 5 tags, unique tag names
 - Validation: Password strength, confirmation match
 
 **Interactive Components:**
+
 - Tab/sidebar navigation
 - Form inputs with validation
 - Allergen checkboxes
@@ -965,6 +1082,7 @@ Validation: Max 5 tags, unique tag names
 - Logout confirmation
 
 **UX Considerations:**
+
 - Auto-save on change (or explicit Save button per section for clarity)
 - Loading states when saving
 - Success toasts on save
@@ -973,6 +1091,7 @@ Validation: Max 5 tags, unique tag names
 - Clear visual separation between sections
 
 **Accessibility Considerations:**
+
 - Tab navigation keyboard accessible
 - Form labels visible and associated with inputs
 - Helpful placeholder text
@@ -980,16 +1099,19 @@ Validation: Max 5 tags, unique tag names
 - Focus management in dialogs
 
 **Security Considerations:**
+
 - Password change requires current password
 - Email change verification (future)
 - Account deletion requires confirmation (future)
 - Profile data only accessible to owner
 
 **Empty States:**
+
 - No allergens selected: Informational message, "Zaznacz alergeny, aby AI mogło je uwzględniać przy modyfikacjach"
 - No disliked ingredients: "Nie masz nielubianych składników", "+ Dodaj pierwszy składnik"
 
 **Future Enhancements (Post-MVP):**
+
 - Email change with verification
 - Account deletion
 - Export user data (GDPR)
@@ -1007,6 +1129,7 @@ Validation: Max 5 tags, unique tag names
 **Main Purpose:** Modal-based flow for AI-powered recipe modification. Guides user through type selection, parameter input, processing, comparison, and save/discard decision.
 
 **Key Information to Display:**
+
 - Available modification types
 - Parameter input controls
 - Loading state with progress
@@ -1018,6 +1141,7 @@ Validation: Max 5 tags, unique tag names
 **Stage 0: Replacement Check (if modification exists)**
 
 `<ReplacementWarningDialog>` (Shadcn/ui AlertDialog)
+
 - Title: "Przepis ma już modyfikację"
 - Message: "Ten przepis ma już modyfikację. Nowa modyfikacja zastąpi obecną. Kontynuować?"
 - Buttons: "Kontynuuj" (proceed to Stage 1), "Anuluj" (close modal)
@@ -1025,6 +1149,7 @@ Validation: Max 5 tags, unique tag names
 **Stage 1: Modification Type Selection**
 
 `<ModificationTypeSelector>`
+
 - Modal title: "Modyfikuj przepis z AI"
 - Grid of modification type cards:
   1. Zmniejsz kalorie (reduce_calories) - icon, description
@@ -1043,6 +1168,7 @@ Validation: Max 5 tags, unique tag names
 **Hybrid Approach:**
 
 For calorie/protein/fiber modifications:
+
 - Quick-action preset buttons:
   - "Zmniejsz o 20%", "Zmniejsz o 30%", "Zmniejsz o 50%" (for reduce_calories)
   - "Zwiększ o 30%", "Zwiększ o 50%", "Zwiększ o 100%" (for increase_protein/fiber/calories)
@@ -1051,10 +1177,12 @@ For calorie/protein/fiber modifications:
   - Range indicators (min/max)
 
 For portion size:
+
 - Number input for new servings count
 - Current servings display for reference
 
 For ingredient substitution:
+
 - Dropdown or text input to select ingredient from recipe
 - Optional: Preferred substitute text input
 - Description: "AI zaproponuje zdrowsze zamienniki"
@@ -1066,6 +1194,7 @@ For ingredient substitution:
 **Stage 3: Processing (Loading State)**
 
 `<ModificationProcessing>`
+
 - Modal transitions smoothly to loading state (same dialog)
 - Animated spinner (centered)
 - Estimated time remaining (e.g., "około 3-5 sekund")
@@ -1083,10 +1212,12 @@ For ingredient substitution:
 **Stage 4: Comparison (Success)**
 
 `<ModificationComparison>`
+
 - Modal transitions to split-view comparison (same dialog)
 - Modal title: "Porównaj zmiany"
 
 **Desktop Layout: Side-by-Side**
+
 - Left column: "Oryginalny"
   - Recipe title
   - Key ingredients (changed ones highlighted)
@@ -1097,16 +1228,19 @@ For ingredient substitution:
   - Modified nutrition with change indicators
 
 **Mobile Layout: Tabs**
+
 - Tab navigation: "Oryginalny" | "Zmodyfikowany"
 - Each tab shows full recipe data for that version
 
 **Change Indicators:**
+
 - Green badges: Improvements (e.g., +50% protein, -200 kcal)
 - Yellow badges: Neutral changes
 - Red badges: Increases in unwanted nutrients (e.g., +fat when reducing calories)
 - Show modification notes: Text explanation from AI about what changed and why
 
 **Actions:**
+
 - "Zapisz modyfikację" button (primary, green)
   - API POST to `/api/recipes/{id}/modifications`
   - On success: Close modal, reload recipe detail page, show success toast
@@ -1117,6 +1251,7 @@ For ingredient substitution:
 **Stage 5: Error State**
 
 `<ModificationError>`
+
 - Modal shows error message (replaces content)
 - Icon (warning/error)
 - Clear Polish error message based on error type:
@@ -1127,6 +1262,7 @@ For ingredient substitution:
 - "Zamknij" button (close modal)
 
 **Interactive Components:**
+
 - Modal state management (5 stages)
 - API call with abort controller
 - Real-time progress updates
@@ -1134,6 +1270,7 @@ For ingredient substitution:
 - Save/cancel actions
 
 **UX Considerations:**
+
 - Keep user in same modal throughout (no jarring transitions)
 - Smooth animations between stages
 - Clear progress indication
@@ -1142,6 +1279,7 @@ For ingredient substitution:
 - Modification notes provide transparency
 
 **Accessibility Considerations:**
+
 - Modal focus trap (Shadcn/ui handles)
 - Keyboard navigation (Escape to cancel, Enter to proceed)
 - Screen reader announcements for stage changes
@@ -1149,12 +1287,14 @@ For ingredient substitution:
 - Comparison accessible as table or structured list
 
 **Security Considerations:**
+
 - Rate limiting enforced (10 requests/minute per user)
 - Recipe ownership/access verified
 - API timeout enforced (5s max)
 - XSS protection in AI-generated content
 
 **Future Enhancements (Post-MVP):**
+
 - Multiple modifications per recipe (modification history)
 - Compare multiple modification options side-by-side
 - Save modifications as new recipes
@@ -1171,6 +1311,7 @@ This section maps the complete user journey for the core use case: A new user re
 **Journey Steps:**
 
 **Step 1: Discovery & Registration**
+
 - User lands on public landing page (`/`)
 - Reads value proposition: "Dopasuj przepisy do swojej diety z pomocą AI"
 - Clicks "Zacznij za darmo" CTA
@@ -1180,6 +1321,7 @@ This section maps the complete user journey for the core use case: A new user re
 - Auto-login → Redirects to `/dashboard`
 
 **Step 2: First-Time Dashboard Experience**
+
 - Dashboard loads with welcome banner: "Witaj, [Name]!"
 - Shows empty states:
   - "Nie masz jeszcze przepisów" + "+ Dodaj pierwszy przepis" CTA
@@ -1188,10 +1330,12 @@ This section maps the complete user journey for the core use case: A new user re
 - User clicks "+ Dodaj przepis" button
 
 **Step 3: Creating First Recipe (Multi-Step Form)**
+
 - Navigates to `/recipes/new`
 - Progress indicator shows Step 1 of 6
 
 **Step 1/6: Basic Info**
+
 - Enters title: "Spaghetti Carbonara"
 - Enters description
 - Servings: 4
@@ -1199,6 +1343,7 @@ This section maps the complete user journey for the core use case: A new user re
 - Clicks "Dalej"
 
 **Step 2/6: Ingredients**
+
 - Adds ingredients:
   - "spaghetti, 400, g"
   - "jajka, 4, sztuki"
@@ -1207,6 +1352,7 @@ This section maps the complete user journey for the core use case: A new user re
 - Clicks "Dalej"
 
 **Step 3/6: Preparation Steps**
+
 - Adds steps:
   1. "Ugotuj makaron według instrukcji..."
   2. "Usmaż boczek na złoty kolor..."
@@ -1215,6 +1361,7 @@ This section maps the complete user journey for the core use case: A new user re
 - Clicks "Dalej"
 
 **Step 4/6: Nutrition Values**
+
 - Enters nutrition per serving:
   - Kalorie: 650 kcal
   - Białko: 25g
@@ -1226,10 +1373,12 @@ This section maps the complete user journey for the core use case: A new user re
 - Clicks "Dalej"
 
 **Step 5/6: Tags**
+
 - Selects tags: "Obiad", "Włoskie", "Makaron"
 - Clicks "Dalej"
 
 **Step 6/6: Review**
+
 - Reviews all entered data
 - Sees edit links for each section
 - Clicks "Zapisz przepis"
@@ -1238,6 +1387,7 @@ This section maps the complete user journey for the core use case: A new user re
 - Redirects to `/recipes/[id]` (recipe detail page)
 
 **Step 4: Viewing Created Recipe**
+
 - Recipe detail page displays:
   - Title, description, tags
   - Servings adjuster (4 porcje)
@@ -1248,6 +1398,7 @@ This section maps the complete user journey for the core use case: A new user re
 - User reviews recipe, notes high calories (650 kcal)
 
 **Step 5: AI Recipe Modification**
+
 - User clicks "Modyfikuj z AI" button
 - Modal opens: Modification Type Selection
 - User selects "Zmniejsz kalorie"
@@ -1262,6 +1413,7 @@ This section maps the complete user journey for the core use case: A new user re
 - After 3-4 seconds, modal transitions to Comparison view
 
 **Step 6: Comparing Original vs Modified**
+
 - Split-view (desktop) shows:
   - Left: Original (650 kcal, 35g fat, 200g boczek)
   - Right: Modified (450 kcal, 20g fat, 100g boczek + 100g pieczarki)
@@ -1276,6 +1428,7 @@ This section maps the complete user journey for the core use case: A new user re
 - Recipe detail page reloads
 
 **Step 7: Viewing Modified Recipe**
+
 - Recipe detail now shows tabs: "Oryginalny" | "Zmodyfikowany"
 - "Zmodyfikowany" tab is active
 - Displays modified recipe data:
@@ -1287,6 +1440,7 @@ This section maps the complete user journey for the core use case: A new user re
 - Success toast: "Dodano do ulubionych"
 
 **Step 8: Creating Collection**
+
 - User clicks "Dodaj do kolekcji"
 - Dialog shows: "Nie masz jeszcze kolekcji. Utwórz pierwszą!"
 - Input field for collection name: "Niskokaloryczne obiady"
@@ -1295,6 +1449,7 @@ This section maps the complete user journey for the core use case: A new user re
 - Success toast: "Kolekcja utworzona i przepis dodany"
 
 **Journey Complete:**
+
 - User has successfully:
   - Registered account
   - Created recipe
@@ -1304,6 +1459,7 @@ This section maps the complete user journey for the core use case: A new user re
 - Can now continue exploring: browsing public recipes, creating more recipes, modifying existing ones
 
 **Key Touchpoints:**
+
 - Landing page → Dashboard → Recipe creation → Recipe detail → AI modification → Modified recipe view → Collections
 - Total steps: ~8 major interactions
 - Total time: ~10-15 minutes for first recipe + modification
@@ -1311,6 +1467,7 @@ This section maps the complete user journey for the core use case: A new user re
 ### 3.2 Secondary User Journeys
 
 **Journey A: Browsing Public Recipes to Inspiration**
+
 1. Dashboard → "Przeglądaj publiczne przepisy" section
 2. Clicks "Zobacz więcej" → `/recipes/public`
 3. Browses random public recipes
@@ -1323,6 +1480,7 @@ This section maps the complete user journey for the core use case: A new user re
 10. Sees favorited public recipe in list
 
 **Journey B: Organizing Existing Recipes**
+
 1. Dashboard → "Moje Przepisy" section
 2. Clicks "Zobacz wszystkie" → `/recipes`
 3. Uses filters: Tag "Śniadanie", sort by prep time
@@ -1334,6 +1492,7 @@ This section maps the complete user journey for the core use case: A new user re
 9. Edits collection name to "Ekspresowe śniadania"
 
 **Journey C: Setting Up Profile Preferences**
+
 1. Dashboard → User menu → "Ustawienia"
 2. Navigates to `/profile`
 3. Tab 1: Fills basic data (weight, age, gender, activity level)
@@ -1345,6 +1504,7 @@ This section maps the complete user journey for the core use case: A new user re
 9. Future: AI modifications will respect these preferences
 
 **Journey D: Editing Existing Recipe**
+
 1. Dashboard → "Moje Przepisy" section
 2. Clicks recipe card "..." menu → "Edytuj"
 3. Navigates to `/recipes/[id]/edit`
@@ -1359,6 +1519,7 @@ This section maps the complete user journey for the core use case: A new user re
 ### 3.3 User Flow Diagrams (Text Format)
 
 **Recipe Creation Flow:**
+
 ```
 Dashboard
   ↓ [+ Dodaj przepis]
@@ -1378,6 +1539,7 @@ Recipe Detail Page
 ```
 
 **AI Modification Flow:**
+
 ```
 Recipe Detail Page (Original)
   ↓ [Modyfikuj z AI]
@@ -1395,6 +1557,7 @@ Recipe Detail Page (with tabs: Oryginalny | Zmodyfikowany)
 ```
 
 **Collection Management Flow:**
+
 ```
 Collections Page
   ↓ [+ Nowa kolekcja]
@@ -1418,6 +1581,7 @@ Collection Detail Page
 **Position:** Fixed/sticky at top of viewport, high z-index
 
 **Desktop Layout:**
+
 - **Left section:**
   - Logo/brand (HealthyMeal wordmark + icon)
   - Links to dashboard when logged in, landing page when logged out
@@ -1438,6 +1602,7 @@ Collection Detail Page
   - Logged out: "Zaloguj się" | "Zarejestruj" buttons
 
 **Mobile Layout:**
+
 - Logo/brand (left)
 - Hamburger menu button (right, Shadcn/ui Sheet)
 - Hamburger opens slide-in drawer with:
@@ -1447,12 +1612,14 @@ Collection Detail Page
   - Logout button
 
 **Interactive Elements:**
+
 - Navigation links with active state
 - User menu dropdown (click to open/close)
 - Hamburger menu slide animation
 - Focus states for keyboard navigation
 
 **Sticky Behavior:**
+
 - Header remains visible on scroll
 - Collapses slightly on scroll down (optional, reduced height)
 - Expands on scroll up
@@ -1460,12 +1627,14 @@ Collection Detail Page
 ### 4.2 Mobile Navigation Pattern
 
 **Bottom Tab Bar (Future Consideration, Not MVP):**
+
 - Fixed at bottom on mobile for primary navigation
 - 4-5 tabs: Dashboard, Recipes, Collections, Profile
 - Icons + labels
 - Active tab highlighted
 
 **For MVP: Hamburger Menu Only**
+
 - Simpler implementation
 - Fewer visual elements competing for space
 - Consistent with desktop experience
@@ -1475,6 +1644,7 @@ Collection Detail Page
 **Status:** Explicitly excluded from MVP to keep UI simple
 
 **Future Implementation:**
+
 - Appears below header on internal pages
 - Format: Dashboard > Moje Przepisy > [Recipe Title]
 - Clickable links for each level
@@ -1483,6 +1653,7 @@ Collection Detail Page
 ### 4.4 Quick Actions & Floating Elements
 
 **Floating Action Button (FAB):**
+
 - "+ Dodaj przepis" button
 - Position: Fixed bottom-right (desktop), bottom-center (mobile)
 - Circular button with plus icon
@@ -1491,6 +1662,7 @@ Collection Detail Page
 - Click → navigate to `/recipes/new`
 
 **Alternative: Prominent Button in Header:**
+
 - "+ Dodaj przepis" button in header (right section, before user menu)
 - More conventional, less intrusive
 - Recommended approach for MVP
@@ -1500,20 +1672,24 @@ Collection Detail Page
 **Component:** `<AppFooter>`
 
 **Content:**
+
 - Links: O nas, Kontakt, Regulamin, Polityka prywatności
 - Copyright notice: "© 2025 HealthyMeal. Wszelkie prawa zastrzeżone."
 - Social media icons (placeholder, future)
 
 **Position:**
+
 - Bottom of page (not fixed, scrolls with content)
 
 **Mobile:**
+
 - Stacked links vertically
 - Centered text
 
 ### 4.6 Page Layouts
 
 **Standard Page Layout:**
+
 ```
 <AppHeader />
 <main>
@@ -1532,16 +1708,19 @@ Collection Detail Page
 ```
 
 **Dashboard Layout:**
+
 - Full-width sections with max-width containers
 - Horizontal scrolling rows for recipe sections
 - Vertical stacking on mobile
 
 **Two-Column Layout (Recipe Detail Desktop):**
+
 - Main content (left, 2/3 width)
 - Sidebar (right, 1/3 width)
 - Stacks vertically on mobile
 
 **Settings Layout:**
+
 - Sidebar navigation (left, 1/4 width) on desktop
 - Content area (right, 3/4 width)
 - Tabs (horizontal) on mobile
@@ -1549,6 +1728,7 @@ Collection Detail Page
 ### 4.7 Navigation Hierarchy
 
 **Level 1: Primary Navigation (in header)**
+
 - Dashboard
 - Moje Przepisy
 - Publiczne Przepisy
@@ -1556,12 +1736,14 @@ Collection Detail Page
 - Profil/Ustawienia (in user menu)
 
 **Level 2: Contextual Navigation (within pages)**
+
 - Recipe list: Search, filters, sort
 - Recipe detail: Tabs (Original/Modified), action buttons
 - Profile: Settings sections (tabs or sidebar)
 - Collections: Collection grid, individual collection detail
 
 **Navigation Patterns:**
+
 - Horizontal navigation for primary (header)
 - Vertical navigation for secondary (sidebars, lists)
 - Tabs for content sections (profile settings, recipe original/modified)
@@ -1569,17 +1751,20 @@ Collection Detail Page
 ### 4.8 Responsive Navigation Breakpoints
 
 **Mobile (< 768px):**
+
 - Hamburger menu for primary navigation
 - Bottom sheet for filters
 - Stacked layouts
 - Full-width components
 
 **Tablet (768px - 1024px):**
+
 - Header navigation may switch to hamburger or remain visible (depends on space)
 - Two-column grids for recipe cards
 - Collapsible filter panel
 
 **Desktop (> 1024px):**
+
 - Full header navigation always visible
 - Sidebar filter panel
 - Three-column+ grids for recipe cards
@@ -1598,12 +1783,14 @@ This section documents reusable components used across multiple views.
 **Usage:** My Recipes, Public Recipes, Collections, Favorites, Dashboard sections
 
 **Props:**
+
 - `recipe` (object): Recipe data
 - `variant` ("default" | "public" | "collection"): Card variant
 - `showAuthor` (boolean): Display author name (for public recipes)
 - `actions` (array): Available actions for this recipe
 
 **Visual Structure:**
+
 - Colored placeholder image (16:9 aspect ratio)
   - Recipe title initial centered
   - Icon from Lucide-react (chef hat, utensils)
@@ -1620,6 +1807,7 @@ This section documents reusable components used across multiple views.
   - "..." menu: View, Edit, Delete, Add to Collection, Modify with AI
 
 **Placeholder Color Mapping:**
+
 - Śniadanie: Light yellow (#FEF3C7)
 - Obiad: Light orange (#FED7AA)
 - Kolacja: Light blue (#DBEAFE)
@@ -1628,12 +1816,14 @@ This section documents reusable components used across multiple views.
 - Default: Light gray (#F3F4F6)
 
 **Interactions:**
+
 - Click card → navigate to recipe detail
 - Click heart → toggle favorite (optimistic UI)
 - Click "..." → open action menu
 - Hover (desktop) → show action overlay
 
 **Responsive:**
+
 - Mobile: Full-width card, stacked metadata
 - Tablet/Desktop: Flexible card width in grid
 
@@ -1644,21 +1834,25 @@ This section documents reusable components used across multiple views.
 **Usage:** My Recipes, Public Recipes pages
 
 **Props:**
+
 - `value` (string): Current search query
 - `onChange` (function): Callback on search input change
 - `placeholder` (string): Placeholder text (default: "Szukaj przepisów...")
 
 **Visual Structure:**
+
 - Text input with search icon (magnifying glass) on left
 - Clear button (X icon) on right when input has value
 - Full-width on mobile, fixed width on desktop (e.g., 400px)
 
 **Interactions:**
+
 - Type → debounce 500ms → trigger onChange
 - Press Enter → immediate search (bypass debounce)
 - Click X → clear input, reset search
 
 **Accessibility:**
+
 - Label (visible or aria-label)
 - Clear button ARIA label: "Wyczyść wyszukiwanie"
 
@@ -1669,6 +1863,7 @@ This section documents reusable components used across multiple views.
 **Usage:** My Recipes, Public Recipes pages
 
 **Props:**
+
 - `activeFilters` (object): Current filter state
 - `onApply` (function): Callback when filters applied
 - `onClear` (function): Callback to clear all filters
@@ -1678,6 +1873,7 @@ This section documents reusable components used across multiple views.
 **Visual Structure:**
 
 **Desktop: Collapsible Panel**
+
 - "Filtry (X)" button with count badge
 - Panel slides in/out from left or top
 - Filter sections:
@@ -1689,12 +1885,14 @@ This section documents reusable components used across multiple views.
 - "Wyczyść filtry" button (secondary)
 
 **Mobile: Bottom Sheet Drawer**
+
 - "Filtry (X)" button opens Shadcn/ui Sheet from bottom
 - Same filter sections as desktop, stacked vertically
 - Larger touch targets
 - Sheet has close button (X) and "Zastosuj" / "Wyczyść" buttons at bottom
 
 **Interactions:**
+
 - Toggle filter panel open/closed
 - Select/deselect tags (checkbox)
 - Adjust sliders (drag or keyboard arrows)
@@ -1703,6 +1901,7 @@ This section documents reusable components used across multiple views.
 - Clear filters → resets to defaults
 
 **Accessibility:**
+
 - Filter panel keyboard navigable (Tab)
 - Escape key closes panel
 - Focus management when opening/closing
@@ -1715,10 +1914,12 @@ This section documents reusable components used across multiple views.
 **Usage:** Recipe detail page, Recipe card (on hover/expand, future)
 
 **Props:**
+
 - `nutrition` (object): Nutrition data (calories, protein, fat, carbs, fiber)
 - `size` ("small" | "medium" | "large"): Chart size
 
 **Visual Structure:**
+
 - Pie chart showing macronutrient distribution
 - Slices:
   - Protein: Blue
@@ -1732,20 +1933,24 @@ This section documents reusable components used across multiple views.
 - Total calories prominently above or center of chart: "650 kcal"
 
 **Edge Case Handling:**
+
 - Each macro with value > 0 gets **minimum 10% visible space** on chart
 - If macro value is 0, **don't display on chart** (omit from pie, show in legend as "0g")
 - If sum of macros < 100% (due to rounding or edge cases), adjust proportions
 
 **Size Variants:**
+
 - Small: 150px (for cards, future)
 - Medium: 200-250px desktop, 180-200px mobile (for recipe detail)
 - Large: 300px+ (for future detailed views)
 
 **Library:**
+
 - Recharts or Chart.js (decision needed, see unresolved issues)
 - Ensure library supports minimum slice size constraint
 
 **Accessibility:**
+
 - Chart has text alternative (legend with exact values)
 - ARIA label: "Wykres wartości odżywczych"
 - Legend is accessible to screen readers
@@ -1757,12 +1962,14 @@ This section documents reusable components used across multiple views.
 **Usage:** Recipe lists, recipe detail page (while fetching data)
 
 **Visual Structure:**
+
 - Matches layout of actual component
 - Gray/neutral animated rectangles (shimmer effect)
 - Recipe card skeleton: image block, title lines, metadata row
 - Recipe detail skeleton: header, ingredient lines, step lines, nutrition card
 
 **Animation:**
+
 - Shimmer/pulse animation (Shadcn/ui Skeleton component)
 - Duration: Shown for >500ms loading times
 
@@ -1771,6 +1978,7 @@ This section documents reusable components used across multiple views.
 **Usage:** Quick operations (<500ms), button loading states
 
 **Visual:**
+
 - Small circular spinner
 - Brand color
 - Size variants: small, medium, large
@@ -1780,6 +1988,7 @@ This section documents reusable components used across multiple views.
 **Usage:** Page navigations, long API calls (>500ms)
 
 **Visual:**
+
 - Thin linear progress bar (2-3px height)
 - Fixed at very top of viewport (z-index: 9999)
 - Brand/accent color
@@ -1787,9 +1996,11 @@ This section documents reusable components used across multiple views.
 - Indeterminate (continuous animation) or determinate (percentage-based, future)
 
 **Library:**
+
 - NProgress or similar, or custom implementation
 
 **Trigger:**
+
 - Start on navigation begin or API call start
 - Complete when page loaded or API response received
 - Auto-hide on completion
@@ -1801,23 +2012,27 @@ This section documents reusable components used across multiple views.
 **Usage:** All pages with potentially empty lists (recipes, collections, favorites)
 
 **Props:**
+
 - `icon` (ReactNode): Lucide icon component
 - `title` (string): Main message
 - `description` (string, optional): Additional context
 - `action` (object, optional): CTA button config { label, onClick }
 
 **Visual Structure:**
+
 - Large icon (80-100px, muted color)
 - Title (H3, centered)
 - Description (paragraph, muted, centered)
 - CTA button (primary, centered)
 
 **Examples:**
+
 - No recipes: Icon: `<ChefHat />`, Title: "Nie masz jeszcze przepisów", Action: "+ Dodaj pierwszy przepis"
 - No collections: Icon: `<FolderOpen />`, Title: "Nie masz jeszcze kolekcji", Action: "+ Utwórz pierwszą kolekcję"
 - No favorites: Icon: `<Heart />`, Title: "Nie masz ulubionych przepisów", Description: "Przeglądaj przepisy i dodaj do ulubionych"
 
 **Responsive:**
+
 - Icon smaller on mobile (60px)
 - Text size scales down on mobile
 
@@ -1828,6 +2043,7 @@ This section documents reusable components used across multiple views.
 **Usage:** Success messages, errors, info updates across entire application
 
 **Props:**
+
 - `variant` ("default" | "success" | "error" | "info")
 - `title` (string): Toast title
 - `description` (string, optional): Additional message
@@ -1835,6 +2051,7 @@ This section documents reusable components used across multiple views.
 - `duration` (number): Auto-dismiss duration in ms (default: 3000-5000)
 
 **Visual Structure:**
+
 - Compact notification card
 - Icon based on variant (checkmark for success, X for error, etc.)
 - Title and description text
@@ -1842,23 +2059,27 @@ This section documents reusable components used across multiple views.
 - Dismiss button (X icon)
 
 **Position:**
+
 - Bottom-right (desktop)
 - Bottom-center (mobile)
 - Stacked if multiple toasts
 
 **Variants:**
+
 - Success: Green accent, checkmark icon
 - Error: Red accent, alert icon
 - Info: Blue accent, info icon
 - Default: Neutral
 
 **Examples:**
+
 - Success: "Przepis został dodany"
 - Error: "Nie udało się zapisać przepisu. Spróbuj ponownie."
 - Info: "Przywrócono szkic z [date]"
 - With action: "Usunięto z ulubionych" + [Cofnij] button
 
 **Accessibility:**
+
 - ARIA live region (polite or assertive based on importance)
 - Screen reader announcements
 - Keyboard dismissible (focus on dismiss button)
@@ -1870,6 +2091,7 @@ This section documents reusable components used across multiple views.
 **Usage:** Destructive actions (delete recipe, delete collection, delete modification)
 
 **Props:**
+
 - `open` (boolean): Dialog open state
 - `onOpenChange` (function): Callback for open/close
 - `title` (string): Dialog title
@@ -1881,6 +2103,7 @@ This section documents reusable components used across multiple views.
 - `variant` ("default" | "destructive"): Button style
 
 **Visual Structure:**
+
 - Modal overlay (dims background)
 - Centered dialog card
 - Warning icon (for destructive)
@@ -1892,11 +2115,13 @@ This section documents reusable components used across multiple views.
   - Confirm button (destructive red for destructive actions)
 
 **Examples:**
+
 - Delete recipe: Title: "Usuń przepis?", Description: "Ta akcja jest nieodwracalna. Przepis '[title]' zostanie trwale usunięty.", Buttons: "Usuń" (red) / "Anuluj"
 - Delete modification: Title: "Usuń modyfikację?", Description: "Modyfikacja zostanie usunięta. Oryginalny przepis pozostanie.", Buttons: "Usuń" / "Anuluj"
 - Replace modification: Title: "Przepis ma już modyfikację", Description: "Nowa modyfikacja zastąpi obecną. Kontynuować?", Buttons: "Kontynuuj" / "Anuluj"
 
 **Accessibility:**
+
 - Focus trap (Shadcn/ui handles)
 - Escape key closes dialog (cancel action)
 - Default focus on Cancel button for safety
@@ -1909,28 +2134,33 @@ This section documents reusable components used across multiple views.
 **Usage:** Recipe detail page
 
 **Props:**
+
 - `servings` (number): Current servings count
 - `onServingsChange` (function): Callback when servings changed
 - `min` (number): Minimum servings (default: 1)
 - `max` (number, optional): Maximum servings
 
 **Visual Structure:**
+
 - Decrement button: [−] (minus icon)
 - Servings display: "4 porcje" (centered, medium text)
 - Increment button: [+] (plus icon)
 - Horizontal layout, centered alignment
 
 **Interactions:**
+
 - Click [−] → decrease servings by 1 (min 1)
 - Click [+] → increase servings by 1 (max optional)
 - Callback triggers ingredient amount recalculation in parent component
 - Buttons disabled at min/max limits
 
 **Responsive:**
+
 - Touch-friendly button size on mobile (44x44px min)
 - Larger text on mobile for readability
 
 **Accessibility:**
+
 - Buttons have ARIA labels: "Zmniejsz liczbę porcji", "Zwiększ liczbę porcji"
 - Servings count announced to screen readers
 - Keyboard accessible (Tab to buttons, Enter/Space to activate)
@@ -1942,12 +2172,14 @@ This section documents reusable components used across multiple views.
 **Usage:** Recipe cards, recipe detail, tag selection
 
 **Props:**
+
 - `tag` (object): Tag data (name, slug)
 - `variant` ("default" | "outline" | "selected"): Visual style
 - `clickable` (boolean): Tag is clickable (for filtering)
 - `onClick` (function, optional): Callback on click
 
 **Visual Structure:**
+
 - Small pill-shaped badge
 - Tag name text
 - Background color based on variant:
@@ -1956,14 +2188,17 @@ This section documents reusable components used across multiple views.
   - Selected: Primary color background, white text
 
 **Interactions:**
+
 - If clickable: Click → filter recipes by this tag
 - Hover state (desktop): Background color change
 
 **Responsive:**
+
 - Smaller text on mobile
 - Adequate padding for touch targets if clickable
 
 **Accessibility:**
+
 - Semantic element (button if clickable, span if decorative)
 - ARIA label if clickable: "Filtruj według tagu [name]"
 
@@ -1974,22 +2209,26 @@ This section documents reusable components used across multiple views.
 ### 6.1 Form Validation
 
 **Progressive Validation Strategy:**
+
 1. **Required fields:** Validate on blur (when user leaves field)
 2. **Format validation:** Real-time with 500ms debounce (e.g., email format, number ranges)
 3. **Cross-field validation:** On form submit (e.g., password confirmation match)
 
 **Error Display:**
+
 - **Inline errors:** Below each field with error (red text, error icon), using Shadcn/ui Field component
 - **Summary alert:** At top of form showing count of errors if multiple ("Popraw 3 błędy w formularzu")
 - **Field highlighting:** Red border on invalid fields
 
 **Client-Side Validation:**
+
 - Use Zod schemas matching API validation exactly
 - Prevents unnecessary API calls
 - Provides immediate feedback
 - Enforces same constraints as backend (lengths, ranges, formats)
 
 **Example: Recipe Title Field**
+
 ```tsx
 // Zod schema
 const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł nie może przekraczać 255 znaków");
@@ -2004,12 +2243,14 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 **Three-Tier Strategy:**
 
 **Tier 1: Inline Validation Errors**
+
 - Form field errors (see 6.1)
 - Displayed immediately below field
 - Red text, error icon
 - Specific, actionable messages
 
 **Tier 2: User-Actionable Errors (Toasts)**
+
 - Network errors: "Błąd połączenia. Spróbuj ponownie." + retry button
 - 404 errors: "Nie znaleziono przepisu."
 - 403 errors: "Nie masz dostępu do tego zasobu."
@@ -2017,6 +2258,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - General errors: "Wystąpił błąd. Spróbuj ponownie później."
 
 **Tier 3: AI-Specific Errors (Modal)**
+
 - Timeout (504): "Przetwarzanie trwało zbyt długo. Spróbuj ponownie."
 - Processing failed (500): "Nie udało się przetworzyć przepisu. Spróbuj ponownie później."
 - Rate limit (429): "Osiągnięto limit żądań. Spróbuj ponownie za [X] sekund."
@@ -2024,11 +2266,13 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Clear error icon, Polish message, retry/close buttons
 
 **Network Error Handling:**
+
 - Offline detection: Banner at top "Jesteś offline. Sprawdź połączenie internetowe."
 - Disable action buttons when offline
 - Monitor `navigator.onLine` and `online`/`offline` events
 
 **Error Boundaries:**
+
 - React error boundaries wrap major sections (recipe list, recipe detail, dashboard)
 - Graceful degradation: Show fallback UI with error message and reload option
 - Log errors to console (future: send to error tracking service)
@@ -2038,6 +2282,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 **Differentiated Strategy:**
 
 **Skeletons (>500ms content loading):**
+
 - Recipe list/grid: 3-4 skeleton cards
 - Recipe detail: Skeleton matching page structure
 - Collections: Skeleton collection cards
@@ -2045,12 +2290,14 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Prevents layout shifts, reduces perceived loading time
 
 **Spinners (<500ms quick operations):**
+
 - Button loading states (e.g., form submit)
 - Small spinner replaces button text
 - Simple circular spinner
 - Avoid for fast operations to prevent flicker
 
 **Top Progress Bar (page transitions, long API calls):**
+
 - NProgress-style linear bar
 - Fixed at top, high z-index
 - Brand color
@@ -2058,11 +2305,13 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Auto-hide on completion
 
 **AI Modification Modal (3-5s operations):**
+
 - Custom loading state within modal
 - Animated spinner, status messages, estimated time
 - Cancel button available
 
 **Loading State Thresholds:**
+
 - <500ms: No loading indicator (fast enough)
 - 500ms-3s: Skeleton or top progress bar
 - 3s+: Custom loading state with progress/status (AI modifications)
@@ -2070,11 +2319,13 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 6.4 Optimistic UI Updates
 
 **Use Cases:**
+
 - Favorite toggle (heart icon)
 - Add/remove from collection
 - Simple mutations with low failure risk
 
 **Pattern:**
+
 1. User triggers action (click favorite)
 2. UI updates immediately (heart fills)
 3. API call sent in background
@@ -2082,11 +2333,13 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 5. On error: Revert UI change, show error toast with retry option
 
 **Benefits:**
+
 - Feels instant and responsive
 - Reduces perceived latency
 - Improves user experience for common actions
 
 **Rollback Strategy:**
+
 - Store previous state before optimistic update
 - On error: Revert to previous state
 - Toast notification: "Nie udało się dodać do ulubionych. Spróbuj ponownie." + [Spróbuj ponownie] button
@@ -2094,6 +2347,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 6.5 Accessibility Guidelines
 
 **General Principles:**
+
 1. **Semantic HTML:** Use proper elements (button, nav, main, article, etc.)
 2. **Keyboard Navigation:** All interactive elements keyboard accessible (Tab, Enter, Space, Escape, Arrow keys)
 3. **Focus Indicators:** Visible focus rings (Tailwind defaults sufficient)
@@ -2103,6 +2357,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 7. **Screen Reader Support:** Proper labels, announcements, alternative text
 
 **Form Accessibility:**
+
 - Visible labels (not just placeholders)
 - Helpful placeholder text for examples
 - Error messages associated with fields (ARIA)
@@ -2110,17 +2365,20 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Grouped related fields (fieldset/legend for radio groups)
 
 **Modal/Dialog Accessibility:**
+
 - Focus trap (Shadcn/ui handles)
 - Escape key closes
 - Return focus to trigger element on close
 - ARIA role: dialog or alertdialog
 
 **Dynamic Content Accessibility:**
+
 - ARIA live regions for toasts and announcements
 - Screen reader announcements for state changes (favorited, added to collection)
 - Loading state announcements ("Ładowanie przepisów...")
 
 **Shadcn/ui Benefits:**
+
 - Built-in ARIA attributes
 - Keyboard navigation support
 - Focus management in modals/dialogs
@@ -2133,6 +2391,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 6.6 Security Considerations
 
 **Client-Side:**
+
 - Validate all user input (XSS protection)
 - Sanitize HTML content (if rich text added in future)
 - Use parameterized queries (handled by Supabase)
@@ -2140,24 +2399,28 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Secure cookie attributes (httpOnly, secure, sameSite)
 
 **Authentication:**
+
 - JWT tokens in httpOnly cookies (Supabase handles)
 - Token refresh automatic (Supabase SDK)
 - Protected routes check auth status
 - Redirect to login if unauthenticated
 
 **Authorization:**
+
 - Recipe ownership verified before Edit/Delete (server-side)
 - Collection ownership verified (server-side)
 - Public recipes viewable by all, private only by owner
 - RLS policies enforce database-level security
 
 **API Integration:**
+
 - CSRF protection (Supabase/Astro handles)
 - Rate limiting headers respected (429 handling)
 - Timeout enforcement (5s for AI operations)
 - Error responses don't leak sensitive info
 
 **User Data:**
+
 - Profile data only accessible to owner
 - No public display of email addresses
 - Future: GDPR compliance (data export, deletion)
@@ -2169,12 +2432,14 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 7.1 Mobile-First Approach
 
 **Design Philosophy:**
+
 - Design for mobile viewport first (320px-767px)
 - Progressively enhance for larger screens
 - Touch-friendly interactions on mobile
 - Hover states on desktop
 
 **Mobile-Specific Patterns:**
+
 - Single-column layouts
 - Stacked sections
 - Full-width components
@@ -2184,6 +2449,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Swipe gestures for horizontal scrolling
 
 **Desktop Enhancements:**
+
 - Multi-column grids (3-4 columns for recipe cards)
 - Sidebar layouts (two-column)
 - Hover states and overlays
@@ -2194,6 +2460,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 7.2 Breakpoint Strategy
 
 **Mobile:** < 768px
+
 - 1 column grids
 - Stacked layouts
 - Full-width components
@@ -2201,12 +2468,14 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Bottom sheet for filters
 
 **Tablet:** 768px - 1024px
+
 - 2-3 column grids
 - Some sidebar layouts
 - Collapsible filter panel or drawer (depends on space)
 - Header navigation visible or hamburger (depends on design)
 
 **Desktop:** > 1024px
+
 - 3-4 column grids
 - Two-column layouts (content + sidebar)
 - Sidebar filter panel always visible
@@ -2217,27 +2486,33 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 7.3 Responsive Component Behavior
 
 **Recipe Cards:**
+
 - Mobile: 1 column, full-width
 - Tablet: 2-3 columns
 - Desktop: 3-4 columns
 
 **Recipe Detail:**
+
 - Mobile: Single column (header → nutrition → ingredients → steps)
 - Desktop: Two columns (content left, sidebar right with nutrition + actions)
 
 **AI Modification Comparison:**
+
 - Mobile: Tabs (Oryginalny | Zmodyfikowany)
 - Desktop: Side-by-side split view
 
 **Filter Panel:**
+
 - Mobile: Bottom sheet drawer (Shadcn/ui Sheet)
 - Desktop: Collapsible panel or always-visible sidebar
 
 **Profile Settings:**
+
 - Mobile: Horizontal tabs at top
 - Desktop: Sidebar navigation (left) + content area (right)
 
 **Typography:**
+
 - Page titles: `text-3xl md:text-4xl`
 - Section headings: `text-xl md:text-2xl`
 - Card titles: `text-lg`
@@ -2247,6 +2522,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 7.4 Touch vs Mouse Interactions
 
 **Mobile (Touch):**
+
 - Tap to select, navigate
 - Swipe for horizontal scrolling
 - Long-press for context menu (future)
@@ -2254,6 +2530,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - No hover states (all actions visible or in "..." menu)
 
 **Desktop (Mouse + Keyboard):**
+
 - Click to select, navigate
 - Hover for previews, action overlays
 - Right-click for context menu (future)
@@ -2263,6 +2540,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 7.5 Image & Media Handling
 
 **Recipe Placeholder Images:**
+
 - Responsive aspect ratio (16:9 or 4:3, consistent)
 - Colored blocks with recipe initial + icon
 - Different colors per tag/category
@@ -2270,6 +2548,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - No image upload for MVP (placeholders only)
 
 **Pie Charts:**
+
 - Responsive sizing:
   - Mobile: 180-200px diameter
   - Desktop: 200-250px diameter
@@ -2279,6 +2558,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 7.6 Performance Considerations
 
 **Mobile Optimization:**
+
 - Minimize JavaScript bundle size (code splitting)
 - Lazy load below-fold content (client:visible)
 - Optimize images (future: responsive images, WebP)
@@ -2286,6 +2566,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Pagination to limit DOM size (20 items per page)
 
 **Network Considerations:**
+
 - Assume slower connections on mobile
 - Loading states for >500ms operations
 - Offline detection and handling
@@ -2298,6 +2579,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 8.1 Included in MVP
 
 ✅ **Pages & Views:**
+
 - Public landing page
 - User dashboard with recipe sections
 - My recipes list with search/filtering
@@ -2309,6 +2591,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Profile settings (tabbed)
 
 ✅ **Features:**
+
 - Recipe CRUD (create, read, update, delete)
 - Multi-step recipe creation wizard (6 steps)
 - Custom tag creation from recipe form
@@ -2322,6 +2605,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Public recipes browsing (random 10 for MVP)
 
 ✅ **UI Components:**
+
 - Recipe cards (multiple variants)
 - Nutrition pie chart
 - Search bar
@@ -2335,12 +2619,14 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Form validation (progressive)
 
 ✅ **Responsive Design:**
+
 - Mobile-first approach
 - Responsive layouts for mobile, tablet, desktop
 - Touch-friendly interactions
 - Hover states on desktop
 
 ✅ **Technical:**
+
 - Astro multi-page architecture
 - React islands for interactivity
 - Tailwind 4 styling
@@ -2352,6 +2638,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 8.2 Explicitly Excluded from MVP
 
 ❌ **Features:**
+
 - Authentication logic implementation (UI exists, logic deferred)
 - Breadcrumb navigation
 - Meal planner/calendar
@@ -2372,6 +2659,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Multiple modifications per recipe (modification history)
 
 ❌ **Technical:**
+
 - Service workers
 - PWA features
 - Native mobile apps
@@ -2380,6 +2668,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 8.3 Post-MVP Roadmap
 
 **Phase 1 (High Priority):**
+
 - Authentication integration (Supabase Auth)
 - Meal planner with calendar
 - Recipe rating system
@@ -2387,6 +2676,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Multiple modifications per recipe (history)
 
 **Phase 2 (Medium Priority):**
+
 - Admin dashboard with statistics
 - Ingredient autocomplete
 - Cooking mode with timers and step checkboxes
@@ -2395,6 +2685,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - Breadcrumb navigation
 
 **Phase 3 (Low Priority):**
+
 - Social features (recipe sharing, comments, following users)
 - Native mobile apps (iOS, Android)
 - Multi-language support (English, etc.)
@@ -2409,27 +2700,32 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 9.1 Colors
 
 **Primary Palette:**
+
 - Defined by Shadcn/ui theme configuration (neutral base)
 - Customizable via CSS variables
 
 **Semantic Colors:**
+
 - Success: Green (Tailwind green-500)
 - Warning: Yellow (Tailwind yellow-500)
 - Error: Red (Tailwind red-500)
 - Info: Blue (Tailwind blue-500)
 
 **Nutrition Colors:**
+
 - Protein: Blue (#3B82F6)
 - Carbs: Orange (#F97316)
 - Fat: Green (#10B981)
 - Fiber: Purple (#A855F7) (if shown separately)
 
 **Calorie Badge Colors:**
+
 - Low (<400 kcal): Green (#10B981)
 - Medium (400-600 kcal): Yellow (#FACC15)
 - High (>600 kcal): Orange (#F97316)
 
 **Recipe Placeholder Colors:**
+
 - Śniadanie: Light yellow (#FEF3C7)
 - Obiad: Light orange (#FED7AA)
 - Kolacja: Light blue (#DBEAFE)
@@ -2440,10 +2736,12 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 9.2 Typography
 
 **Font Family:**
+
 - System font stack or custom font (to be defined)
 - Fallback: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`
 
 **Type Scale (Responsive):**
+
 ```css
 /* Page Titles */
 .text-page-title {
@@ -2472,11 +2770,13 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ```
 
 **Line Heights:**
+
 - Headings: 1.2-1.3
 - Body text: 1.5-1.6
 - Tight (for UI elements): 1.2
 
 **Font Weights:**
+
 - Bold: 700 (headings, important text)
 - Semibold: 600 (subheadings, labels)
 - Medium: 500 (card titles, buttons)
@@ -2485,6 +2785,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 9.3 Spacing
 
 **Tailwind Default Scale (4px base unit):**
+
 - `space-y-2`: 8px vertical spacing
 - `space-y-4`: 16px
 - `space-y-6`: 24px
@@ -2492,12 +2793,14 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 - `gap-6`: 24px gap
 
 **Component Spacing:**
+
 - Between sections: 48-64px (`space-y-12` or `space-y-16`)
 - Between cards in grid: 16-24px (`gap-4` or `gap-6`)
 - Inside cards (padding): 16-24px (`p-4` or `p-6`)
 - Button padding: 12px horizontal, 8px vertical (`px-3 py-2`)
 
 **Max Width Constraints:**
+
 - Full-width pages: `max-w-7xl` (1280px)
 - Reading content: `max-w-3xl` (768px)
 - Form containers: `max-w-2xl` (672px)
@@ -2505,12 +2808,14 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 9.4 Border Radius
 
 **Shadcn/ui Defaults:**
+
 - Small: 4px (`rounded`)
 - Medium: 8px (`rounded-md`)
 - Large: 12px (`rounded-lg`)
 - Full: 9999px (`rounded-full`) for pills, avatars
 
 **Component-Specific:**
+
 - Cards: `rounded-lg`
 - Buttons: `rounded-md`
 - Inputs: `rounded-md`
@@ -2520,12 +2825,14 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 9.5 Shadows
 
 **Tailwind Shadows:**
+
 - Small: `shadow-sm` (subtle, cards at rest)
 - Medium: `shadow-md` (cards on hover, dropdowns)
 - Large: `shadow-lg` (modals, prominent elements)
 - Extra large: `shadow-xl` (floating action button)
 
 **Component-Specific:**
+
 - Recipe cards: `shadow-sm` default, `shadow-md` on hover
 - Modals: `shadow-lg`
 - Dropdowns: `shadow-md`
@@ -2534,22 +2841,26 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 9.6 Transitions & Animations
 
 **Transition Durations:**
+
 - Fast: 150ms (hover states, small UI changes)
 - Medium: 300ms (modals, drawers, page elements)
 - Slow: 500ms (page transitions, large animations)
 
 **Easing:**
+
 - Default: `ease-in-out`
 - Snappy: `ease-out` (for opening animations)
 - Smooth: `ease-in` (for closing animations)
 
 **Common Animations:**
+
 - Hover scale: `transition-transform hover:scale-105`
 - Fade in: `transition-opacity`
 - Slide in: `transition-transform` with translate
 - Skeleton shimmer: Continuous gradient animation
 
 **Performance:**
+
 - Use `transform` and `opacity` for animations (GPU-accelerated)
 - Avoid animating `height`, `width`, `top`, `left` (triggers layout)
 
@@ -2562,56 +2873,45 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 **Recommended Implementation Sequence:**
 
 **Phase 1: Foundation (Week 1-1.5)**
+
 1. Setup Astro project with Tailwind, Shadcn/ui, TypeScript
 2. Create base layout components (Header, Footer)
 3. Implement basic routing structure (pages)
 4. Setup API client utilities
 5. Create shared UI components (Button, Input, etc. via Shadcn/ui)
 
-**Phase 2: Core Features (Week 2-3)**
-6. Public landing page
-7. Recipe list page (My Recipes) with search/filter
-8. Recipe card component (all variants)
-9. Recipe detail page (without AI modification)
-10. Recipe create/edit multi-step form
+**Phase 2: Core Features (Week 2-3)** 6. Public landing page 7. Recipe list page (My Recipes) with search/filter 8. Recipe card component (all variants) 9. Recipe detail page (without AI modification) 10. Recipe create/edit multi-step form
 
-**Phase 3: Advanced Features (Week 3.5-5)**
-11. AI modification modal (all 5 stages)
-12. Collections (list, detail, CRUD)
-13. Favorites system
-14. Profile settings page (all tabs)
-15. User dashboard with sections
+**Phase 3: Advanced Features (Week 3.5-5)** 11. AI modification modal (all 5 stages) 12. Collections (list, detail, CRUD) 13. Favorites system 14. Profile settings page (all tabs) 15. User dashboard with sections
 
-**Phase 4: Polish & Refinements (Week 5.5-6)**
-16. Loading states (skeletons, spinners, progress bar)
-17. Error handling (three-tier implementation)
-18. Empty states (all contexts)
-19. Form validation (progressive, with Zod)
-20. Responsive design refinements
-21. Accessibility audit and improvements
-22. Performance optimizations
+**Phase 4: Polish & Refinements (Week 5.5-6)** 16. Loading states (skeletons, spinners, progress bar) 17. Error handling (three-tier implementation) 18. Empty states (all contexts) 19. Form validation (progressive, with Zod) 20. Responsive design refinements 21. Accessibility audit and improvements 22. Performance optimizations
 
 ### 10.2 Testing Strategy
 
 **Component Testing:**
+
 - Unit tests for utility functions (calculations, formatting)
 - Component tests for complex components (RecipeForm, FilterPanel)
 - Test user interactions (button clicks, form submissions)
 
 **Integration Testing:**
+
 - Test API integration (mocked responses)
 - Test user flows (create recipe → modify with AI → add to collection)
 
 **E2E Testing:**
+
 - Critical paths: Registration → Create recipe → Modify with AI
 - Test across browsers (Chrome, Firefox, Safari)
 - Test on mobile devices (real devices or emulators)
 
 **Accessibility Testing:**
+
 - Automated: axe-core, Lighthouse
 - Manual: Keyboard navigation, screen reader testing (NVDA, VoiceOver)
 
 **Performance Testing:**
+
 - Lighthouse audits (aim for >90 score)
 - Bundle size analysis (keep under 200KB initial load)
 - Loading time targets: <2s for pages, <5s for AI operations
@@ -2619,6 +2919,7 @@ const titleSchema = z.string().min(1, "Tytuł jest wymagany").max(255, "Tytuł n
 ### 10.3 Code Organization
 
 **File Structure Example:**
+
 ```
 src/
 ├── components/
@@ -2694,12 +2995,14 @@ src/
 ```
 
 **Naming Conventions:**
+
 - Components: PascalCase (RecipeCard.tsx)
 - Utilities: camelCase (formatDate.ts)
 - Constants: UPPER_SNAKE_CASE or camelCase
 - CSS classes: Tailwind utilities preferred, custom classes in kebab-case
 
 **Import Organization:**
+
 - External libraries first
 - Internal absolute imports (@/...)
 - Relative imports last
@@ -2708,6 +3011,7 @@ src/
 ### 10.4 Performance Optimization Checklist
 
 **Initial Load:**
+
 - [ ] Code splitting by page (Astro handles automatically)
 - [ ] Lazy load below-fold React components (`client:visible`)
 - [ ] Minimize initial JavaScript bundle (<200KB)
@@ -2715,6 +3019,7 @@ src/
 - [ ] Optimize images (future: responsive images, WebP)
 
 **Runtime:**
+
 - [ ] Debounce search and filter inputs (500ms)
 - [ ] Pagination to limit DOM size (20 items per page)
 - [ ] Virtualization for very long lists (future, if needed)
@@ -2722,12 +3027,14 @@ src/
 - [ ] Optimize re-renders (React.memo for pure components)
 
 **Network:**
+
 - [ ] Implement loading states for >500ms operations
 - [ ] Reduce unnecessary API calls (validation before submission)
 - [ ] Handle API timeouts gracefully (especially AI at 5s)
 - [ ] Respect rate limits (UI feedback for 429 errors)
 
 **Accessibility:**
+
 - [ ] Ensure all interactive elements keyboard accessible
 - [ ] Minimum 44x44px touch targets on mobile
 - [ ] ARIA labels for icon-only buttons
@@ -2737,26 +3044,31 @@ src/
 ### 10.5 Deployment Considerations
 
 **Build Process:**
+
 - Astro static build or SSR mode (configured for Node.js adapter)
 - TypeScript compilation
 - Tailwind CSS purging (remove unused classes)
 - Asset optimization (minification, compression)
 
 **Environment Variables:**
+
 - `PUBLIC_SUPABASE_URL`
 - `PUBLIC_SUPABASE_ANON_KEY`
 - `OPENROUTER_API_KEY` (server-only)
 
 **Hosting:**
+
 - DigitalOcean (via Docker, per CLAUDE.md)
 - Node.js standalone mode adapter
 
 **CI/CD:**
+
 - GitHub Actions for automated builds
 - Automated tests on PR
 - Deploy on merge to main
 
 **Monitoring:**
+
 - Error tracking (future: Sentry or similar)
 - Performance monitoring (Lighthouse CI)
 - API usage monitoring (rate limits, response times)
@@ -2770,170 +3082,218 @@ src/
 This section maps each user story from the PRD to the corresponding UI views and components.
 
 **US-001: Rejestracja nowego użytkownika**
+
 - Views: Public landing page (`/`) → Registration page (auth UI, deferred)
 - Components: Registration form, email/password inputs, submit button
 
 **US-002: Logowanie istniejącego użytkownika**
+
 - Views: Login page (auth UI, deferred)
 - Components: Login form, email/password inputs, submit button
 
 **US-003: Odzyskiwanie hasła**
+
 - Views: Password reset page (auth UI, deferred)
 - Components: Password reset form, email input
 
 **US-004: Wylogowanie**
+
 - Views: Header user menu
 - Components: Logout button in dropdown
 
 **US-005: Uzupełnianie profilu o dane podstawowe**
+
 - Views: Profile settings (`/profile`), Tab 1: Podstawowe dane
 - Components: ProfileForm with inputs for weight, age, gender, activity level
 
 **US-006: Ustawianie preferencji żywieniowych**
+
 - Views: Profile settings, Tab 2: Preferencje żywieniowe
 - Components: DietaryPreferencesSection with diet type, target goal, target value inputs
 
 **US-007: Edycja danych profilu**
+
 - Views: Same as US-005/US-006
 - Components: Same forms with pre-populated data, edit mode
 
 **US-008: Określanie celów dietetycznych**
+
 - Views: Profile settings, Tab 2
 - Components: Target goal and target value inputs
 
 **US-009: Dodawanie nowego przepisu**
+
 - Views: Recipe creation (`/recipes/new`)
 - Components: RecipeFormWizard (6 steps), all step components
 
 **US-010: Przeglądanie istniejących przepisów**
+
 - Views: My Recipes page (`/recipes`)
 - Components: RecipeList, RecipeCard, pagination
 
 **US-011: Edycja przepisu**
+
 - Views: Recipe edit (`/recipes/[id]/edit`)
 - Components: RecipeFormWizard (pre-populated)
 
 **US-012: Usuwanie przepisu**
+
 - Views: Recipe detail page, My Recipes page (card menu)
 - Components: Delete button, ConfirmationDialog
 
 **US-013: Wyszukiwanie i filtrowanie przepisów**
+
 - Views: My Recipes page, Public Recipes page
 - Components: SearchBar, FilterPanel, ActiveFilterChips
 
 **US-014: Zapisywanie przepisów do ulubionych**
+
 - Views: Recipe detail page, recipe cards (all lists)
 - Components: Heart icon toggle button
 
 **US-015: Organizowanie przepisów w kolekcje**
+
 - Views: Collections page (`/collections`), Collection detail (`/collections/[id]`)
 - Components: CollectionCard, CollectionDialog, add/remove buttons
 
 **US-016: Dostosowanie kaloryczności przepisu**
+
 - Views: Recipe detail page
 - Components: RecipeModificationModal (type: reduce_calories or increase_calories)
 
 **US-017: Zwiększenie zawartości białka**
+
 - Views: Recipe detail page
 - Components: RecipeModificationModal (type: increase_protein)
 
 **US-018: Zmiana wielkości porcji**
+
 - Views: Recipe detail page
 - Components: ServingsAdjuster component, real-time ingredient recalculation
 
 **US-019: Wyszukiwanie zdrowszych zamienników składników**
+
 - Views: Recipe detail page
 - Components: RecipeModificationModal (type: ingredient_substitution)
 
 **US-020: Ocena zmodyfikowanego przepisu**
+
 - **Excluded from MVP** (rating system not included)
 
 **US-021: Przypisywanie przepisów do dni w kalendarzu**
+
 - **Excluded from MVP** (meal planner not included)
 
 **US-022: Przeglądanie zaplanowanych posiłków**
+
 - **Excluded from MVP**
 
 **US-023: Usuwanie zaplanowanych posiłków**
+
 - **Excluded from MVP**
 
 **US-024: Przeglądanie statystyk użytkowników (Admin)**
+
 - **Excluded from MVP** (admin dashboard not included)
 
 **US-025: Przeglądanie statystyk generowania przepisów (Admin)**
+
 - **Excluded from MVP**
 
 **US-026: Przeglądanie statystyk ocen przepisów (Admin)**
+
 - **Excluded from MVP**
 
 ### 11.2 Requirements to UI Elements Mapping
 
 **Requirement: AI-powered recipe modification**
+
 - UI Elements: "Modyfikuj z AI" button, RecipeModificationModal (5-stage flow), comparison view (split-view/tabs), modification notes display
 
 **Requirement: Multi-step recipe creation**
+
 - UI Elements: RecipeFormWizard, ProgressIndicator, 6 step components, navigation buttons, draft restoration prompt
 
 **Requirement: Polish language interface**
+
 - UI Elements: All labels, buttons, messages, errors, placeholders in Polish
 
 **Requirement: Mobile-first responsive design**
+
 - UI Elements: Responsive grids (1/2-3/3-4 columns), hamburger menu, bottom sheet drawers, stacked layouts, touch targets 44x44px
 
 **Requirement: Dietary preferences and allergens**
+
 - UI Elements: Profile settings tabs (Preferencje żywieniowe, Alergeny), checkbox grids, dropdowns for diet type, allergen multi-select
 
 **Requirement: Recipe search and filtering**
+
 - UI Elements: SearchBar with debounce, FilterPanel (collapsible/drawer), tag checkboxes, calorie/time sliders, sort dropdown, ActiveFilterChips, URL parameter integration
 
 **Requirement: Collections and favorites**
+
 - UI Elements: Heart icon toggle, Collections page with grid, CollectionDialog, add/remove buttons, collection detail page
 
 **Requirement: Nutrition visualization**
+
 - UI Elements: NutritionPieChart, macronutrient breakdown list, calorie badges (color-coded)
 
 **Requirement: System hasztagów (tags)**
+
 - UI Elements: Tag checkboxes in recipe form (Step 5), custom tag creation button/dialog, tag badges on recipe cards, tag filter in FilterPanel
 
 **Requirement: Public vs private recipes**
+
 - UI Elements: isPublic checkbox in recipe form, Public Recipes page (`/recipes/public`), author name display on public recipe cards
 
 **Requirement: Servings adjustment**
+
 - UI Elements: ServingsAdjuster component ([−] count [+]), real-time ingredient amount recalculation
 
 **Requirement: Form validation**
+
 - UI Elements: Inline error messages (red text, icon), summary alert at form top, field highlighting, required indicators (asterisk)
 
 **Requirement: Loading and error states**
+
 - UI Elements: Skeletons (RecipeCardSkeleton, etc.), LoadingSpinner, TopProgressBar, error toasts, error modals for AI, EmptyState components
 
 ### 11.3 User Pain Points & UI Solutions
 
 **Pain Point: "Standardowe przepisy nie uwzględniają moich potrzeb dietetycznych"**
+
 - **Solution:** AI modification feature with specific types (reduce calories, increase protein, etc.), dietary preferences in profile settings considered by AI (future enhancement)
 
 **Pain Point: "Ręczne przeliczanie wartości odżywczych jest czasochłonne"**
+
 - **Solution:** AI automatically recalculates nutrition when modifying recipe, ServingsAdjuster automatically recalculates ingredient amounts and nutrition per serving
 
 **Pain Point: "Nie wiem jakie składniki mogę zamienić na zdrowsze"**
+
 - **Solution:** AI ingredient substitution feature with comparison of nutrition values (original vs substitute), modification notes explain changes
 
 **Pain Point: "Trudno znaleźć potrzebny przepis w mojej kolekcji"**
+
 - **Solution:** Search bar with full-text search, filter panel with tags/calories/time, collections for organizing recipes, favorites for quick access
 
 **Pain Point: "Nie mam czasu na długie formularze"**
+
 - **Solution:** Multi-step wizard breaks form into manageable chunks, draft auto-save prevents data loss, progress indicator shows how much left
 
 **Pain Point: "Nie wiem czy modyfikacja AI będzie dobra"**
+
 - **Solution:** Before/after comparison view (split-view or tabs), change indicators (green/red badges), modification notes explaining changes, option to cancel before saving
 
 **Pain Point: "Nie pamiętam ile składników użyć dla innej liczby porcji"**
+
 - **Solution:** ServingsAdjuster with real-time recalculation, clear display of adjusted amounts
 
 **Pain Point: "Aplikacje internetowe są wolne i frustrujące"**
+
 - **Solution:** Loading states (skeletons) reduce perceived latency, optimistic UI for favorites/collections, top progress bar for page transitions, pagination limits DOM size
 
 **Pain Point: "Ciężko używać aplikacji na telefonie"**
+
 - **Solution:** Mobile-first design, touch-friendly targets (44x44px), swipe gestures, bottom sheet drawers, responsive layouts, hamburger menu
 
 ### 11.4 Glossary

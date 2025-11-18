@@ -233,12 +233,14 @@ GET /api/ingredient-substitutions?ingredient=[101+ characters]
 ### Database Errors (500 Internal Server Error)
 
 **Scenario**:
+
 - Supabase connection failure
 - Table doesn't exist
 - Query syntax errors
 - Network timeouts
 
 **Handler**:
+
 - Log error with full context (error message, stack trace)
 - Return generic 500 error to avoid exposing internal details
 

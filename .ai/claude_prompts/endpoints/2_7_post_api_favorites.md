@@ -4,6 +4,7 @@ Before we begin, review the following information:
 
 1. Route API specification:
    <route_api_specification>
+
 #### POST /api/favorites
 
 **Description**: Add recipe to favorites
@@ -41,7 +42,7 @@ Before we begin, review the following information:
 - 403 Forbidden: Recipe belongs to another user
 - 404 Not Found: Recipe not found or not accessible
 - 409 Conflict: Recipe already in favorites
-</route_api_specification>
+  </route_api_specification>
 
 2. Related database resources:
    <related_db_resources>
@@ -51,6 +52,7 @@ Before we begin, review the following information:
 ### User → Profile (1:1)
 
 - `profiles.user_id` → `auth.users.id` (CASCADE on delete)
+
 ### User ↔ Allergens (M:M via user_allergens)
 
 - `user_allergens.user_id` → `profiles.user_id` (CASCADE on delete)

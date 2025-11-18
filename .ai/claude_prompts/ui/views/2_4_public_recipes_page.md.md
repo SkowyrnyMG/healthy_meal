@@ -3,12 +3,13 @@ As a senior frontend developer, your task is to create a detailed implementation
 First, review the following information:
 
 1. Product Requirements Document (PRD):
-<prd>
-`.ai/prd.md`
-</prd>
+   <prd>
+   `.ai/prd.md`
+   </prd>
 
 2. View Description:
-<view_description>
+   <view_description>
+
 ### 2.4 Public Recipes Page
 
 **Path:** `/recipes/public`
@@ -16,6 +17,7 @@ First, review the following information:
 **Main Purpose:** Browse recipes shared by other users. Discover new meal ideas and inspiration from the community.
 
 **Key Information to Display:**
+
 - Public recipes from all users
 - Recipe author information
 - Same search/filter capabilities as My Recipes
@@ -24,19 +26,23 @@ First, review the following information:
 **Key View Components:**
 
 **Layout Components:**
+
 - Same as My Recipes page: `<RecipeListLayout>`, `<SearchBar>`, `<FilterPanel>`, `<RecipeGrid>`, `<Pagination>`
 
 **Recipe Cards:**
+
 - `<PublicRecipeCard>` (variant of RecipeCard)
   - All same elements as RecipeCard
   - **Additional**: Author name/avatar display
   - **Action differences**: No Edit/Delete buttons, only View, Favorite, Add to Collection
 
 **Interactive Components:**
+
 - Same search and filtering as My Recipes
 - Author name click could navigate to author profile (future feature, not MVP)
 
 **UX Considerations:**
+
 - For MVP: Display 10 random public recipes (no advanced curation/sorting by popularity)
 - Clear visual distinction between public and user's own recipes (author badge)
 - Same URL-based filtering approach
@@ -44,26 +50,31 @@ First, review the following information:
 - Refresh shows different random recipes
 
 **Accessibility Considerations:**
+
 - Same as My Recipes page
 - Author information accessible to screen readers
 
 **Security Considerations:**
+
 - Display only recipes with `isPublic: true`
 - No access to Edit/Delete for recipes owned by others
 - User can favorite/add to collection any public recipe
 
 **Empty States:**
+
 - No public recipes available: "Brak publicznych przepisów" (unlikely in production)
 - No results from search/filter: Same as My Recipes page
 
 **Future Enhancements (Post-MVP):**
+
 - Featured/trending recipes
 - Sort by popularity, rating, most favorited
 - Author profiles with recipe collections
-</view_description>
+  </view_description>
 
 3. User Stories:
-<user_stories>
+   <user_stories>
+
 #### US-010: Browsing Public Recipes
 
 As a user, I want to browse public recipes shared by other users to find interesting meal ideas.
@@ -99,7 +110,8 @@ Acceptance Criteria:
 </user_stories>
 
 1. Endpoint Description:
-<endpoint_description>
+   <endpoint_description>
+
 #### GET /api/profile
 
 **Description**: Get current user's profile
@@ -224,32 +236,36 @@ Acceptance Criteria:
   ]
 }
 ```
+
 </endpoint_description>
 
 1. Endpoint Implementation:
-<endpoint_implementation>
-`src/pages/api/profile.ts`
-`src/pages/api/recipes.ts`
-`src/pages/api/tags.ts`
-</endpoint_implementation>
+   <endpoint_implementation>
+   `src/pages/api/profile.ts`
+   `src/pages/api/recipes.ts`
+   `src/pages/api/tags.ts`
+   </endpoint_implementation>
 
 1. Type Definitions:
-<type_definitions>
-`src/types.ts`
-</type_definitions>
+   <type_definitions>
+   `src/types.ts`
+   </type_definitions>
 
 1. Tech Stack:
-<tech_stack>
-`.ai/tech-stack.md`
-</tech_stack>
+   <tech_stack>
+   `.ai/tech-stack.md`
+   </tech_stack>
 
 Before creating the final implementation plan, conduct analysis and planning inside <implementation_breakdown> tags in your thinking block. This section can be quite long, as it's important to be thorough.
 
 In your implementation breakdown, execute the following steps:
+
 1. For each input section (PRD, User Stories, Endpoint Description, Endpoint Implementation, Type Definitions, Tech Stack):
-  - Summarize key points
- - List any requirements or constraints
- - Note any potential challenges or important issues
+
+- Summarize key points
+- List any requirements or constraints
+- Note any potential challenges or important issues
+
 2. Extract and list key requirements from the PRD
 3. List all needed main components, along with a brief description of their purpose, needed types, handled events, and validation conditions
 4. Create a high-level component tree diagram
@@ -268,12 +284,14 @@ After conducting the analysis, provide an implementation plan in Markdown format
 2. View Routing: Specify the path where the view should be accessible.
 3. Component Structure: Outline of main components and their hierarchy.
 4. Component Details: For each component, describe:
- - Component description, its purpose and what it consists of
- - Main HTML elements and child components that build the component
- - Handled events
- - Validation conditions (detailed conditions, according to API)
- - Types (DTO and ViewModel) required by the component
- - Props that the component accepts from parent (component interface)
+
+- Component description, its purpose and what it consists of
+- Main HTML elements and child components that build the component
+- Handled events
+- Validation conditions (detailed conditions, according to API)
+- Types (DTO and ViewModel) required by the component
+- Props that the component accepts from parent (component interface)
+
 5. Types: Detailed description of types required for view implementation, including exact breakdown of any new types or view models by fields and types.
 6. State Management: Detailed description of how state is managed in the view, specifying whether a custom hook is required.
 7. API Integration: Explanation of how to integrate with the provided endpoint. Precisely indicate request and response types.
@@ -292,16 +310,21 @@ Here's an example of what the output file should look like (content is to be rep
 # View Implementation Plan [View Name]
 
 ## 1. Overview
+
 [Brief description of the view and its purpose]
 
 ## 2. View Routing
+
 [Path where the view should be accessible]
 
 ## 3. Component Structure
+
 [Outline of main components and their hierarchy]
 
 ## 4. Component Details
+
 ### [Component Name 1]
+
 - Component description [description]
 - Main elements: [description]
 - Handled interactions: [list]
@@ -310,29 +333,38 @@ Here's an example of what the output file should look like (content is to be rep
 - Props: [list]
 
 ### [Component Name 2]
+
 [...]
 
 ## 5. Types
+
 [Detailed description of required types]
 
 ## 6. State Management
+
 [Description of state management in the view]
 
 ## 7. API Integration
+
 [Explanation of integration with provided endpoint, indication of request and response types]
 
 ## 8. User Interactions
+
 [Detailed description of user interactions]
 
 ## 9. Conditions and Validation
+
 [Detailed description of conditions and their validation]
 
 ## 10. Error Handling
+
 [Description of handling potential errors]
+
 ## 11. Implementation Steps
+
 1. [Step 1]
 2. [Step 2]
 3. [...]
 ```
 
-Begin analysis and planning now. Your final output should consist solely of the implementation plan in English in markdown format, which you will save in the .ai/claude_prompts/ui/views/2_3_{view-name}-view-implementation-plan.md file and should not duplicate or repeat any work done in the implementation breakdown.
+Begin analysis and planning now. Your final output should consist solely of the implementation plan in English in markdown format, which you will save in the .ai/claude*prompts/ui/views/2_3*{view-name}-view-implementation-plan.md file and should not duplicate or repeat any work done in the implementation breakdown.

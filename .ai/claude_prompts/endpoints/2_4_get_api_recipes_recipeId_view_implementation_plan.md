@@ -17,6 +17,7 @@ This endpoint retrieves detailed information about a specific recipe by its ID. 
 ## 3. Used Types
 
 ### Existing DTOs (from `src/types.ts`):
+
 - **RecipeDetailDTO**: Complete recipe information response type
 - **RecipeIngredientDTO**: Individual ingredient structure
 - **RecipeStepDTO**: Cooking step structure
@@ -24,13 +25,15 @@ This endpoint retrieves detailed information about a specific recipe by its ID. 
 - **TagDTO**: Recipe category tag
 
 ### New Validation Schema (in route file):
+
 ```typescript
 const RecipeIdParamSchema = z.object({
-  recipeId: z.string().uuid("Recipe ID must be a valid UUID")
+  recipeId: z.string().uuid("Recipe ID must be a valid UUID"),
 });
 ```
 
 ### Service Function (added to recipe.service.ts):
+
 ```typescript
 getRecipeById(
   supabase: SupabaseClient,
@@ -41,6 +44,7 @@ getRecipeById(
 ## 4. Response Details
 
 ### Success Response (200 OK):
+
 ```json
 {
   "id": "uuid",
@@ -86,6 +90,7 @@ getRecipeById(
 ```
 
 ### Error Responses:
+
 - **400 Bad Request**: Invalid recipeId format
 - **401 Unauthorized**: Not authenticated
 - **403 Forbidden**: Recipe is private and user is not the owner
@@ -120,22 +125,26 @@ getRecipeById(
 ## 6. Security Considerations
 
 ### Authentication
+
 - Verify user session exists via `context.locals.supabase.auth.getUser()`
 - Return 401 if authentication fails
 - All requests must have valid Supabase auth token
 - **Note**: Currently mocked for development using hardcoded userId
 
 ### Authorization (IDOR Protection)
+
 - Implement proper access control: `recipe.isPublic === true OR recipe.userId === user.id`
 - Return 403 Forbidden if user tries to access private recipe they don't own
 - Return 404 if recipe doesn't exist (don't leak existence information)
 
 ### Input Validation
+
 - Validate `recipeId` is valid UUID format before database query
 - Prevents SQL injection and invalid query attempts
 - Use Zod schema for type-safe validation
 
 ### Information Disclosure Prevention
+
 - Don't reveal whether private recipes exist in error messages
 - Use appropriate HTTP status codes (403 vs 404)
 - Log errors server-side without exposing internal details to client
@@ -143,6 +152,7 @@ getRecipeById(
 ## 7. Error Handling
 
 ### Validation Errors (400):
+
 ```json
 {
   "error": "Bad Request",
@@ -151,6 +161,7 @@ getRecipeById(
 ```
 
 ### Authentication Errors (401):
+
 ```json
 {
   "error": "Unauthorized",
@@ -159,6 +170,7 @@ getRecipeById(
 ```
 
 ### Authorization Errors (403):
+
 ```json
 {
   "error": "Forbidden",
@@ -167,6 +179,7 @@ getRecipeById(
 ```
 
 ### Not Found Errors (404):
+
 ```json
 {
   "error": "Not Found",
@@ -175,6 +188,7 @@ getRecipeById(
 ```
 
 ### Server Errors (500):
+
 ```json
 {
   "error": "Internal Server Error",
@@ -183,6 +197,7 @@ getRecipeById(
 ```
 
 **Error Logging Pattern:**
+
 ```typescript
 console.error("[GET /api/recipes/[recipeId]] Error:", {
   recipeId: context.params.recipeId,
@@ -194,16 +209,19 @@ console.error("[GET /api/recipes/[recipeId]] Error:", {
 ## 8. Performance Considerations
 
 ### Database Optimization
+
 - Single query with joins for recipe and tags (no N+1 problem)
 - Use `.single()` for direct single-row fetch
 - Index on `recipes.id` (primary key, automatically indexed)
 
 ### Caching Opportunities
+
 - Consider caching public featured recipes at CDN/application level
 - Private recipes should not be cached
 - Use appropriate Cache-Control headers for public recipes
 
 ### Query Efficiency
+
 - Select only needed fields (no `*` wildcard)
 - Use Supabase's efficient join syntax for related data
 - JSONB fields (ingredients, steps, nutrition) stored efficiently in PostgreSQL
@@ -254,13 +272,15 @@ console.error("[GET /api/recipes/[recipeId]] Error:", {
 
 ## 10. Implementation Status
 
-**Status**:  [ ] Not Started
+**Status**: [ ] Not Started
 
 **Files Created/Modified**:
+
 - [ ] `src/lib/services/recipe.service.ts` - Added `getRecipeById` function
 - [ ] `src/pages/api/recipes/[recipeId].ts` - Created API route handler
 
 **Notes**:
+
 - Authentication is currently mocked for development using hardcoded userId `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - Production authentication code is commented out with TODO markers
 - Service function properly handles PostgreSQL "not found" errors (PGRST116)

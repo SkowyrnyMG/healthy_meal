@@ -9,11 +9,13 @@ The Collection Detail Page displays recipes within a specific user collection. U
 **Path:** `/collections/[id]`
 
 **Route Parameters:**
+
 - `id` (string, required): Collection UUID
 
 **Access:** Authenticated users only (verified by AppLayout)
 
 **Example URLs:**
+
 - `/collections/123e4567-e89b-12d3-a456-426614174000`
 
 ## 3. Component Structure
@@ -32,6 +34,7 @@ src/pages/collections/[id].astro (Astro page)
 ```
 
 **File Structure:**
+
 ```
 src/
 ├── pages/
@@ -63,6 +66,7 @@ src/
 Server-side Astro page component responsible for initial data fetching and rendering. Fetches collection data on the server, handles authentication through AppLayout, and passes initial data to the React client component. Implements error handling for collection not found scenarios.
 
 **Main Elements:**
+
 - `<AppLayout>` wrapper for authentication and layout
 - `<CollectionDetailLayout>` client component with `client:load` directive
 
@@ -70,11 +74,13 @@ Server-side Astro page component responsible for initial data fetching and rende
 None (server-side component)
 
 **Validation:**
+
 - Route parameter `id` must be valid UUID (handled by API)
 - Redirects to `/collections` if collection not found (404)
 - Redirects to `/collections` if unauthorized (403)
 
 **Types:**
+
 - Input: `Astro.params.id` (string)
 - API Response: `CollectionDetailDTO`
 - Pass to client: `CollectionDetailDTO`, initial favorites `Set<string>`
@@ -83,6 +89,7 @@ None (server-side component)
 None (page component uses Astro.params)
 
 **Implementation Notes:**
+
 - Fetch collection from `GET /api/collections/{id}?page=1&limit=20`
 - Extract favorite recipe IDs from API response
 - Handle fetch errors gracefully (empty state for errors)
@@ -94,12 +101,14 @@ None (page component uses Astro.params)
 Main React container component managing all client-side state and interactions for the collection detail view. Orchestrates data fetching, pagination, favorites, and recipe removal. Provides loading states and coordinates between child components.
 
 **Main Elements:**
+
 - Loading skeleton (initial load)
 - `<CollectionHeader>` component
 - `<CollectionRecipeGrid>` component
 - `<EmptyState>` component (conditional)
 
 **Handled Events:**
+
 - Collection name update
 - Collection deletion
 - Page navigation
@@ -110,11 +119,13 @@ Main React container component managing all client-side state and interactions f
 None (delegates to child components)
 
 **Types:**
+
 - `CollectionDetailDTO` - Current collection data
 - `Set<string>` - Favorited recipe IDs
 - `number` - Current page number
 
 **Props:**
+
 ```typescript
 interface CollectionDetailLayoutProps {
   initialCollection: CollectionDetailDTO;
@@ -123,6 +134,7 @@ interface CollectionDetailLayoutProps {
 ```
 
 **State Management:**
+
 - `collection` (CollectionDetailDTO | null) - Current collection data
 - `currentPage` (number) - Active page number
 - `isLoadingPage` (boolean) - Loading state for pagination
@@ -130,6 +142,7 @@ interface CollectionDetailLayoutProps {
 - Uses `useFavoriteToggle` hook
 
 **Child Component Coordination:**
+
 - Passes collection data to CollectionHeader
 - Passes recipes and pagination to CollectionRecipeGrid
 - Passes favorites state to RecipeCard instances
@@ -141,6 +154,7 @@ interface CollectionDetailLayoutProps {
 Displays collection metadata including name (editable), recipe count, and action buttons for editing name and deleting collection. Handles opening edit and delete dialogs.
 
 **Main Elements:**
+
 - `<h1>` - Collection name (text-2xl font-bold)
 - `<p>` - Recipe count display: "X przepisów w kolekcji"
 - `<Button>` - "Edytuj nazwę" with Pencil icon
@@ -149,6 +163,7 @@ Displays collection metadata including name (editable), recipe count, and action
 - `<DeleteCollectionDialog>` modal
 
 **Handled Events:**
+
 - Edit button click → opens EditCollectionNameDialog
 - Delete button click → opens DeleteCollectionDialog
 - Dialog submit events (passed from dialogs)
@@ -157,11 +172,13 @@ Displays collection metadata including name (editable), recipe count, and action
 None (handled in dialogs)
 
 **Types:**
+
 - `string` - Collection name
 - `number` - Recipe count
 - `string` - Collection ID
 
 **Props:**
+
 ```typescript
 interface CollectionHeaderProps {
   collectionId: string;
@@ -173,6 +190,7 @@ interface CollectionHeaderProps {
 ```
 
 **Layout:**
+
 - Desktop: Header with buttons on the right
 - Mobile: Stacked layout, full-width buttons
 - Sticky positioning (optional, for better UX)
@@ -183,12 +201,14 @@ interface CollectionHeaderProps {
 Displays recipes in a responsive grid layout with pagination controls. Renders RecipeCard components for each recipe with collection-specific actions.
 
 **Main Elements:**
+
 - `<div>` grid container (responsive columns)
 - Multiple `<RecipeCard>` components
 - `<Pagination>` component (bottom)
 - Loading skeletons during page changes
 
 **Handled Events:**
+
 - Page change (pagination controls)
 - Recipe card interactions (delegated to RecipeCard)
 
@@ -196,10 +216,12 @@ Displays recipes in a responsive grid layout with pagination controls. Renders R
 None
 
 **Types:**
+
 - `CollectionRecipeDTO[]` - Array of recipes
 - `PaginationDTO` - Pagination metadata
 
 **Props:**
+
 ```typescript
 interface CollectionRecipeGridProps {
   collectionId: string;
@@ -216,6 +238,7 @@ interface CollectionRecipeGridProps {
 ```
 
 **Grid Layout:**
+
 - Mobile (< 640px): 1 column
 - Tablet (640px - 1024px): 2 columns
 - Desktop (> 1024px): 3-4 columns
@@ -228,6 +251,7 @@ interface CollectionRecipeGridProps {
 Existing RecipeCard component reused with collection-specific behavior. Displays recipe information with actions for viewing, favoriting, and removing from collection.
 
 **Main Elements:**
+
 - Colored placeholder with recipe initial
 - Recipe title
 - Nutrition information (calories, protein)
@@ -236,6 +260,7 @@ Existing RecipeCard component reused with collection-specific behavior. Displays
 - Remove from collection button (new action)
 
 **Handled Events:**
+
 - Card click → navigate to `/recipes/{id}`
 - Favorite button click → toggle favorite
 - Remove from collection → opens RemoveFromCollectionDialog
@@ -244,11 +269,13 @@ Existing RecipeCard component reused with collection-specific behavior. Displays
 None
 
 **Types:**
+
 - `RecipeCardData` - Recipe display data
 - `boolean` - Is favorited
 - `boolean` - Is loading
 
 **Props:**
+
 ```typescript
 interface RecipeCardProps {
   recipe: RecipeCardData;
@@ -264,6 +291,7 @@ interface RecipeCardProps {
 ```
 
 **Modifications Needed:**
+
 - Add "Usuń z kolekcji" button when `isCollectionView={true}`
 - Button positioned in card footer or dropdown menu
 - Opens RemoveFromCollectionDialog on click
@@ -274,6 +302,7 @@ interface RecipeCardProps {
 Confirmation dialog (AlertDialog) for removing a recipe from the collection. Displays recipe and collection names with clear messaging that only the association is removed, not the recipe itself.
 
 **Main Elements:**
+
 - `<AlertDialog>` wrapper
 - `<AlertDialogContent>`
   - `<AlertDialogHeader>`
@@ -284,6 +313,7 @@ Confirmation dialog (AlertDialog) for removing a recipe from the collection. Dis
     - `<AlertDialogAction>` - "Usuń z kolekcji" (destructive variant)
 
 **Handled Events:**
+
 - Cancel button → closes dialog
 - Confirm button → calls API to remove recipe, closes dialog, shows toast
 
@@ -291,12 +321,14 @@ Confirmation dialog (AlertDialog) for removing a recipe from the collection. Dis
 None (confirmation only)
 
 **Types:**
+
 - `string` - Recipe ID
 - `string` - Recipe title
 - `string` - Collection ID
 - `string` - Collection name
 
 **Props:**
+
 ```typescript
 interface RemoveFromCollectionDialogProps {
   open: boolean;
@@ -321,6 +353,7 @@ interface RemoveFromCollectionDialogProps {
 Dialog for editing the collection name with validation. Uses controlled input with real-time validation feedback.
 
 **Main Elements:**
+
 - `<Dialog>` wrapper
 - `<DialogContent>`
   - `<DialogHeader>` - "Edytuj nazwę kolekcji"
@@ -332,21 +365,25 @@ Dialog for editing the collection name with validation. Uses controlled input wi
     - `<Button>` type="submit" - "Zapisz" (disabled when invalid/submitting)
 
 **Handled Events:**
+
 - Form submit → validates, calls API, updates name
 - Cancel button → closes dialog
 - Input change → validates on change
 
 **Validation:**
+
 - Name required: "Nazwa jest wymagana"
 - Name length: 1-100 characters - "Nazwa musi mieć od 1 do 100 znaków"
 - Name trimmed before validation
 - Unique constraint (API): "Kolekcja o tej nazwie już istnieje"
 
 **Types:**
+
 - `string` - Current name
 - `string` - New name (form state)
 
 **Props:**
+
 ```typescript
 interface EditCollectionNameDialogProps {
   open: boolean;
@@ -358,6 +395,7 @@ interface EditCollectionNameDialogProps {
 ```
 
 **Form State:**
+
 - `name` (string) - Input value
 - `errors` (string | null) - Validation error message
 - `isSubmitting` (boolean) - Submission state
@@ -371,6 +409,7 @@ interface EditCollectionNameDialogProps {
 Confirmation dialog for permanently deleting the entire collection. Uses AlertDialog with destructive styling to emphasize the critical nature of the action.
 
 **Main Elements:**
+
 - `<AlertDialog>` wrapper
 - `<AlertDialogContent>`
   - `<AlertDialogHeader>`
@@ -381,6 +420,7 @@ Confirmation dialog for permanently deleting the entire collection. Uses AlertDi
     - `<AlertDialogAction>` variant="destructive" - "Usuń kolekcję"
 
 **Handled Events:**
+
 - Cancel button → closes dialog
 - Confirm button → calls API, redirects to /collections
 
@@ -388,10 +428,12 @@ Confirmation dialog for permanently deleting the entire collection. Uses AlertDi
 None (confirmation only)
 
 **Types:**
+
 - `string` - Collection ID
 - `string` - Collection name
 
 **Props:**
+
 ```typescript
 interface DeleteCollectionDialogProps {
   open: boolean;
@@ -406,6 +448,7 @@ interface DeleteCollectionDialogProps {
 "Czy na pewno chcesz usunąć kolekcję '[collectionName]'? Wszystkie przepisy zostaną zachowane, ale stracisz tę organizację. Tej operacji nie można cofnąć."
 
 **Success Behavior:**
+
 - Redirect to `/collections`
 - Toast: "Kolekcja została usunięta"
 
@@ -415,12 +458,14 @@ interface DeleteCollectionDialogProps {
 Displays when collection has no recipes. Provides friendly message and call-to-action to add recipes.
 
 **Main Elements:**
+
 - Icon (folder or empty box icon)
 - Heading: "Ta kolekcja jest pusta"
 - Description: "Dodaj przepisy, aby zorganizować swoje ulubione posiłki"
 - `<Button>` or `<Link>` - "Przeglądaj przepisy" → `/recipes/browse`
 
 **Handled Events:**
+
 - Button click → navigate to browse recipes
 
 **Validation:**
@@ -430,6 +475,7 @@ None
 None
 
 **Props:**
+
 ```typescript
 interface EmptyStateProps {
   collectionName: string;
@@ -444,56 +490,61 @@ Show when `collection.recipes.length === 0 && !isLoading`
 ### 5.1 Existing Types (from src/types.ts)
 
 **CollectionDetailDTO** - Complete collection with recipes and pagination
+
 ```typescript
 interface CollectionDetailDTO {
-  id: string;                      // UUID
-  userId: string;                  // UUID
-  name: string;                    // 1-100 characters
-  recipes: CollectionRecipeDTO[];  // Array of recipes in collection
-  pagination: PaginationDTO;       // Pagination metadata
-  createdAt: string;              // ISO 8601 timestamp
+  id: string; // UUID
+  userId: string; // UUID
+  name: string; // 1-100 characters
+  recipes: CollectionRecipeDTO[]; // Array of recipes in collection
+  pagination: PaginationDTO; // Pagination metadata
+  createdAt: string; // ISO 8601 timestamp
 }
 ```
 
 **CollectionRecipeDTO** - Recipe within a collection
+
 ```typescript
 interface CollectionRecipeDTO {
-  recipeId: string;                // UUID
+  recipeId: string; // UUID
   recipe: {
-    id: string;                    // UUID
-    title: string;                 // Recipe title
-    description: string | null;    // Optional description
+    id: string; // UUID
+    title: string; // Recipe title
+    description: string | null; // Optional description
     nutritionPerServing: NutritionDTO; // Nutrition data
   };
-  createdAt: string;               // ISO 8601 timestamp (when added to collection)
+  createdAt: string; // ISO 8601 timestamp (when added to collection)
 }
 ```
 
 **PaginationDTO** - Pagination metadata
+
 ```typescript
 interface PaginationDTO {
-  page: number;      // Current page (min: 1)
-  limit: number;     // Items per page (default: 20, max: 100)
-  total: number;     // Total number of items
+  page: number; // Current page (min: 1)
+  limit: number; // Items per page (default: 20, max: 100)
+  total: number; // Total number of items
   totalPages: number; // Total number of pages
 }
 ```
 
 **NutritionDTO** - Nutrition information
+
 ```typescript
 interface NutritionDTO {
-  calories: number;  // Kilocalories
-  protein: number;   // Grams
-  fat: number;       // Grams
-  carbs: number;     // Grams
-  fiber: number;     // Grams
-  salt: number;      // Grams
+  calories: number; // Kilocalories
+  protein: number; // Grams
+  fat: number; // Grams
+  carbs: number; // Grams
+  fiber: number; // Grams
+  salt: number; // Grams
 }
 ```
 
 ### 5.2 View Models
 
 **RecipeCardData** - Recipe data for card display (from utils)
+
 ```typescript
 interface RecipeCardData {
   id: string;
@@ -505,13 +556,14 @@ interface RecipeCardData {
 ```
 
 **Transform from CollectionRecipeDTO to RecipeCardData:**
+
 ```typescript
 const toRecipeCardData = (cr: CollectionRecipeDTO): RecipeCardData => ({
   id: cr.recipe.id,
   title: cr.recipe.title,
   nutritionPerServing: cr.recipe.nutritionPerServing,
   prepTimeMinutes: null, // Not available in CollectionRecipeDTO
-  primaryTag: null,      // Not available in CollectionRecipeDTO
+  primaryTag: null, // Not available in CollectionRecipeDTO
 });
 ```
 
@@ -520,6 +572,7 @@ Note: API response may need to be extended to include prepTimeMinutes and tags f
 ### 5.3 Command Types (Request Payloads)
 
 **UpdateCollectionCommand** - Update collection name
+
 ```typescript
 interface UpdateCollectionCommand {
   name: string; // 1-100 characters, trimmed
@@ -531,6 +584,7 @@ No command type needed for DELETE operations (no body).
 ### 5.4 API Response Types
 
 **UpdateCollectionResponse**
+
 ```typescript
 interface UpdateCollectionResponse {
   success: boolean;
@@ -543,10 +597,11 @@ interface UpdateCollectionResponse {
 ```
 
 **ErrorResponse**
+
 ```typescript
 interface ErrorResponse {
-  error: string;      // Error type
-  message: string;    // User-friendly message
+  error: string; // Error type
+  message: string; // User-friendly message
 }
 ```
 
@@ -563,6 +618,7 @@ State is managed primarily through custom React hooks that encapsulate API calls
 5. **useDeleteCollection** - Handles collection deletion
 
 Each hook provides:
+
 - Loading states
 - Error handling
 - Optimistic updates where appropriate
@@ -575,6 +631,7 @@ Each hook provides:
 **File:** `src/components/hooks/useCollectionDetail.ts`
 
 **Interface:**
+
 ```typescript
 interface UseCollectionDetailOptions {
   collectionId: string;
@@ -591,25 +648,27 @@ interface UseCollectionDetailReturn {
   refreshCollection: () => Promise<void>;
 }
 
-function useCollectionDetail(
-  options: UseCollectionDetailOptions
-): UseCollectionDetailReturn;
+function useCollectionDetail(options: UseCollectionDetailOptions): UseCollectionDetailReturn;
 ```
 
 **State Variables:**
+
 - `collection: CollectionDetailDTO | null` - Current collection data
 - `isLoading: boolean` - Loading state for page changes
 - `error: Error | null` - Error state
 - `currentPage: number` - Current page number
 
 **Methods:**
+
 - `goToPage(page: number)` - Navigate to specific page
 - `refreshCollection()` - Refresh current page data
 
 **API Calls:**
+
 - `GET /api/collections/{collectionId}?page={page}&limit=20`
 
 **Error Handling:**
+
 - 404 → Redirect to `/collections` with toast "Kolekcja nie została znaleziona"
 - 403 → Redirect to `/collections` with toast "Nie masz dostępu do tej kolekcji"
 - Network errors → Show error toast, keep current data
@@ -621,6 +680,7 @@ function useCollectionDetail(
 **File:** `src/components/hooks/useFavoriteToggle.ts` (already exists)
 
 **Interface:**
+
 ```typescript
 interface UseFavoriteToggleOptions {
   initialFavorites: Set<string>;
@@ -642,6 +702,7 @@ interface UseFavoriteToggleReturn {
 **File:** `src/components/hooks/useRemoveFromCollection.ts`
 
 **Interface:**
+
 ```typescript
 interface UseRemoveFromCollectionOptions {
   collectionId: string;
@@ -653,28 +714,31 @@ interface UseRemoveFromCollectionReturn {
   isRemoving: (recipeId: string) => boolean;
 }
 
-function useRemoveFromCollection(
-  options: UseRemoveFromCollectionOptions
-): UseRemoveFromCollectionReturn;
+function useRemoveFromCollection(options: UseRemoveFromCollectionOptions): UseRemoveFromCollectionReturn;
 ```
 
 **State Variables:**
+
 - `removingRecipes: Set<string>` - Set of recipe IDs being removed
 
 **Methods:**
+
 - `removeRecipe(recipeId, recipeTitle)` - Remove recipe from collection
 - `isRemoving(recipeId)` - Check if recipe is being removed
 
 **API Calls:**
+
 - `DELETE /api/collections/{collectionId}/recipes/{recipeId}`
 - `POST /api/collections/{collectionId}/recipes` (for undo)
 
 **Toast Notifications:**
+
 - Success: "Usunięto z kolekcji" with undo button (5s duration)
 - Error: "Nie udało się usunąć przepisu z kolekcji"
 - Undo success: "Przywrócono do kolekcji"
 
 **Undo Implementation:**
+
 ```typescript
 const handleUndo = async (recipeId: string) => {
   // POST /api/collections/{collectionId}/recipes
@@ -690,6 +754,7 @@ const handleUndo = async (recipeId: string) => {
 **File:** `src/components/hooks/useEditCollectionName.ts`
 
 **Interface:**
+
 ```typescript
 interface UseEditCollectionNameOptions {
   collectionId: string;
@@ -702,27 +767,30 @@ interface UseEditCollectionNameReturn {
   error: string | null;
 }
 
-function useEditCollectionName(
-  options: UseEditCollectionNameOptions
-): UseEditCollectionNameReturn;
+function useEditCollectionName(options: UseEditCollectionNameOptions): UseEditCollectionNameReturn;
 ```
 
 **State Variables:**
+
 - `isUpdating: boolean` - Updating state
 - `error: string | null` - Validation/API error
 
 **Methods:**
+
 - `updateName(newName)` - Update collection name
 
 **API Calls:**
+
 - `PUT /api/collections/{collectionId}`
 - Body: `{ name: string }`
 
 **Validation:**
+
 - Client-side: 1-100 characters, trimmed
 - Server-side: Unique per user (409 conflict)
 
 **Toast Notifications:**
+
 - Success: "Nazwa kolekcji została zaktualizowana"
 - Error 409: "Kolekcja o tej nazwie już istnieje"
 - Error 400: Validation error message from API
@@ -734,6 +802,7 @@ function useEditCollectionName(
 **File:** `src/components/hooks/useDeleteCollection.ts`
 
 **Interface:**
+
 ```typescript
 interface UseDeleteCollectionOptions {
   collectionId: string;
@@ -745,26 +814,29 @@ interface UseDeleteCollectionReturn {
   isDeleting: boolean;
 }
 
-function useDeleteCollection(
-  options: UseDeleteCollectionOptions
-): UseDeleteCollectionReturn;
+function useDeleteCollection(options: UseDeleteCollectionOptions): UseDeleteCollectionReturn;
 ```
 
 **State Variables:**
+
 - `isDeleting: boolean` - Deletion state
 
 **Methods:**
+
 - `deleteCollection()` - Delete the collection
 
 **API Calls:**
+
 - `DELETE /api/collections/{collectionId}`
 
 **Success Behavior:**
+
 - Call `onDeleted()` callback
 - Parent component redirects to `/collections`
 - Toast: "Kolekcja została usunięta"
 
 **Error Handling:**
+
 - Show error toast
 - Keep user on current page
 - Toast: "Nie udało się usunąć kolekcji"
@@ -776,12 +848,14 @@ function useDeleteCollection(
 **Purpose:** Fetch collection with paginated recipes
 
 **When Called:**
+
 - Initial page load (server-side in .astro)
 - Page navigation (client-side)
 - After recipe removal (to refresh)
 - After undo operation
 
 **Request:**
+
 ```typescript
 GET /api/collections/{collectionId}?page=1&limit=20
 Headers: {
@@ -790,12 +864,14 @@ Headers: {
 ```
 
 **Query Parameters:**
+
 - `page` (number, optional): Page number (default: 1, min: 1)
 - `limit` (number, optional): Items per page (default: 20, min: 1, max: 100)
 
 **Response Type:** `CollectionDetailDTO`
 
 **Response (200 OK):**
+
 ```json
 {
   "id": "uuid",
@@ -831,6 +907,7 @@ Headers: {
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Invalid query parameters
   ```json
   { "error": "Bad Request", "message": "page must be at least 1" }
@@ -849,6 +926,7 @@ Headers: {
   ```
 
 **Error Handling:**
+
 - 404/403 → Redirect to `/collections` with error toast
 - 400 → Reset to page 1
 - 500 → Show error toast, keep current data
@@ -858,9 +936,11 @@ Headers: {
 **Purpose:** Update collection name
 
 **When Called:**
+
 - User submits edit name form
 
 **Request:**
+
 ```typescript
 PUT /api/collections/{collectionId}
 Headers: {
@@ -877,6 +957,7 @@ Body: {
 **Response Type:** `UpdateCollectionResponse`
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -889,6 +970,7 @@ Body: {
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Validation error
   ```json
   { "error": "Bad Request", "message": "Name must be 100 characters or less" }
@@ -902,11 +984,13 @@ Body: {
   ```
 
 **Success Handling:**
+
 - Update local collection state
 - Close dialog
 - Toast: "Nazwa kolekcji została zaktualizowana"
 
 **Error Handling:**
+
 - 409 → Display error in dialog: "Kolekcja o tej nazwie już istnieje"
 - 400 → Display validation error in dialog
 - 404/403 → Close dialog, show error toast, refresh page
@@ -916,13 +1000,15 @@ Body: {
 **Purpose:** Delete entire collection
 
 **When Called:**
+
 - User confirms deletion in DeleteCollectionDialog
 
 **Request:**
+
 ```typescript
-DELETE /api/collections/{collectionId}
+DELETE / api / collections / { collectionId };
 Headers: {
-  Cookie: "..."
+  Cookie: "...";
 }
 ```
 
@@ -930,15 +1016,18 @@ Headers: {
 Empty response body
 
 **Error Responses:**
+
 - `401 Unauthorized` - Not authenticated
 - `403 Forbidden` - Collection belongs to another user
 - `404 Not Found` - Collection not found
 
 **Success Handling:**
+
 - Redirect to `/collections`
 - Toast: "Kolekcja została usunięta"
 
 **Error Handling:**
+
 - 404 → Redirect anyway (already deleted)
 - 403/500 → Show error toast, stay on page
 
@@ -947,13 +1036,15 @@ Empty response body
 **Purpose:** Remove recipe from collection
 
 **When Called:**
+
 - User confirms removal in RemoveFromCollectionDialog
 
 **Request:**
+
 ```typescript
-DELETE /api/collections/{collectionId}/recipes/{recipeId}
+DELETE / api / collections / { collectionId } / recipes / { recipeId };
 Headers: {
-  Cookie: "..."
+  Cookie: "...";
 }
 ```
 
@@ -961,16 +1052,19 @@ Headers: {
 Empty response body
 
 **Error Responses:**
+
 - `401 Unauthorized` - Not authenticated
 - `403 Forbidden` - Collection belongs to another user
 - `404 Not Found` - Recipe not in collection
 
 **Success Handling:**
+
 - Refresh current page data
 - Toast with undo: "Usunięto z kolekcji" (undo button, 5s)
 - If current page becomes empty, navigate to previous page (or page 1)
 
 **Error Handling:**
+
 - 404 → Refresh collection (already removed)
 - 500 → Show error toast, don't refresh
 
@@ -979,9 +1073,11 @@ Empty response body
 **Purpose:** Re-add recipe to collection (undo remove)
 
 **When Called:**
+
 - User clicks "Cofnij" in undo toast
 
 **Request:**
+
 ```typescript
 POST /api/collections/{collectionId}/recipes
 Headers: {
@@ -994,6 +1090,7 @@ Body: {
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -1006,10 +1103,12 @@ Body: {
 ```
 
 **Success Handling:**
+
 - Refresh current page
 - Toast: "Przywrócono do kolekcji"
 
 **Error Handling:**
+
 - Show error toast: "Nie udało się przywrócić"
 
 ### 7.6 POST /api/favorites (Existing)
@@ -1031,6 +1130,7 @@ Body: {
 **Trigger:** User navigates to `/collections/{id}`
 
 **Flow:**
+
 1. Server fetches collection data via API
 2. Server renders page with initial data
 3. React component hydrates with data
@@ -1038,10 +1138,12 @@ Body: {
 5. Show pagination if needed
 
 **Loading State:**
+
 - Server-side: Page loads with data
 - Client-side: Skeleton shown during hydration
 
 **Error State:**
+
 - 404 → Redirect to `/collections` with toast
 - Network error → Show error message
 
@@ -1050,6 +1152,7 @@ Body: {
 **Trigger:** User clicks pagination controls (next, previous, page number)
 
 **Flow:**
+
 1. User clicks pagination button
 2. Update currentPage state
 3. Show loading skeleton over grid
@@ -1058,10 +1161,12 @@ Body: {
 6. Scroll to top of grid
 
 **Loading State:**
+
 - Show skeleton cards in grid
 - Disable pagination controls
 
 **Edge Cases:**
+
 - Last page selected → Disable "Next" button
 - First page selected → Disable "Previous" button
 - Invalid page number → Reset to page 1
@@ -1071,11 +1176,13 @@ Body: {
 **Trigger:** User clicks anywhere on recipe card (except action buttons)
 
 **Flow:**
+
 1. User clicks card
 2. Navigate to `/recipes/{recipeId}`
 3. Browser performs page navigation
 
 **Implementation:**
+
 ```typescript
 const handleCardClick = () => {
   window.location.href = `/recipes/${recipe.id}`;
@@ -1083,6 +1190,7 @@ const handleCardClick = () => {
 ```
 
 **Accessibility:**
+
 - Card has `role="button"` and `tabIndex={0}`
 - Keyboard support: Enter and Space keys
 - Screen reader label: "Przejdź do przepisu: {title}"
@@ -1092,6 +1200,7 @@ const handleCardClick = () => {
 **Trigger:** User clicks heart icon on recipe card
 
 **Flow:**
+
 1. User clicks heart icon
 2. Stop event propagation (prevent card click)
 3. Optimistic update: Toggle heart visually
@@ -1101,15 +1210,18 @@ const handleCardClick = () => {
 7. If unfavoriting: Show undo toast (5s)
 
 **Loading State:**
+
 - Show spinner in heart button
 - Disable heart button
 
 **Toast Messages:**
+
 - Unfavorite success: "Usunięto z ulubionych" with undo button
 - Add favorite error: "Nie udało się dodać do ulubionych"
 - Remove favorite error: "Nie udało się usunąć z ulubionych"
 
 **Undo Flow:**
+
 1. User clicks "Cofnij" in toast (within 5s)
 2. Optimistic update: Add back to favorites
 3. API call to re-add
@@ -1121,6 +1233,7 @@ const handleCardClick = () => {
 **Trigger:** User clicks "Usuń z kolekcji" button on recipe card
 
 **Flow:**
+
 1. User clicks remove button
 2. Stop event propagation
 3. Open RemoveFromCollectionDialog
@@ -1139,22 +1252,26 @@ const handleCardClick = () => {
    - Don't refresh
 
 **Dialog Content:**
+
 - Title: "Usuń z kolekcji?"
 - Message: "Przepis '{title}' zostanie usunięty z kolekcji '{name}'. Sam przepis nie zostanie usunięty."
 - Cancel button: "Anuluj"
 - Confirm button: "Usuń z kolekcji" (destructive)
 
 **Toast Messages:**
+
 - Success: "Usunięto z kolekcji" with undo button
 - Error: "Nie udało się usunąć przepisu z kolekcji"
 
 **Undo Flow:**
+
 1. User clicks "Cofnij" in toast
 2. API call to re-add recipe
 3. Refresh current page
 4. Toast: "Przywrócono do kolekcji"
 
 **Edge Case - Empty Page:**
+
 ```typescript
 if (collection.recipes.length === 1 && currentPage > 1) {
   // Last recipe on current page - go to previous page
@@ -1170,6 +1287,7 @@ if (collection.recipes.length === 1 && currentPage > 1) {
 **Trigger:** User clicks "Edytuj nazwę" button in header
 
 **Flow:**
+
 1. User clicks "Edytuj nazwę" button
 2. Open EditCollectionNameDialog
 3. Pre-fill input with current name
@@ -1189,6 +1307,7 @@ if (collection.recipes.length === 1 && currentPage > 1) {
     - Don't update name
 
 **Dialog Content:**
+
 - Title: "Edytuj nazwę kolekcji"
 - Input label: "Nazwa kolekcji"
 - Input placeholder: Current name
@@ -1196,12 +1315,14 @@ if (collection.recipes.length === 1 && currentPage > 1) {
 - Submit button: "Zapisz" (disabled when invalid/submitting)
 
 **Validation:**
+
 - Required: "Nazwa jest wymagana"
 - Min length 1: "Nazwa jest wymagana"
 - Max length 100: "Nazwa musi mieć maksymalnie 100 znaków"
 - Unique (API 409): "Kolekcja o tej nazwie już istnieje"
 
 **Form State:**
+
 ```typescript
 const [name, setName] = useState(currentName);
 const [error, setError] = useState<string | null>(null);
@@ -1220,6 +1341,7 @@ const validate = (value: string): string | null => {
 **Trigger:** User clicks "Usuń kolekcję" button in header
 
 **Flow:**
+
 1. User clicks "Usuń kolekcję" button
 2. Open DeleteCollectionDialog
 3. Display collection name and warning
@@ -1227,25 +1349,28 @@ const validate = (value: string): string | null => {
 5. Show loading state in button
 6. API call to delete collection
 7. On success:
-    - Close dialog
-    - Redirect to `/collections`
-    - Toast: "Kolekcja została usunięta"
+   - Close dialog
+   - Redirect to `/collections`
+   - Toast: "Kolekcja została usunięta"
 8. On error:
-    - Close dialog
-    - Show error toast
-    - Stay on page
+   - Close dialog
+   - Show error toast
+   - Stay on page
 
 **Dialog Content:**
+
 - Title: "Usuń kolekcję?"
 - Message: "Czy na pewno chcesz usunąć kolekcję '{name}'? Wszystkie przepisy zostaną zachowane, ale stracisz tę organizację. Tej operacji nie można cofnąć."
 - Cancel button: "Anuluj"
 - Confirm button: "Usuń kolekcję" (destructive)
 
 **Toast Messages:**
+
 - Success: "Kolekcja została usunięta"
 - Error: "Nie udało się usunąć kolekcji"
 
 **Redirect Implementation:**
+
 ```typescript
 const handleDeleted = () => {
   toast.success("Kolekcja została usunięta");
@@ -1262,12 +1387,14 @@ const handleDeleted = () => {
 **Validation Location:** API endpoint
 
 **Component Behavior:**
+
 - Invalid UUID → API returns 400
 - Handler: Redirect to `/collections` with error toast
 
 ### 9.2 Pagination Validation
 
 **Conditions:**
+
 - `page` must be positive integer ≥ 1
 - `limit` must be integer between 1-100
 - `page` cannot exceed `totalPages`
@@ -1275,12 +1402,14 @@ const handleDeleted = () => {
 **Validation Location:** API endpoint, useCollectionDetail hook
 
 **Component Behavior:**
+
 - Invalid page → Reset to page 1
 - page > totalPages → Reset to last page
 - Disable "Previous" button when page === 1
 - Disable "Next" button when page === totalPages
 
 **UI State:**
+
 ```typescript
 const isPreviousDisabled = currentPage === 1 || isLoadingPage;
 const isNextDisabled = currentPage === pagination.totalPages || isLoadingPage;
@@ -1289,6 +1418,7 @@ const isNextDisabled = currentPage === pagination.totalPages || isLoadingPage;
 ### 9.3 Collection Name Validation
 
 **Conditions:**
+
 - Required (length > 0 after trim)
 - Maximum 100 characters
 - Unique per user (validated by API)
@@ -1296,6 +1426,7 @@ const isNextDisabled = currentPage === pagination.totalPages || isLoadingPage;
 **Validation Location:** EditCollectionNameDialog component
 
 **Validation Function:**
+
 ```typescript
 const validateName = (value: string): string | null => {
   const trimmed = value.trim();
@@ -1313,11 +1444,13 @@ const validateName = (value: string): string | null => {
 ```
 
 **Error Messages:**
+
 - Empty: "Nazwa jest wymagana"
 - Too long: "Nazwa musi mieć maksymalnie 100 znaków"
 - Not unique (API 409): "Kolekcja o tej nazwie już istnieje"
 
 **Component Behavior:**
+
 - Show error below input field
 - Disable submit button when invalid
 - Clear error on input change
@@ -1329,6 +1462,7 @@ const validateName = (value: string): string | null => {
 **Check:** `collection.recipes.length === 0 && !isLoading`
 
 **Component Behavior:**
+
 - Hide recipe grid
 - Hide pagination
 - Show EmptyState component
@@ -1337,18 +1471,22 @@ const validateName = (value: string): string | null => {
 ### 9.5 Loading State Conditions
 
 **Initial Load:**
+
 - Condition: Server-side data not yet hydrated
 - UI: Show skeleton for entire page
 
 **Page Change:**
+
 - Condition: `isLoadingPage === true`
 - UI: Show skeleton cards in grid, disable pagination
 
 **Recipe Actions:**
+
 - Condition: `isTogglingRecipe(id) === true` or `isRemoving(id) === true`
 - UI: Show spinner in action button, disable button
 
 **Collection Actions:**
+
 - Condition: `isUpdating === true` or `isDeleting === true`
 - UI: Disable dialog buttons, show spinner
 
@@ -1359,6 +1497,7 @@ const validateName = (value: string): string | null => {
 **Validation Location:** API endpoints (middleware)
 
 **Component Behavior:**
+
 - 403 response → Redirect to `/collections`
 - Toast: "Nie masz dostępu do tej kolekcji"
 
@@ -1367,6 +1506,7 @@ const validateName = (value: string): string | null => {
 **Condition:** Prevent multiple simultaneous operations
 
 **Implementation:**
+
 ```typescript
 // Disable all actions when any operation in progress
 const isAnyActionInProgress =
@@ -1385,11 +1525,13 @@ const isAnyActionInProgress =
 ### 10.1 Collection Not Found (404)
 
 **Scenarios:**
+
 - Collection doesn't exist
 - Collection was deleted by another session
 - Invalid collection ID
 
 **Handling:**
+
 ```typescript
 // In useCollectionDetail hook
 if (response.status === 404) {
@@ -1400,16 +1542,19 @@ if (response.status === 404) {
 ```
 
 **User Experience:**
+
 - Immediate redirect to collections list
 - Error toast explaining what happened
 
 ### 10.2 Unauthorized Access (403)
 
 **Scenarios:**
+
 - Collection belongs to another user
 - User lost permission to collection
 
 **Handling:**
+
 ```typescript
 if (response.status === 403) {
   toast.error("Nie masz dostępu do tej kolekcji");
@@ -1419,17 +1564,20 @@ if (response.status === 403) {
 ```
 
 **User Experience:**
+
 - Redirect to collections list
 - Error toast with permission message
 
 ### 10.3 Network Errors
 
 **Scenarios:**
+
 - No internet connection
 - Server unreachable
 - Timeout
 
 **Handling:**
+
 ```typescript
 try {
   const response = await fetch(...);
@@ -1442,6 +1590,7 @@ try {
 ```
 
 **User Experience:**
+
 - Show error toast
 - Keep current data visible
 - Allow user to retry action
@@ -1449,11 +1598,13 @@ try {
 ### 10.4 Validation Errors (400)
 
 **Scenarios:**
+
 - Invalid pagination parameters
 - Invalid collection name
 - Invalid request body
 
 **Handling:**
+
 ```typescript
 if (response.status === 400) {
   const data = await response.json();
@@ -1463,6 +1614,7 @@ if (response.status === 400) {
 ```
 
 **User Experience:**
+
 - Display validation error in form/dialog
 - Highlight problematic field
 - Allow correction without closing dialog
@@ -1472,6 +1624,7 @@ if (response.status === 400) {
 **Scenario:** Collection name already exists for user
 
 **Handling:**
+
 ```typescript
 if (response.status === 409) {
   setError("Kolekcja o tej nazwie już istnieje");
@@ -1480,6 +1633,7 @@ if (response.status === 409) {
 ```
 
 **User Experience:**
+
 - Show error below name input
 - Keep dialog open for correction
 - Highlight input field
@@ -1488,17 +1642,19 @@ if (response.status === 409) {
 ### 10.6 Remove Recipe Failure
 
 **Scenarios:**
+
 - Recipe already removed
 - Network error
 - Permission changed
 
 **Handling:**
+
 ```typescript
 try {
   await removeRecipe(recipeId);
   // Success - show undo toast
   toast("Usunięto z kolekcji", {
-    action: { label: "Cofnij", onClick: handleUndo }
+    action: { label: "Cofnij", onClick: handleUndo },
   });
   await refreshCollection();
 } catch (error) {
@@ -1509,6 +1665,7 @@ try {
 ```
 
 **User Experience:**
+
 - Error toast if removal fails
 - Don't refresh on error (avoid confusion)
 - Allow user to retry
@@ -1533,6 +1690,7 @@ try {
 ```
 
 **User Experience:**
+
 - Immediate visual feedback (optimistic)
 - Automatic rollback on error
 - Error toast explaining failure
@@ -1540,11 +1698,13 @@ try {
 ### 10.8 Delete Collection Failure
 
 **Scenarios:**
+
 - Collection already deleted
 - Network error
 - Permission changed
 
 **Handling:**
+
 ```typescript
 try {
   await deleteCollection(collectionId);
@@ -1558,6 +1718,7 @@ try {
 ```
 
 **User Experience:**
+
 - Close dialog
 - Show error toast
 - Stay on collection page (allow retry)
@@ -1565,11 +1726,13 @@ try {
 ### 10.9 Server Error (500)
 
 **Scenarios:**
+
 - Database error
 - Internal server error
 - Unexpected exception
 
 **Handling:**
+
 ```typescript
 if (response.status >= 500) {
   console.error("Server error:", await response.text());
@@ -1579,6 +1742,7 @@ if (response.status >= 500) {
 ```
 
 **User Experience:**
+
 - Generic error message
 - Keep current state
 - Don't lose user's work
@@ -1589,6 +1753,7 @@ if (response.status >= 500) {
 **Scenario:** Removing last recipe on current page (when page > 1)
 
 **Handling:**
+
 ```typescript
 const handleRecipeRemoved = async () => {
   if (collection.recipes.length === 1 && currentPage > 1) {
@@ -1602,6 +1767,7 @@ const handleRecipeRemoved = async () => {
 ```
 
 **User Experience:**
+
 - Automatic navigation to previous page
 - Smooth transition
 - No manual intervention needed
@@ -1611,6 +1777,7 @@ const handleRecipeRemoved = async () => {
 **Scenario:** User doesn't click undo within 5 seconds
 
 **Handling:**
+
 ```typescript
 toast("Usunięto z kolekcji", {
   action: { label: "Cofnij", onClick: handleUndo },
@@ -1620,6 +1787,7 @@ toast("Usunięto z kolekcji", {
 ```
 
 **User Experience:**
+
 - Clear 5-second window for undo
 - Visual countdown (toast progress bar)
 - After timeout, change is permanent
@@ -1629,11 +1797,13 @@ toast("Usunięto z kolekcji", {
 **Scenario:** Collection modified in another tab/session
 
 **Handling:**
+
 - Refresh on focus (optional enhancement)
 - Show refresh button if data seems stale
 - Auto-refresh after actions (remove, edit)
 
 **User Experience:**
+
 - Data stays reasonably fresh
 - User can manually refresh if needed
 - Automatic refresh after mutations
@@ -1641,10 +1811,13 @@ toast("Usunięto z kolekcji", {
 ## 11. Implementation Steps
 
 ### Step 1: Create Base Page Structure
+
 **Files to create:**
+
 - `src/pages/collections/[id].astro`
 
 **Tasks:**
+
 1. Create Astro page file with dynamic route parameter `[id]`
 2. Import AppLayout for authentication and layout
 3. Fetch collection data server-side from API endpoint
@@ -1654,19 +1827,23 @@ toast("Usunięto z kolekcji", {
 7. Add proper TypeScript types for page params
 
 **Acceptance Criteria:**
+
 - Page accessible at `/collections/{uuid}`
 - Server-side data fetching works
 - Proper error handling for missing collections
 - Data passed to client component correctly
 
 ### Step 2: Create Custom Hooks
+
 **Files to create:**
+
 - `src/components/hooks/useCollectionDetail.ts`
 - `src/components/hooks/useRemoveFromCollection.ts`
 - `src/components/hooks/useEditCollectionName.ts`
 - `src/components/hooks/useDeleteCollection.ts`
 
 **Tasks:**
+
 1. Implement useCollectionDetail hook:
    - State for collection, loading, error, currentPage
    - goToPage function with API call
@@ -1689,6 +1866,7 @@ toast("Usunięto z kolekcji", {
    - Success/error handling
 
 **Acceptance Criteria:**
+
 - All hooks properly typed with TypeScript
 - API calls correctly implemented
 - Error handling comprehensive
@@ -1696,10 +1874,13 @@ toast("Usunięto z kolekcji", {
 - Undo functionality for remove works
 
 ### Step 3: Create Main Layout Component
+
 **Files to create:**
+
 - `src/components/collections/detail/CollectionDetailLayout.tsx`
 
 **Tasks:**
+
 1. Create React component structure
 2. Initialize all custom hooks
 3. Implement state management
@@ -1710,6 +1891,7 @@ toast("Usunięto z kolekcji", {
 8. Pass props to child components
 
 **Acceptance Criteria:**
+
 - Component receives initial data
 - All hooks initialized correctly
 - State updates flow properly
@@ -1717,10 +1899,13 @@ toast("Usunięto z kolekcji", {
 - Empty state shows when appropriate
 
 ### Step 4: Create Header Component
+
 **Files to create:**
+
 - `src/components/collections/detail/CollectionHeader.tsx`
 
 **Tasks:**
+
 1. Create component structure
 2. Display collection name as H1
 3. Display recipe count with proper pluralization
@@ -1731,13 +1916,16 @@ toast("Usunięto z kolekcji", {
 8. Add proper ARIA labels
 
 **Acceptance Criteria:**
+
 - Header displays correctly on all screen sizes
 - Buttons trigger appropriate dialogs
 - Recipe count uses proper Polish pluralization
 - Accessible via keyboard
 
 ### Step 5: Create Dialog Components
+
 **Files to create:**
+
 - `src/components/collections/detail/EditCollectionNameDialog.tsx`
 - `src/components/collections/detail/DeleteCollectionDialog.tsx`
 - `src/components/collections/detail/RemoveFromCollectionDialog.tsx`
@@ -1745,6 +1933,7 @@ toast("Usunięto z kolekcji", {
 **Tasks:**
 
 **EditCollectionNameDialog:**
+
 1. Use shadcn/ui Dialog components
 2. Create form with controlled input
 3. Implement real-time validation
@@ -1754,6 +1943,7 @@ toast("Usunięto z kolekcji", {
 7. Handle API errors (especially 409 conflict)
 
 **DeleteCollectionDialog:**
+
 1. Use shadcn/ui AlertDialog components
 2. Display collection name in warning message
 3. Add destructive confirm button
@@ -1762,6 +1952,7 @@ toast("Usunięto z kolekcji", {
 6. Handle success (call callback)
 
 **RemoveFromCollectionDialog:**
+
 1. Use shadcn/ui AlertDialog components
 2. Display recipe and collection names
 3. Explain that only association is removed
@@ -1770,6 +1961,7 @@ toast("Usunięto z kolekcji", {
 6. Handle success with undo toast
 
 **Acceptance Criteria:**
+
 - All dialogs use proper shadcn/ui components
 - Validation works correctly
 - Loading states display
@@ -1778,10 +1970,13 @@ toast("Usunięto z kolekcji", {
 - Mobile responsive
 
 ### Step 6: Create Recipe Grid Component
+
 **Files to create:**
+
 - `src/components/collections/detail/CollectionRecipeGrid.tsx`
 
 **Tasks:**
+
 1. Create responsive grid layout
 2. Map recipes to RecipeCard components
 3. Pass proper props to each card
@@ -1791,6 +1986,7 @@ toast("Usunięto z kolekcji", {
 7. Ensure proper spacing and alignment
 
 **Acceptance Criteria:**
+
 - Grid responsive (1-4 columns based on screen size)
 - Pagination controls work correctly
 - Loading skeleton displays during fetch
@@ -1798,10 +1994,13 @@ toast("Usunięto z kolekcji", {
 - Proper gap between cards
 
 ### Step 7: Extend RecipeCard Component
+
 **Files to modify:**
+
 - `src/components/RecipeCard.tsx`
 
 **Tasks:**
+
 1. Add new optional props:
    - `isCollectionView?: boolean`
    - `collectionId?: string`
@@ -1813,6 +2012,7 @@ toast("Usunięto z kolekcji", {
 5. Maintain existing functionality (favorite, click)
 
 **Acceptance Criteria:**
+
 - Original functionality unchanged
 - Collection-specific action displays correctly
 - Remove dialog opens on click
@@ -1820,10 +2020,13 @@ toast("Usunięto z kolekcji", {
 - Keyboard accessible
 
 ### Step 8: Create Empty State Component
+
 **Files to create:**
+
 - `src/components/collections/detail/EmptyState.tsx`
 
 **Tasks:**
+
 1. Create centered layout
 2. Add appropriate icon (folder or empty box)
 3. Display heading and description
@@ -1832,6 +2035,7 @@ toast("Usunięto z kolekcji", {
 6. Add proper styling
 
 **Acceptance Criteria:**
+
 - Displays centered in container
 - Text is clear and helpful
 - CTA button links to correct page
@@ -1839,10 +2043,13 @@ toast("Usunięto z kolekcji", {
 - Visually appealing
 
 ### Step 9: Implement Pagination
+
 **Files to create/modify:**
+
 - Use existing shadcn/ui pagination or create custom component
 
 **Tasks:**
+
 1. Display current page info: "X-Y z Z przepisów"
 2. Add Previous button (disabled on page 1)
 3. Add Next button (disabled on last page)
@@ -1852,6 +2059,7 @@ toast("Usunięto z kolekcji", {
 7. Implement proper Polish pluralization
 
 **Acceptance Criteria:**
+
 - Navigation works correctly
 - Buttons disabled appropriately
 - Current page displayed clearly
@@ -1859,10 +2067,13 @@ toast("Usunięto z kolekcji", {
 - Keyboard accessible
 
 ### Step 10: Add Loading Skeletons
+
 **Files to create:**
+
 - `src/components/collections/detail/LoadingSkeleton.tsx` (or inline)
 
 **Tasks:**
+
 1. Create skeleton for collection header
 2. Create skeleton for recipe cards
 3. Use shadcn/ui Skeleton component
@@ -1871,16 +2082,20 @@ toast("Usunięto z kolekcji", {
 6. Implement smooth transitions
 
 **Acceptance Criteria:**
+
 - Skeletons match actual components
 - Smooth loading transitions
 - No layout shift when content loads
 - Proper shimmer animation
 
 ### Step 11: Integrate Toast Notifications
+
 **Files to modify:**
+
 - All components that show toasts
 
 **Tasks:**
+
 1. Ensure toast provider configured (should be in AppLayout)
 2. Use consistent toast messages:
    - Success: Green with checkmark
@@ -1891,6 +2106,7 @@ toast("Usunięto z kolekcji", {
 5. Test all toast scenarios
 
 **Acceptance Criteria:**
+
 - All toasts display correctly
 - Undo functionality works
 - Messages clear in Polish
@@ -1898,10 +2114,13 @@ toast("Usunięto z kolekcji", {
 - Mobile responsive
 
 ### Step 12: Implement Accessibility
+
 **Files to modify:**
+
 - All component files
 
 **Tasks:**
+
 1. Add proper ARIA labels to all interactive elements
 2. Ensure keyboard navigation works:
    - Tab through all controls
@@ -1914,6 +2133,7 @@ toast("Usunięto z kolekcji", {
 7. Verify with screen reader (optional but recommended)
 
 **Acceptance Criteria:**
+
 - All interactive elements keyboard accessible
 - Focus indicators visible
 - ARIA labels appropriate
@@ -1921,10 +2141,13 @@ toast("Usunięto z kolekcji", {
 - Tab order logical
 
 ### Step 13: Add Responsive Design
+
 **Files to modify:**
+
 - All component files
 
 **Tasks:**
+
 1. Test on mobile (320px - 768px)
 2. Test on tablet (768px - 1024px)
 3. Test on desktop (> 1024px)
@@ -1935,6 +2158,7 @@ toast("Usunięto z kolekcji", {
 8. Test landscape orientation
 
 **Acceptance Criteria:**
+
 - Layout works on all screen sizes
 - No horizontal scrolling
 - Touch targets appropriate
@@ -1942,10 +2166,13 @@ toast("Usunięto z kolekcji", {
 - Dialogs fit on screen
 
 ### Step 14: Error Handling Testing
+
 **Files to modify:**
+
 - All components with API calls
 
 **Tasks:**
+
 1. Test 404 response (collection not found)
 2. Test 403 response (unauthorized)
 3. Test 409 response (name conflict)
@@ -1957,6 +2184,7 @@ toast("Usunięto z kolekcji", {
 9. Test recovery from errors
 
 **Acceptance Criteria:**
+
 - All error scenarios handled gracefully
 - User never sees unhandled errors
 - Error messages clear and actionable
@@ -1964,7 +2192,9 @@ toast("Usunięto z kolekcji", {
 - No data loss on errors
 
 ### Step 15: Integration Testing
+
 **Tasks:**
+
 1. Test complete user flows:
    - View collection
    - Navigate pages
@@ -1988,6 +2218,7 @@ toast("Usunięto z kolekcji", {
    - Mobile browsers
 
 **Acceptance Criteria:**
+
 - All user flows work end-to-end
 - Edge cases handled correctly
 - Performance acceptable
@@ -1995,7 +2226,9 @@ toast("Usunięto z kolekcji", {
 - No console errors
 
 ### Step 16: Polish and Refinement
+
 **Tasks:**
+
 1. Review all Polish text for grammar and consistency
 2. Ensure consistent styling with rest of app
 3. Add subtle animations (optional):
@@ -2009,6 +2242,7 @@ toast("Usunięto z kolekcji", {
 8. Final code review
 
 **Acceptance Criteria:**
+
 - Polish text perfect and consistent
 - Visual consistency with app
 - Animations smooth (if added)
@@ -2017,7 +2251,9 @@ toast("Usunięto z kolekcji", {
 - Ready for production
 
 ### Step 17: Documentation
+
 **Tasks:**
+
 1. Document component props and interfaces
 2. Add usage examples to complex components
 3. Document custom hooks with examples
@@ -2026,6 +2262,7 @@ toast("Usunięto z kolekcji", {
 6. Add architectural decisions document
 
 **Acceptance Criteria:**
+
 - All components documented
 - Examples provided
 - Troubleshooting guide helpful
@@ -2046,6 +2283,7 @@ This implementation plan provides a comprehensive guide for building the Collect
 - **Navigate** to recipe details
 
 Key technical decisions:
+
 - Astro for server-side rendering with React for interactivity
 - Custom hooks for state management and API calls
 - Shadcn/ui components for dialogs and UI elements

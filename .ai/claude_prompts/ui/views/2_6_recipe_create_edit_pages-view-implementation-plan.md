@@ -45,6 +45,7 @@ src/components/
 **Description:** Main container component that manages the multi-step wizard state, draft persistence, and overall form flow. Orchestrates all child components and handles navigation between steps.
 
 **Main elements:**
+
 - Container div with max-width constraint (centered layout)
 - ProgressIndicator component at top
 - Current step component rendered dynamically based on state
@@ -53,27 +54,31 @@ src/components/
 - Browser beforeunload event listener for unsaved changes warning
 
 **Handled interactions:**
+
 - Step navigation (next/previous)
 - Draft restoration (accept/decline)
 - Form submission
 - Navigation away with unsaved changes
 
 **Handled validation:**
+
 - Step-level validation before allowing progression to next step
 - Final validation before submission
 - Cross-field validation (e.g., step numbers sequential)
 
 **Types:**
+
 - RecipeFormData (form state)
 - RecipeFormErrors (validation errors)
 - RecipeFormMode ('create' | 'edit')
 
 **Props:**
+
 ```typescript
 interface RecipeFormWizardProps {
-  mode: 'create' | 'edit';
-  initialData?: RecipeDetailDTO;  // For edit mode
-  recipeId?: string;               // For edit mode
+  mode: "create" | "edit";
+  initialData?: RecipeDetailDTO; // For edit mode
+  recipeId?: string; // For edit mode
 }
 ```
 
@@ -82,20 +87,25 @@ interface RecipeFormWizardProps {
 **Description:** Visual indicator showing the current step and overall progress through the wizard. Displays "Step X of 6" and a progress bar or breadcrumb-style indicator.
 
 **Main elements:**
+
 - Step counter text (e.g., "Krok 1 z 6")
 - Progress bar (width based on current step)
 - Optional: Breadcrumb-style step labels for desktop
 
 **Handled interactions:**
+
 - None (display only)
 
 **Handled validation:**
+
 - None
 
 **Types:**
+
 - RecipeFormStep (1-6)
 
 **Props:**
+
 ```typescript
 interface ProgressIndicatorProps {
   currentStep: RecipeFormStep;
@@ -108,25 +118,30 @@ interface ProgressIndicatorProps {
 **Description:** Navigation buttons at the bottom of the wizard. Shows Previous, Next, and Submit buttons based on current step. Handles step navigation logic.
 
 **Main elements:**
+
 - Previous button (hidden on step 1)
 - Next button (shown on steps 1-5)
 - Submit button (shown on step 6)
 - Loading spinner (during submission)
 
 **Handled interactions:**
+
 - Click Previous: Navigate to previous step
 - Click Next: Validate current step, then navigate to next step
 - Click Submit: Validate all data and submit form
 
 **Handled validation:**
+
 - Current step validation before allowing Next
 - Complete form validation before Submit
 
 **Types:**
+
 - RecipeFormStep
 - RecipeFormErrors
 
 **Props:**
+
 ```typescript
 interface WizardNavigationProps {
   currentStep: RecipeFormStep;
@@ -134,7 +149,7 @@ interface WizardNavigationProps {
   onNext: () => void;
   onSubmit: () => Promise<void>;
   isSubmitting: boolean;
-  canProceed: boolean;  // Validation state for current step
+  canProceed: boolean; // Validation state for current step
 }
 ```
 
@@ -143,6 +158,7 @@ interface WizardNavigationProps {
 **Description:** Step 1 component collecting basic recipe information: title, description, servings, prep time, and public visibility.
 
 **Main elements:**
+
 - Label + Input for title (required)
 - Label + Textarea for description (optional)
 - Label + Input (number) for servings (required)
@@ -152,11 +168,13 @@ interface WizardNavigationProps {
 - Character counter for title (showing X/255)
 
 **Handled interactions:**
+
 - Text input with onChange handlers
 - Real-time validation with 500ms debounce
 - Validation on blur for required fields
 
 **Handled validation:**
+
 - Title: required, 1-255 characters
 - Description: optional, max 5000 characters
 - Servings: required, integer > 0
@@ -164,11 +182,13 @@ interface WizardNavigationProps {
 - isPublic: boolean
 
 **Types:**
+
 - RecipeFormData
 - RecipeFormErrors
 - RecipeFormFieldName
 
 **Props:**
+
 ```typescript
 interface BasicInfoStepProps {
   data: {
@@ -194,6 +214,7 @@ interface BasicInfoStepProps {
 **Description:** Step 2 component for managing the dynamic list of recipe ingredients. Each ingredient has name, amount, and unit fields.
 
 **Main elements:**
+
 - List of ingredient rows (each with 3 inputs: name, amount, unit)
 - Remove button (trash icon) for each ingredient
 - "+ Dodaj składnik" button at bottom
@@ -201,12 +222,14 @@ interface BasicInfoStepProps {
 - Three-column layout on desktop, stacked on mobile
 
 **Handled interactions:**
+
 - Add ingredient: Append new empty ingredient to array
 - Remove ingredient: Remove specific ingredient from array
 - Input change: Update ingredient fields
 - Validation on blur for each field
 
 **Handled validation:**
+
 - Minimum 1 ingredient required
 - Each ingredient requires all three fields:
   - name: 1-255 characters
@@ -214,10 +237,12 @@ interface BasicInfoStepProps {
   - unit: 1-50 characters
 
 **Types:**
+
 - RecipeIngredientDTO[]
 - RecipeFormErrors
 
 **Props:**
+
 ```typescript
 interface IngredientsStepProps {
   data: RecipeIngredientDTO[];
@@ -240,6 +265,7 @@ interface IngredientsStepProps {
 **Description:** Step 3 component for managing the dynamic list of preparation steps. Each step has an auto-generated number and instruction text.
 
 **Main elements:**
+
 - Ordered list of step items (auto-numbered 1, 2, 3...)
 - Textarea for instruction text in each step
 - Remove button (trash icon) for each step
@@ -247,21 +273,25 @@ interface IngredientsStepProps {
 - Error messages for incomplete steps
 
 **Handled interactions:**
+
 - Add step: Append new step with next sequential number
 - Remove step: Remove specific step and renumber remaining steps
 - Input change: Update step instruction
 - Validation on blur
 
 **Handled validation:**
+
 - Minimum 1 step required
 - Each step requires instruction text (1-2000 characters)
 - Step numbers must be sequential starting from 1 (auto-managed)
 
 **Types:**
+
 - RecipeStepDTO[]
 - RecipeFormErrors
 
 **Props:**
+
 ```typescript
 interface StepsStepProps {
   data: RecipeStepDTO[];
@@ -282,6 +312,7 @@ interface StepsStepProps {
 **Description:** Step 4 component for entering nutrition values per serving. All 6 fields are required with specific validation rules.
 
 **Main elements:**
+
 - Two-column grid of 6 input fields:
   - Kalorie (kcal)
   - Białko (g)
@@ -293,11 +324,13 @@ interface StepsStepProps {
 - Error messages below each field
 
 **Handled interactions:**
+
 - Number input with onChange handlers
 - Real-time validation with 500ms debounce
 - Validation on blur
 
 **Handled validation:**
+
 - All fields required, must be numbers ≥ 0
 - Specific maximums:
   - Calories: max 10000
@@ -308,10 +341,12 @@ interface StepsStepProps {
   - Salt: max 100g
 
 **Types:**
+
 - NutritionDTO
 - RecipeFormErrors
 
 **Props:**
+
 ```typescript
 interface NutritionStepProps {
   data: NutritionDTO;
@@ -333,6 +368,7 @@ interface NutritionStepProps {
 **Description:** Step 5 component for selecting tags from available options and creating custom tags. Maximum 5 tags can be selected.
 
 **Main elements:**
+
 - Checkbox grid (3 cols desktop, 2 tablet, 1 mobile)
 - List of all available tags (predefined + user-created custom tags)
 - Visual indication when 5-tag limit reached (remaining checkboxes disabled)
@@ -341,20 +377,24 @@ interface NutritionStepProps {
 - CustomTagCreation dialog (conditional)
 
 **Handled interactions:**
+
 - Checkbox toggle (select/deselect tag)
 - Enforce 5-tag maximum (disable unchecked boxes when limit reached)
 - Open custom tag creation dialog
 - Handle newly created tag (add to list, auto-check)
 
 **Handled validation:**
+
 - Maximum 5 tags allowed
 - No minimum required
 
 **Types:**
+
 - TagDTO[]
 - RecipeFormErrors
 
 **Props:**
+
 ```typescript
 interface TagsStepProps {
   availableTags: TagDTO[];
@@ -373,6 +413,7 @@ interface TagsStepProps {
 **Description:** Dialog component for creating custom tags. Allows user to input a tag name, automatically generates slug, and submits to API.
 
 **Main elements:**
+
 - Dialog/Modal overlay
 - Input field for tag name (1-100 characters)
 - Auto-generated slug preview (lowercase, hyphens, no special chars)
@@ -382,6 +423,7 @@ interface TagsStepProps {
 - Loading state during submission
 
 **Handled interactions:**
+
 - Text input for tag name
 - Auto-generate slug on change
 - Submit: POST to /api/tags endpoint
@@ -389,15 +431,18 @@ interface TagsStepProps {
 - Handle error: Display error message inline
 
 **Handled validation:**
+
 - Tag name: required, 1-100 characters, trimmed
 - Slug: auto-generated, validated format
 - Duplicate check: Server-side, display error if duplicate
 
 **Types:**
+
 - TagDTO
 - CreateTagCommand
 
 **Props:**
+
 ```typescript
 interface CustomTagCreationProps {
   isOpen: boolean;
@@ -411,6 +456,7 @@ interface CustomTagCreationProps {
 **Description:** Step 6 component displaying a summary of all entered data with edit links to navigate back to specific steps. Final submit action.
 
 **Main elements:**
+
 - Section headers for each data category
 - Summary cards/sections:
   - **Basic Info:** Title, description, servings, prep time, public status
@@ -422,20 +468,24 @@ interface CustomTagCreationProps {
 - Final submit button: "Zapisz przepis" (create) or "Zapisz zmiany" (edit)
 
 **Handled interactions:**
+
 - Edit links: Navigate to specific step (1-5)
 - Submit: Trigger final form submission
 
 **Handled validation:**
+
 - Display-only, no validation (all validation done in previous steps)
 
 **Types:**
+
 - RecipeFormData
 
 **Props:**
+
 ```typescript
 interface ReviewStepProps {
   data: RecipeFormData;
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
   onEdit: (step: RecipeFormStep) => void;
 }
 ```
@@ -453,7 +503,7 @@ export type RecipeFormStep = 1 | 2 | 3 | 4 | 5 | 6;
 /**
  * Form mode (create or edit)
  */
-export type RecipeFormMode = 'create' | 'edit';
+export type RecipeFormMode = "create" | "edit";
 
 /**
  * Complete recipe form data structure
@@ -492,7 +542,7 @@ export interface RecipeFormErrors {
   prepTimeMinutes?: string;
 
   // Ingredients errors
-  ingredients?: string;  // General error (e.g., "At least one ingredient required")
+  ingredients?: string; // General error (e.g., "At least one ingredient required")
   ingredientFields?: Array<{
     name?: string;
     amount?: string;
@@ -500,7 +550,7 @@ export interface RecipeFormErrors {
   }>;
 
   // Steps errors
-  steps?: string;  // General error (e.g., "At least one step required")
+  steps?: string; // General error (e.g., "At least one step required")
   stepFields?: Array<{
     instruction?: string;
   }>;
@@ -514,23 +564,23 @@ export interface RecipeFormErrors {
   salt?: string;
 
   // Tags errors
-  tags?: string;  // E.g., "Maximum 5 tags allowed"
+  tags?: string; // E.g., "Maximum 5 tags allowed"
 }
 
 /**
  * Draft data structure stored in localStorage
  */
 export interface RecipeDraftData {
-  timestamp: string;       // ISO 8601 timestamp
-  step: RecipeFormStep;    // Current step when draft was saved
-  data: RecipeFormData;    // Complete form data
+  timestamp: string; // ISO 8601 timestamp
+  step: RecipeFormStep; // Current step when draft was saved
+  data: RecipeFormData; // Complete form data
 }
 
 /**
  * localStorage keys for draft persistence
  */
 export const DRAFT_KEYS = {
-  NEW_RECIPE: 'draft_recipe_new',
+  NEW_RECIPE: "draft_recipe_new",
   EDIT_RECIPE: (recipeId: string) => `draft_recipe_edit_${recipeId}`,
 } as const;
 
@@ -547,8 +597,8 @@ export const DRAFT_EXPIRATION_MS = 24 * 60 * 60 * 1000;
  * Command to create a new custom tag
  */
 export interface CreateTagCommand {
-  name: string;    // 1-100 characters, trimmed
-  slug: string;    // Auto-generated: lowercase, hyphens, no special chars
+  name: string; // 1-100 characters, trimmed
+  slug: string; // Auto-generated: lowercase, hyphens, no special chars
 }
 
 /**
@@ -602,6 +652,7 @@ export interface ApiErrorResponse {
 The form state management is centralized in a custom hook `useRecipeFormWizard` that handles:
 
 **Responsibilities:**
+
 1. **Form State:** Manages RecipeFormData across all steps
 2. **Validation State:** Tracks RecipeFormErrors for all fields
 3. **Step Navigation:** Current step state and navigation functions
@@ -616,7 +667,7 @@ The form state management is centralized in a custom hook `useRecipeFormWizard` 
 ```typescript
 interface UseRecipeFormWizardParams {
   mode: RecipeFormMode;
-  recipeId?: string;           // Required for edit mode
+  recipeId?: string; // Required for edit mode
   initialData?: RecipeDetailDTO; // Pre-populated data for edit mode
 }
 
@@ -675,9 +726,7 @@ export function useRecipeFormWizard(params: UseRecipeFormWizardParams): UseRecip
 
   // Draft detection on mount
   useEffect(() => {
-    const draftKey = params.mode === 'create'
-      ? DRAFT_KEYS.NEW_RECIPE
-      : DRAFT_KEYS.EDIT_RECIPE(params.recipeId!);
+    const draftKey = params.mode === "create" ? DRAFT_KEYS.NEW_RECIPE : DRAFT_KEYS.EDIT_RECIPE(params.recipeId!);
 
     const savedDraft = detectDraft(draftKey);
     // Show restoration prompt if draft exists
@@ -697,12 +746,12 @@ export function useRecipeFormWizard(params: UseRecipeFormWizardParams): UseRecip
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
-        e.returnValue = '';
+        e.returnValue = "";
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
   // Implementation of all hook methods
@@ -725,7 +774,7 @@ export function useRecipeFormWizard(params: UseRecipeFormWizardParams): UseRecip
  * Get initial form data based on mode
  */
 function getInitialFormData(params: UseRecipeFormWizardParams): RecipeFormData {
-  if (params.mode === 'edit' && params.initialData) {
+  if (params.mode === "edit" && params.initialData) {
     // Map RecipeDetailDTO to RecipeFormData
     return {
       title: params.initialData.title,
@@ -736,17 +785,17 @@ function getInitialFormData(params: UseRecipeFormWizardParams): RecipeFormData {
       ingredients: params.initialData.ingredients,
       steps: params.initialData.steps,
       nutritionPerServing: params.initialData.nutritionPerServing,
-      tagIds: params.initialData.tags.map(t => t.id),
+      tagIds: params.initialData.tags.map((t) => t.id),
     };
   }
 
   // Default empty form for create mode
   return {
-    title: '',
+    title: "",
     servings: 1,
     isPublic: false,
-    ingredients: [{ name: '', amount: 0, unit: '' }],
-    steps: [{ stepNumber: 1, instruction: '' }],
+    ingredients: [{ name: "", amount: 0, unit: "" }],
+    steps: [{ stepNumber: 1, instruction: "" }],
     nutritionPerServing: {
       calories: 0,
       protein: 0,
@@ -762,14 +811,8 @@ function getInitialFormData(params: UseRecipeFormWizardParams): RecipeFormData {
 /**
  * Save draft to localStorage
  */
-function saveDraft(
-  data: RecipeFormData,
-  step: RecipeFormStep,
-  params: UseRecipeFormWizardParams
-): void {
-  const draftKey = params.mode === 'create'
-    ? DRAFT_KEYS.NEW_RECIPE
-    : DRAFT_KEYS.EDIT_RECIPE(params.recipeId!);
+function saveDraft(data: RecipeFormData, step: RecipeFormStep, params: UseRecipeFormWizardParams): void {
+  const draftKey = params.mode === "create" ? DRAFT_KEYS.NEW_RECIPE : DRAFT_KEYS.EDIT_RECIPE(params.recipeId!);
 
   const draft: RecipeDraftData = {
     timestamp: new Date().toISOString(),
@@ -780,7 +823,7 @@ function saveDraft(
   try {
     localStorage.setItem(draftKey, JSON.stringify(draft));
   } catch (error) {
-    console.error('Failed to save draft:', error);
+    console.error("Failed to save draft:", error);
   }
 }
 
@@ -803,7 +846,7 @@ function detectDraft(draftKey: string): RecipeDraftData | null {
 
     return draft;
   } catch (error) {
-    console.error('Failed to load draft:', error);
+    console.error("Failed to load draft:", error);
     return null;
   }
 }
@@ -815,10 +858,10 @@ function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '')  // Remove special chars
-    .replace(/\s+/g, '-')          // Replace spaces with hyphens
-    .replace(/-+/g, '-')           // Collapse multiple hyphens
-    .replace(/^-|-$/g, '');        // Remove leading/trailing hyphens
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special chars
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Collapse multiple hyphens
+    .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
 }
 ```
 
@@ -827,6 +870,7 @@ function generateSlug(name: string): string {
 ### Endpoints Used
 
 #### 1. GET /api/tags
+
 **Purpose:** Fetch all available tags (predefined + user-created custom tags)
 
 **When:** On component mount in TagsStep
@@ -834,6 +878,7 @@ function generateSlug(name: string): string {
 **Request:** None (public endpoint)
 
 **Response:**
+
 ```typescript
 {
   tags: TagDTO[]
@@ -841,24 +886,28 @@ function generateSlug(name: string): string {
 ```
 
 **Error Handling:**
+
 - 500: Display error message, allow form to continue with empty tags array
 
 ---
 
 #### 2. POST /api/tags (Note: Currently not implemented, needs to be created)
+
 **Purpose:** Create a new custom tag
 
 **When:** User submits CustomTagCreation dialog
 
 **Request:**
+
 ```typescript
 {
-  name: string;    // 1-100 characters
-  slug: string;    // Auto-generated
+  name: string; // 1-100 characters
+  slug: string; // Auto-generated
 }
 ```
 
 **Response:**
+
 ```typescript
 {
   success: boolean;
@@ -867,12 +916,14 @@ function generateSlug(name: string): string {
 ```
 
 **Error Handling:**
+
 - 400: Validation error (e.g., duplicate tag name) - Display inline error
 - 500: Server error - Display error toast, close dialog
 
 ---
 
 #### 3. GET /api/recipes/:recipeId
+
 **Purpose:** Fetch existing recipe data for edit mode
 
 **When:** Edit page mounts, before rendering wizard
@@ -880,11 +931,13 @@ function generateSlug(name: string): string {
 **Request:** Path parameter `recipeId` (UUID)
 
 **Response:**
+
 ```typescript
-RecipeDetailDTO
+RecipeDetailDTO;
 ```
 
 **Error Handling:**
+
 - 403: User not owner - Redirect to recipes list with error message
 - 404: Recipe not found - Redirect to recipes list with error message
 - 500: Server error - Display error page
@@ -892,11 +945,13 @@ RecipeDetailDTO
 ---
 
 #### 4. POST /api/recipes
+
 **Purpose:** Create a new recipe
 
 **When:** User submits form in create mode (step 6)
 
 **Request:**
+
 ```typescript
 CreateRecipeCommand {
   title: string;
@@ -912,6 +967,7 @@ CreateRecipeCommand {
 ```
 
 **Response:**
+
 ```typescript
 {
   success: boolean;
@@ -920,11 +976,13 @@ CreateRecipeCommand {
 ```
 
 **Error Handling:**
+
 - 400: Validation error - Display errors in wizard, scroll to first error
 - 401: Not authenticated - Redirect to login
 - 500: Server error - Display error toast with retry option
 
 **Success Flow:**
+
 1. Clear draft from localStorage
 2. Show success toast: "Przepis został zapisany"
 3. Redirect to recipe detail page: `/recipes/{recipe.id}`
@@ -932,11 +990,13 @@ CreateRecipeCommand {
 ---
 
 #### 5. PUT /api/recipes/:recipeId
+
 **Purpose:** Update an existing recipe
 
 **When:** User submits form in edit mode (step 6)
 
 **Request:**
+
 ```typescript
 UpdateRecipeCommand {
   // Same structure as CreateRecipeCommand
@@ -944,6 +1004,7 @@ UpdateRecipeCommand {
 ```
 
 **Response:**
+
 ```typescript
 {
   success: boolean;
@@ -952,6 +1013,7 @@ UpdateRecipeCommand {
 ```
 
 **Error Handling:**
+
 - 400: Validation error - Display errors in wizard, scroll to first error
 - 401: Not authenticated - Redirect to login
 - 403: Not owner - Display error, redirect to recipes list
@@ -959,6 +1021,7 @@ UpdateRecipeCommand {
 - 500: Server error - Display error toast with retry option
 
 **Success Flow:**
+
 1. Clear draft from localStorage
 2. Show success toast: "Zmiany zostały zapisane"
 3. Redirect to recipe detail page: `/recipes/{recipe.id}`
@@ -994,29 +1057,32 @@ async function submitForm(): Promise<void> {
     };
 
     // API call based on mode
-    const response = params.mode === 'create'
-      ? await fetch('/api/recipes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-      : await fetch(`/api/recipes/${params.recipeId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+    const response =
+      params.mode === "create"
+        ? await fetch("/api/recipes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+        : await fetch(`/api/recipes/${params.recipeId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
 
     if (!response.ok) {
       const errorData = await response.json();
 
       if (response.status === 400) {
         // Validation errors - display in form
-        setErrors({ /* map API errors to form errors */ });
+        setErrors({
+          /* map API errors to form errors */
+        });
         scrollToFirstError();
         return;
       }
 
-      throw new Error(errorData.message || 'Wystąpił błąd podczas zapisywania przepisu');
+      throw new Error(errorData.message || "Wystąpił błąd podczas zapisywania przepisu");
     }
 
     const result = await response.json();
@@ -1026,16 +1092,12 @@ async function submitForm(): Promise<void> {
     setHasUnsavedChanges(false);
 
     // Show success toast and redirect
-    showSuccessToast(params.mode === 'create'
-      ? 'Przepis został zapisany'
-      : 'Zmiany zostały zapisane'
-    );
+    showSuccessToast(params.mode === "create" ? "Przepis został zapisany" : "Zmiany zostały zapisane");
 
     window.location.href = `/recipes/${result.recipe.id}`;
-
   } catch (error) {
-    console.error('Submit error:', error);
-    showErrorToast(error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd');
+    console.error("Submit error:", error);
+    showErrorToast(error instanceof Error ? error.message : "Wystąpił nieoczekiwany błąd");
   } finally {
     setIsSubmitting(false);
   }
@@ -1047,57 +1109,69 @@ async function submitForm(): Promise<void> {
 ### 1. Step Navigation
 
 **Interaction:** User clicks "Następny" (Next) button
+
 - **Action:** Validate current step
 - **If valid:** Increment currentStep, scroll to top
 - **If invalid:** Display errors inline, scroll to first error, prevent navigation
 
 **Interaction:** User clicks "Poprzedni" (Previous) button
+
 - **Action:** Decrement currentStep, scroll to top
 - **Note:** No validation required for going backwards
 
 **Interaction:** User clicks "Edit" link in Review step
+
 - **Action:** Navigate to specified step (1-5)
 
 ### 2. Ingredient Management
 
 **Interaction:** User clicks "+ Dodaj składnik"
+
 - **Action:** Append new empty ingredient to array: `{ name: '', amount: 0, unit: '' }`
 
 **Interaction:** User clicks trash icon on ingredient
+
 - **Action:** Remove ingredient at specific index from array
 - **Validation:** Prevent removal if only 1 ingredient remains (show error)
 
 **Interaction:** User changes ingredient field (name, amount, unit)
+
 - **Action:** Update specific ingredient field in array
 - **Validation:** Validate on blur
 
 ### 3. Step Management
 
 **Interaction:** User clicks "+ Dodaj krok"
+
 - **Action:** Append new step with next sequential number: `{ stepNumber: nextNumber, instruction: '' }`
 
 **Interaction:** User clicks trash icon on step
+
 - **Action:**
   1. Remove step at specific index
   2. Renumber all remaining steps sequentially (1, 2, 3...)
 - **Validation:** Prevent removal if only 1 step remains (show error)
 
 **Interaction:** User changes step instruction
+
 - **Action:** Update step instruction in array
 - **Validation:** Validate on blur
 
 ### 4. Tag Selection
 
 **Interaction:** User toggles tag checkbox
+
 - **Action:** Add/remove tag ID from selectedTagIds array
 - **Validation:**
   - If selecting: Check if 5 tags already selected, if so prevent and show message
   - If deselecting: Always allow
 
 **Interaction:** User clicks "+ Dodaj nowy tag"
+
 - **Action:** Open CustomTagCreation dialog
 
 **Interaction:** User creates custom tag successfully
+
 - **Action:**
   1. Add new tag to availableTags list
   2. Automatically check the new tag (add to selectedTagIds)
@@ -1106,17 +1180,20 @@ async function submitForm(): Promise<void> {
 ### 5. Draft Management
 
 **Interaction:** Page loads with existing draft
+
 - **Action:** Show restoration banner: "Znaleziono niezapisany szkic z {date}. Przywrócić?"
 - **Options:**
   - "Tak" - Restore draft data and step, dismiss banner
   - "Nie" - Discard draft, dismiss banner, start fresh
 
 **Interaction:** User navigates away with unsaved changes
+
 - **Action:** Show browser confirmation dialog: "Masz niezapisane zmiany. Czy na pewno chcesz opuścić stronę?"
 
 ### 6. Form Submission
 
 **Interaction:** User clicks "Zapisz przepis" (create) or "Zapisz zmiany" (edit)
+
 - **Action:**
   1. Show loading state on button
   2. Validate all form data
@@ -1128,65 +1205,68 @@ async function submitForm(): Promise<void> {
 ### 7. Field Validation
 
 **Interaction:** User blurs a required field
+
 - **Action:** Validate field, display inline error if invalid
 
 **Interaction:** User types in field with real-time validation
+
 - **Action:** Debounce 500ms, then validate, display/clear error
 
 **Interaction:** User corrects an invalid field
+
 - **Action:** Clear error immediately when field becomes valid
 
 ## 9. Conditions and Validation
 
 ### Step 1: Basic Info
 
-| Field | Validation Rules | Timing | Error Messages |
-|-------|-----------------|--------|----------------|
-| Title | Required, 1-255 chars, trimmed | Blur + Debounced (500ms) | "Tytuł jest wymagany" / "Tytuł może mieć maksymalnie 255 znaków" |
-| Description | Optional, max 5000 chars | Debounced (500ms) | "Opis może mieć maksymalnie 5000 znaków" |
-| Servings | Required, integer > 0 | Blur | "Liczba porcji jest wymagana" / "Liczba porcji musi być większa niż 0" |
-| PrepTimeMinutes | Optional, integer > 0, max 1440 | Blur | "Czas przygotowania musi być większy niż 0" / "Czas przygotowania nie może przekroczyć 1440 minut (24 godziny)" |
+| Field           | Validation Rules                | Timing                   | Error Messages                                                                                                  |
+| --------------- | ------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Title           | Required, 1-255 chars, trimmed  | Blur + Debounced (500ms) | "Tytuł jest wymagany" / "Tytuł może mieć maksymalnie 255 znaków"                                                |
+| Description     | Optional, max 5000 chars        | Debounced (500ms)        | "Opis może mieć maksymalnie 5000 znaków"                                                                        |
+| Servings        | Required, integer > 0           | Blur                     | "Liczba porcji jest wymagana" / "Liczba porcji musi być większa niż 0"                                          |
+| PrepTimeMinutes | Optional, integer > 0, max 1440 | Blur                     | "Czas przygotowania musi być większy niż 0" / "Czas przygotowania nie może przekroczyć 1440 minut (24 godziny)" |
 
 **Step Validation:** All required fields filled, all values within bounds
 
 ### Step 2: Ingredients
 
-| Validation | Rules | Error Message |
-|-----------|-------|---------------|
-| Minimum count | At least 1 ingredient | "Wymagany jest co najmniej jeden składnik" |
-| Ingredient name | Required, 1-255 chars, trimmed | "Nazwa składnika jest wymagana" / "Nazwa może mieć maksymalnie 255 znaków" |
-| Ingredient amount | Required, positive number | "Ilość jest wymagana" / "Ilość musi być większa niż 0" |
-| Ingredient unit | Required, 1-50 chars, trimmed | "Jednostka jest wymagana" / "Jednostka może mieć maksymalnie 50 znaków" |
+| Validation        | Rules                          | Error Message                                                              |
+| ----------------- | ------------------------------ | -------------------------------------------------------------------------- |
+| Minimum count     | At least 1 ingredient          | "Wymagany jest co najmniej jeden składnik"                                 |
+| Ingredient name   | Required, 1-255 chars, trimmed | "Nazwa składnika jest wymagana" / "Nazwa może mieć maksymalnie 255 znaków" |
+| Ingredient amount | Required, positive number      | "Ilość jest wymagana" / "Ilość musi być większa niż 0"                     |
+| Ingredient unit   | Required, 1-50 chars, trimmed  | "Jednostka jest wymagana" / "Jednostka może mieć maksymalnie 50 znaków"    |
 
 **Step Validation:** At least 1 ingredient, all ingredients have all 3 fields filled correctly
 
 ### Step 3: Preparation Steps
 
-| Validation | Rules | Error Message |
-|-----------|-------|---------------|
-| Minimum count | At least 1 step | "Wymagany jest co najmniej jeden krok przygotowania" |
-| Step instruction | Required, 1-2000 chars, trimmed | "Instrukcja jest wymagana" / "Instrukcja może mieć maksymalnie 2000 znaków" |
-| Step numbering | Sequential from 1 (auto-managed) | N/A (handled automatically) |
+| Validation       | Rules                            | Error Message                                                               |
+| ---------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| Minimum count    | At least 1 step                  | "Wymagany jest co najmniej jeden krok przygotowania"                        |
+| Step instruction | Required, 1-2000 chars, trimmed  | "Instrukcja jest wymagana" / "Instrukcja może mieć maksymalnie 2000 znaków" |
+| Step numbering   | Sequential from 1 (auto-managed) | N/A (handled automatically)                                                 |
 
 **Step Validation:** At least 1 step, all steps have instructions
 
 ### Step 4: Nutrition
 
-| Field | Validation Rules | Error Message |
-|-------|-----------------|---------------|
-| Calories | Required, number ≥ 0, max 10000 | "Kalorie są wymagane" / "Kalorie nie mogą być ujemne" / "Kalorie muszą wynosić maksymalnie 10000" |
-| Protein | Required, number ≥ 0, max 1000 | "Białko jest wymagane" / "Białko nie może być ujemne" / "Białko musi wynosić maksymalnie 1000g" |
-| Fat | Required, number ≥ 0, max 1000 | "Tłuszcz jest wymagany" / "Tłuszcz nie może być ujemny" / "Tłuszcz musi wynosić maksymalnie 1000g" |
-| Carbs | Required, number ≥ 0, max 1000 | "Węglowodany są wymagane" / "Węglowodany nie mogą być ujemne" / "Węglowodany muszą wynosić maksymalnie 1000g" |
-| Fiber | Required, number ≥ 0, max 1000 | "Błonnik jest wymagany" / "Błonnik nie może być ujemny" / "Błonnik musi wynosić maksymalnie 1000g" |
-| Salt | Required, number ≥ 0, max 100 | "Sól jest wymagana" / "Sól nie może być ujemna" / "Sól musi wynosić maksymalnie 100g" |
+| Field    | Validation Rules                | Error Message                                                                                                 |
+| -------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Calories | Required, number ≥ 0, max 10000 | "Kalorie są wymagane" / "Kalorie nie mogą być ujemne" / "Kalorie muszą wynosić maksymalnie 10000"             |
+| Protein  | Required, number ≥ 0, max 1000  | "Białko jest wymagane" / "Białko nie może być ujemne" / "Białko musi wynosić maksymalnie 1000g"               |
+| Fat      | Required, number ≥ 0, max 1000  | "Tłuszcz jest wymagany" / "Tłuszcz nie może być ujemny" / "Tłuszcz musi wynosić maksymalnie 1000g"            |
+| Carbs    | Required, number ≥ 0, max 1000  | "Węglowodany są wymagane" / "Węglowodany nie mogą być ujemne" / "Węglowodany muszą wynosić maksymalnie 1000g" |
+| Fiber    | Required, number ≥ 0, max 1000  | "Błonnik jest wymagany" / "Błonnik nie może być ujemny" / "Błonnik musi wynosić maksymalnie 1000g"            |
+| Salt     | Required, number ≥ 0, max 100   | "Sól jest wymagana" / "Sól nie może być ujemna" / "Sól musi wynosić maksymalnie 100g"                         |
 
 **Step Validation:** All 6 nutrition fields filled with valid values
 
 ### Step 5: Tags
 
-| Validation | Rules | Error Message |
-|-----------|-------|---------------|
+| Validation    | Rules      | Error Message                       |
+| ------------- | ---------- | ----------------------------------- |
 | Maximum count | Max 5 tags | "Możesz wybrać maksymalnie 5 tagów" |
 | Tag ID format | Valid UUID | N/A (handled by checkbox selection) |
 
@@ -1207,45 +1287,54 @@ async function submitForm(): Promise<void> {
 ### Validation Errors
 
 **Field-level errors:**
+
 - Display inline below the field in red text
 - Include error icon (⚠️ or similar)
 - Clear error when field becomes valid
 
 **Step-level errors:**
+
 - Display summary alert at top of step
 - List all errors in the current step
 - Scroll to first error on validation failure
 
 **Form-level errors:**
+
 - Show error count in summary: "Formularz zawiera 3 błędy"
 - Highlight affected steps in progress indicator
 
 ### API Errors
 
 **Network Errors:**
+
 - Display toast notification: "Brak połączenia z serwerem. Sprawdź swoje połączenie internetowe."
 - Provide retry button
 - Keep form data intact
 
 **400 Bad Request (Validation):**
+
 - Map API error messages to form fields
 - Display errors inline in wizard
 - Scroll to first error field
 - Highlight affected step
 
 **401 Unauthorized:**
+
 - Redirect to login page
 - Show message: "Sesja wygasła. Zaloguj się ponownie."
 
 **403 Forbidden (Edit mode):**
+
 - Display error message: "Nie masz uprawnień do edycji tego przepisu"
 - Redirect to recipes list
 
 **404 Not Found (Edit mode):**
+
 - Display error message: "Przepis nie został znaleziony"
 - Redirect to recipes list
 
 **500 Internal Server Error:**
+
 - Display toast: "Wystąpił błąd serwera. Spróbuj ponownie później."
 - Provide retry button
 - Keep form data intact (draft saved)
@@ -1253,10 +1342,12 @@ async function submitForm(): Promise<void> {
 ### Tag Creation Errors
 
 **Duplicate Tag Name:**
+
 - Display inline error in dialog: "Tag o tej nazwie już istnieje"
 - Keep dialog open for correction
 
 **Tag Creation Failure:**
+
 - Display toast: "Nie udało się utworzyć tagu. Spróbuj ponownie."
 - Close dialog
 - Allow user to select from existing tags
@@ -1264,15 +1355,18 @@ async function submitForm(): Promise<void> {
 ### Draft Errors
 
 **Draft Save Failure:**
+
 - Log error silently (don't interrupt user)
 - Attempt to save on next change
 
 **Draft Load Failure:**
+
 - Log error silently
 - Start with fresh form
 - Don't show restoration prompt
 
 **Draft Corruption:**
+
 - Discard invalid draft
 - Start with fresh form
 - Log error for debugging
@@ -1280,10 +1374,12 @@ async function submitForm(): Promise<void> {
 ### Empty States
 
 **No Available Tags (TagsStep):**
+
 - Display message: "Brak dostępnych tagów. Możesz utworzyć własny tag."
 - Show "+ Dodaj nowy tag" button prominently
 
 **API Tag Fetch Failure:**
+
 - Display error message: "Nie udało się pobrać tagów"
 - Allow form to continue (tags are optional)
 - Provide reload button
@@ -1291,20 +1387,24 @@ async function submitForm(): Promise<void> {
 ### Loading States
 
 **Initial Load (Edit mode):**
+
 - Show full-page skeleton/spinner while fetching recipe data
 - Display error page if fetch fails
 
 **Tag Loading:**
+
 - Show skeleton checkboxes in TagsStep
 - Disable tag selection until loaded
 
 **Form Submission:**
+
 - Disable submit button
 - Show loading spinner on button
 - Disable all form fields
 - Prevent navigation
 
 **Custom Tag Creation:**
+
 - Show loading spinner on "Dodaj" button
 - Disable form fields in dialog
 

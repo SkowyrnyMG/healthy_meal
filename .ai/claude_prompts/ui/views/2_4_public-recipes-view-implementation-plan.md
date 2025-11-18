@@ -5,6 +5,7 @@
 The Public Recipes Page is a community recipe browsing interface that allows users to discover and explore recipes shared by other users in the HealthyMeal community. The page displays only public recipes (where `isPublic: true`) from all users, providing the same powerful search and filtering capabilities as the My Recipes page. Users can search recipes by title, filter by tags, calories, and preparation time, and save interesting recipes to their favorites for later reference.
 
 **Key Features:**
+
 - Responsive grid layout displaying public recipes from all users
 - Real-time search with 500ms debounce
 - Advanced filtering (tags, calories, prep time)
@@ -17,6 +18,7 @@ The Public Recipes Page is a community recipe browsing interface that allows use
 - Keyboard navigation and accessibility support
 
 **Key Differences from My Recipes Page:**
+
 - Displays recipes from ALL users (not just current user)
 - Only shows recipes with `isPublic: true`
 - Recipe cards include author badge to indicate community content
@@ -30,6 +32,7 @@ The Public Recipes Page is a community recipe browsing interface that allows use
 **Route Type:** Protected (requires authentication)
 
 **URL State Example:**
+
 ```
 /recipes/public?search=kurczak&tags=uuid1,uuid2&maxCalories=500&maxPrepTime=30&sortBy=prepTime&sortOrder=asc&page=2
 ```
@@ -80,6 +83,7 @@ PublicRecipesPage (Astro page: src/pages/recipes/public.astro)
 **Description:** Server-side rendered page component that authenticates users, fetches initial favorite IDs, and renders the React client component for public recipe browsing.
 
 **Responsibilities:**
+
 - Authenticate user via Supabase session
 - Redirect unauthenticated users to login
 - Fetch initial favorite recipe IDs for optimistic UI
@@ -87,16 +91,19 @@ PublicRecipesPage (Astro page: src/pages/recipes/public.astro)
 - Render page layout
 
 **Main Elements:**
+
 - AppLayout wrapper with authentication
 - RecipeListLayout React component with `client:load` directive
 - Title: "Publiczne przepisy - HealthyMeal"
 
 **Server-side Logic:**
+
 - Check authentication status
 - Fetch user's favorite recipe IDs via GET /api/favorites
 - Handle fetch errors gracefully (continue without favorites if fetch fails)
 
 **Props Passed to Client:**
+
 - `initialFavoriteIds: string[]` - Initial favorite recipe IDs
 - `isPublicView: boolean` - Flag indicating this is public recipes view (for endpoint selection)
 
@@ -105,6 +112,7 @@ PublicRecipesPage (Astro page: src/pages/recipes/public.astro)
 **Description:** Main container component managing the entire recipe list interface. This component is reused from My Recipes page but accepts a prop to determine which API endpoint to use.
 
 **Main Elements:**
+
 - `<div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6">` - Responsive container
 - SearchBar component
 - FilterButton component (visible on mobile only)
@@ -112,6 +120,7 @@ PublicRecipesPage (Astro page: src/pages/recipes/public.astro)
 - ContentArea with grid and pagination
 
 **Handled Interactions:**
+
 - Initialize filters from URL on mount
 - Sync filter state to URL
 - Handle browser back/forward navigation
@@ -119,25 +128,30 @@ PublicRecipesPage (Astro page: src/pages/recipes/public.astro)
 - Fetch recipes from appropriate endpoint based on `isPublicView` prop
 
 **Handled Validation:**
+
 - None (validation happens in child components)
 
 **Types:**
+
 - `RecipeListItemDTO[]` - Recipe data
 - `PaginationDTO` - Pagination metadata
 - `TagDTO[]` - Available tags
 - `RecipeFilters` - Current filter state (ViewModel)
 
 **Props:**
+
 - `initialFavoriteIds: string[]` - Initial favorite recipe IDs from server
 - `isPublicView?: boolean` - Flag to determine API endpoint (default: false for My Recipes)
 
 **State Management:**
+
 - Uses custom `useRecipeFilters` hook for filter state
 - Uses `useRecipeList` hook with endpoint parameter for data fetching
 - Uses `useTags` hook for tag data
 - Uses `useFavoriteToggle` hook for favorite management
 
 **Modifications Needed:**
+
 - Accept `isPublicView` prop to conditionally use `/api/recipes/public` endpoint
 - Pass endpoint to `useRecipeList` hook
 
@@ -146,11 +160,12 @@ PublicRecipesPage (Astro page: src/pages/recipes/public.astro)
 **Modification Required:** Accept endpoint parameter to support both user recipes and public recipes.
 
 **Enhanced Interface:**
+
 ```typescript
 function useRecipeList(
   filters: RecipeFilters,
   options?: {
-    endpoint?: '/api/recipes' | '/api/recipes/public';
+    endpoint?: "/api/recipes" | "/api/recipes/public";
   }
 ): {
   recipes: RecipeListItemDTO[];
@@ -158,10 +173,11 @@ function useRecipeList(
   isLoading: boolean;
   error: string | null;
   refetch: () => void;
-}
+};
 ```
 
 **Implementation Change:**
+
 - Default endpoint: `/api/recipes` (user's recipes)
 - When endpoint is `/api/recipes/public`: Fetch public recipes from all users
 - All other logic remains the same (query params, error handling, etc.)
@@ -171,11 +187,13 @@ function useRecipeList(
 **Description:** Recipe card component displaying recipe information with optional author badge for public recipes.
 
 **Enhancements Needed:**
+
 - Add optional `showAuthorBadge` prop to display "Publiczny" badge
 - Remove Edit/Delete actions when `isPublicView` is true
 - Keep only View and Favorite actions for public recipes
 
 **Main Elements (No Changes to Layout):**
+
 - Colored placeholder with recipe initial and icon
 - Recipe title and description
 - Nutrition badges (calories, protein)
@@ -186,20 +204,24 @@ function useRecipeList(
 - **REMOVED for public:** Edit/Delete actions in more menu
 
 **Handled Interactions:**
+
 - Click card to view recipe details
 - Click heart button to toggle favorite
 - **NOT AVAILABLE for public:** Edit/Delete actions
 
 **Handled Validation:**
+
 - None (display only component)
 
 **Types:**
+
 - `RecipeListItemDTO` - Recipe data from API
 - `boolean` - isFavorited state
 - `boolean` - showAuthorBadge flag (NEW)
 - `boolean` - isPublicView flag to hide Edit/Delete (NEW)
 
 **Props:**
+
 ```typescript
 interface RecipeCardProps {
   recipe: RecipeListItemDTO;
@@ -212,6 +234,7 @@ interface RecipeCardProps {
 ```
 
 **Visual Changes:**
+
 - Add badge below tags section: `<Badge variant="outline">Publiczny</Badge>` when `showAuthorBadge` is true
 - Remove MoreActions menu entirely when `isPublicView` is true, OR
 - Keep MoreActions but only show View and Add to Collection options (Edit/Delete hidden)
@@ -239,9 +262,11 @@ interface RecipeCardProps {
 **Description:** Responsive grid layout displaying recipe cards.
 
 **Enhancement:**
+
 - Pass `showAuthorBadge` and `isPublicView` flags to RecipeCard components
 
 **Props:**
+
 ```typescript
 interface RecipeGridProps {
   recipes: RecipeListItemDTO[];
@@ -258,18 +283,22 @@ interface RecipeGridProps {
 **Description:** Displays appropriate message when no recipes are found.
 
 **Modifications Needed:**
+
 - Update empty state messages for public context:
   - No recipes at all: "Brak publicznych przepisów w społeczności" (unlikely)
   - No results from filters: "Nie znaleziono publicznych przepisów pasujących do kryteriów"
 
 **States:**
+
 - No public recipes available (very unlikely in production): "Brak publicznych przepisów w społeczności" + "Poczekaj, aż inni użytkownicy udostępnią przepisy" message
 - No results from search/filter: "Nie znaleziono przepisów pasujących do kryteriów" + "Wyczyść filtry" button
 
 **Types:**
+
 - `EmptyStateType: "no-recipes" | "no-results"` (ViewModel)
 
 **Props (No Change):**
+
 - `type: EmptyStateType` - Type of empty state to display
 - `onClearFilters?: () => void` - Callback to clear filters (for "no-results" type)
 - `onAddRecipe?: () => void` - Callback not used for public recipes (hide button)
@@ -294,24 +323,26 @@ All existing types are reused without modification:
 
 ```typescript
 // Used as-is from existing types
-RecipeListItemDTO // Contains userId but not author name/avatar
-TagDTO
-NutritionDTO
-PaginationDTO
-RecipeQueryParams
-RecipeFilters // ViewModel for filter state
-SortOption // ViewModel for sort dropdown
-EmptyStateType // ViewModel for empty state
-FilterChip // ViewModel for filter chips
+RecipeListItemDTO; // Contains userId but not author name/avatar
+TagDTO;
+NutritionDTO;
+PaginationDTO;
+RecipeQueryParams;
+RecipeFilters; // ViewModel for filter state
+SortOption; // ViewModel for sort dropdown
+EmptyStateType; // ViewModel for empty state
+FilterChip; // ViewModel for filter chips
 ```
 
 ### Author Information Limitation
 
 **Current State:**
+
 - `RecipeListItemDTO` includes `userId: string` but not author name or avatar
 - For MVP, displaying author name is not feasible without API changes
 
 **MVP Solution:**
+
 - Display generic "Publiczny" or "Z Społeczności" badge on all public recipe cards
 - This badge distinguishes public recipes from user's own recipes
 - Future enhancement: Extend API to join with profiles table and return author name
@@ -342,7 +373,7 @@ The Public Recipes Page reuses all existing types from My Recipes page. The only
 
 ```typescript
 interface UseRecipeListOptions {
-  endpoint?: '/api/recipes' | '/api/recipes/public';
+  endpoint?: "/api/recipes" | "/api/recipes/public";
 }
 
 function useRecipeList(
@@ -354,21 +385,24 @@ function useRecipeList(
   isLoading: boolean;
   error: string | null;
   refetch: () => void;
-}
+};
 ```
 
 **Implementation:**
+
 - Default `endpoint` to `/api/recipes` if not provided (backward compatible)
 - When endpoint is `/api/recipes/public`, call public API
 - All other logic (debouncing, error handling, pagination) remains unchanged
 
 **State:**
+
 - `recipes: RecipeListItemDTO[]` - Recipe data
 - `pagination: PaginationDTO | null` - Pagination metadata
 - `isLoading: boolean` - Loading state
 - `error: string | null` - Error message
 
 **Effects:**
+
 - On filter change: Fetch recipes from specified endpoint
 - Debounce search queries (500ms)
 
@@ -391,6 +425,7 @@ function useRecipeList(
 ### URL State Synchronization
 
 **No changes needed** - URL state management works identically for public recipes. All filter state is synchronized with URL query parameters to enable:
+
 - Shareable filtered URLs
 - Browser back/forward navigation
 - Bookmark support
@@ -409,6 +444,7 @@ function useRecipeList(
 **Request Type:** `RecipeQueryParams` (excluding isPublic - always true)
 
 **Query Parameters:**
+
 - `search`: string (optional, 1-255 chars)
 - `tags`: string (optional, comma-separated UUIDs)
 - `maxCalories`: number (optional, 1-10000)
@@ -421,6 +457,7 @@ function useRecipeList(
 **Note:** `isPublic` parameter is NOT sent - endpoint automatically filters by `isPublic: true`
 
 **Response Type:**
+
 ```typescript
 {
   recipes: RecipeListItemDTO[];
@@ -429,28 +466,30 @@ function useRecipeList(
 ```
 
 **Error Handling:**
+
 - 400: Show validation error toast
 - 401: Redirect to login (authentication required even for public recipes)
 - 500: Show error toast, display error state
 
 **Implementation Example:**
+
 ```typescript
 const queryParams = new URLSearchParams();
-if (filters.search) queryParams.set('search', filters.search);
-if (filters.tagIds?.length) queryParams.set('tags', filters.tagIds.join(','));
-if (filters.maxCalories) queryParams.set('maxCalories', filters.maxCalories.toString());
-if (filters.maxPrepTime) queryParams.set('maxPrepTime', filters.maxPrepTime.toString());
-queryParams.set('page', filters.page.toString());
-queryParams.set('sortBy', filters.sortBy);
-queryParams.set('sortOrder', filters.sortOrder);
+if (filters.search) queryParams.set("search", filters.search);
+if (filters.tagIds?.length) queryParams.set("tags", filters.tagIds.join(","));
+if (filters.maxCalories) queryParams.set("maxCalories", filters.maxCalories.toString());
+if (filters.maxPrepTime) queryParams.set("maxPrepTime", filters.maxPrepTime.toString());
+queryParams.set("page", filters.page.toString());
+queryParams.set("sortBy", filters.sortBy);
+queryParams.set("sortOrder", filters.sortOrder);
 
 const response = await fetch(`/api/recipes/public?${queryParams.toString()}`);
 if (!response.ok) {
   if (response.status === 401) {
-    window.location.href = '/login';
+    window.location.href = "/login";
     return;
   }
-  throw new Error('Failed to fetch public recipes');
+  throw new Error("Failed to fetch public recipes");
 }
 const data = await response.json();
 ```
@@ -494,6 +533,7 @@ const data = await response.json();
 ### Page Load Flow
 
 **Flow:**
+
 1. User navigates to `/recipes/public`
 2. Astro page authenticates user (redirect to login if not authenticated)
 3. Server fetches user's favorite recipe IDs
@@ -505,6 +545,7 @@ const data = await response.json();
 9. Favorite buttons show correct state (filled/unfilled)
 
 **Default State (No URL Params):**
+
 - No search query
 - No filters active
 - Sort by: createdAt, desc
@@ -514,6 +555,7 @@ const data = await response.json();
 ### Search Interaction
 
 **Flow:**
+
 1. User types in search bar
 2. Input is debounced (500ms)
 3. After debounce, `setSearch` is called
@@ -525,6 +567,7 @@ const data = await response.json();
 9. If no results: Show "no-results" empty state
 
 **Edge Cases:**
+
 - Empty search: Clears search filter, shows all public recipes
 - Search with no results: Shows "Nie znaleziono przepisów pasujących do kryteriów"
 - Search with filters: Combines with existing filters (AND logic)
@@ -532,6 +575,7 @@ const data = await response.json();
 ### Filter Interaction
 
 **Desktop Flow:**
+
 1. User interacts with filter controls in sidebar
 2. Filter state updates immediately (controlled inputs)
 3. User clicks "Zastosuj" button
@@ -541,6 +585,7 @@ const data = await response.json();
 7. Results update in grid
 
 **Mobile Flow:**
+
 1. User clicks "Filtry" button
 2. Sheet opens with filter controls
 3. User adjusts filters (tags, sliders, sort)
@@ -552,6 +597,7 @@ const data = await response.json();
 9. Active filter chips appear
 
 **Clear Filters:**
+
 1. User clicks "Wyczyść filtry" in panel or on empty state
 2. All filter values reset to defaults (except page → 1)
 3. URL updates to `/recipes/public`
@@ -561,6 +607,7 @@ const data = await response.json();
 ### Favorite Toggle Interaction
 
 **Add to Favorites Flow:**
+
 1. User clicks unfilled heart icon on recipe card
 2. **Optimistic update:** Heart fills immediately (red color)
 3. API request sent: `POST /api/favorites/:recipeId`
@@ -568,6 +615,7 @@ const data = await response.json();
 5. On error: **Rollback:** Heart unfills, show error toast "Nie udało się dodać do ulubionych"
 
 **Remove from Favorites Flow:**
+
 1. User clicks filled heart icon on recipe card
 2. **Optimistic update:** Heart unfills immediately (gray color)
 3. API request sent: `DELETE /api/favorites/:recipeId`
@@ -577,6 +625,7 @@ const data = await response.json();
 ### Recipe Card Click Interaction
 
 **View Recipe Flow:**
+
 1. User clicks anywhere on recipe card (except heart button)
 2. Navigate to `/recipes/:id` detail page
 3. Recipe detail page displays full recipe information
@@ -584,6 +633,7 @@ const data = await response.json();
 5. **Note:** User cannot edit/delete public recipes (only owner can)
 
 **No Edit/Delete Actions:**
+
 - Edit/Delete options are NOT shown in any menu for public recipes
 - Only actions available: View, Favorite
 - Future enhancement: Add to Collection action
@@ -591,6 +641,7 @@ const data = await response.json();
 ### Pagination Interaction
 
 **Flow:**
+
 1. User clicks page number or prev/next button
 2. Page number updates in filter state
 3. URL updates with new page parameter
@@ -601,6 +652,7 @@ const data = await response.json();
 8. Pagination buttons update (disable prev on page 1, next on last page)
 
 **Keyboard Navigation:**
+
 - Left Arrow: Previous page (if not on page 1)
 - Right Arrow: Next page (if not on last page)
 - Tab: Navigate through page buttons
@@ -609,6 +661,7 @@ const data = await response.json();
 ### Active Filter Chip Removal
 
 **Flow:**
+
 1. User clicks X button on a filter chip
 2. That specific filter is removed from state
 3. URL updates (filter parameter removed or updated)
@@ -617,6 +670,7 @@ const data = await response.json();
 6. If no more active filters, chips container hides
 
 **Tag Chip Removal:**
+
 - Removes only that specific tag from selection
 - Other selected tags remain active
 - Recipe list updates to exclude removed tag filter
@@ -624,6 +678,7 @@ const data = await response.json();
 ### Sort Interaction
 
 **Flow:**
+
 1. User opens sort dropdown in filter panel
 2. User selects sort option (e.g., "Czas przygotowania rosnąco")
 3. Sort state updates (sortBy + sortOrder)
@@ -633,6 +688,7 @@ const data = await response.json();
 7. Visual feedback: Dropdown shows selected option
 
 **Sort Options:**
+
 - "Najnowsze" (createdAt, desc) - default
 - "Najstarsze" (createdAt, asc)
 - "Tytuł A-Z" (title, asc)
@@ -643,6 +699,7 @@ const data = await response.json();
 ### Browser Navigation
 
 **Back/Forward:**
+
 1. User clicks browser back/forward button
 2. `popstate` event fires
 3. useRecipeFilters hook detects URL change
@@ -651,6 +708,7 @@ const data = await response.json();
 6. UI updates to match URL (filters, pagination, results)
 
 **Bookmark/Share:**
+
 - User can bookmark current filtered view
 - Sharing URL preserves all filters and pagination
 - Opening shared URL restores exact filter state
@@ -660,42 +718,49 @@ const data = await response.json();
 ### Filter Value Validation
 
 **Search Query:**
+
 - **Condition:** Must be 1-255 characters after trimming
 - **Component:** SearchBar
 - **Validation:** Client-side trim and length check before setting filter
 - **Effect:** Invalid values are trimmed, empty string clears search filter
 
 **Tag IDs:**
+
 - **Condition:** Must be valid UUIDs from available tags list
 - **Component:** TagFilterSection
 - **Validation:** Client-side check against fetched tags (can only select existing tags)
 - **Effect:** Only valid tags can be selected via checkbox UI
 
 **Max Calories:**
+
 - **Condition:** Must be integer between 1-10000
 - **Component:** CaloriesSlider
 - **Validation:** Slider component enforces range, API validates on server
 - **Effect:** Values outside range are clamped by slider component
 
 **Max Prep Time:**
+
 - **Condition:** Must be integer between 1-1440 minutes (24 hours)
 - **Component:** PrepTimeSlider
 - **Validation:** Slider component enforces range, API validates on server
 - **Effect:** Values outside range are clamped by slider component
 
 **Page Number:**
+
 - **Condition:** Must be >= 1 and <= totalPages
 - **Component:** Pagination
 - **Validation:** Client-side check, prev/next buttons disabled when out of range
 - **Effect:** Invalid page numbers trigger reset to page 1
 
 **Sort By:**
+
 - **Condition:** Must be one of: "createdAt", "updatedAt", "title", "prepTime"
 - **Component:** SortDropdown
 - **Validation:** Dropdown only allows selecting predefined options
 - **Effect:** Invalid values default to "createdAt"
 
 **Sort Order:**
+
 - **Condition:** Must be "asc" or "desc"
 - **Component:** SortDropdown
 - **Validation:** Dropdown only allows selecting predefined options
@@ -704,12 +769,14 @@ const data = await response.json();
 ### Recipe Access Validation
 
 **View Access:**
+
 - **Condition:** Recipe must have `isPublic: true` to appear in public list
 - **Component:** API endpoint (server-side validation)
 - **Validation:** Endpoint automatically filters by isPublic=true
 - **Effect:** Only public recipes are returned; private recipes never shown
 
 **Edit/Delete Actions:**
+
 - **Condition:** User CANNOT edit/delete public recipes (not their own)
 - **Component:** RecipeCard
 - **Validation:** Client-side - Edit/Delete actions hidden when `isPublicView: true`
@@ -717,6 +784,7 @@ const data = await response.json();
 - **Note:** Server-side validation on Edit/Delete endpoints checks ownership (403 if attempted)
 
 **Favorite Access:**
+
 - **Condition:** User CAN favorite any public recipe (including their own public recipes)
 - **Component:** RecipeCard favorite button
 - **Validation:** No restrictions - all public recipes can be favorited
@@ -725,12 +793,14 @@ const data = await response.json();
 ### Empty State Conditions
 
 **No Public Recipes at All:**
+
 - **Condition:** `recipes.length === 0 && activeFilterCount === 0 && !isLoading && !error`
 - **Component:** EmptyState
 - **Effect:** Show "Brak publicznych przepisów w społeczności" message
 - **Note:** Very unlikely in production (would require zero users sharing recipes)
 
 **No Results from Filters:**
+
 - **Condition:** `recipes.length === 0 && activeFilterCount > 0 && !isLoading && !error`
 - **Component:** EmptyState
 - **Effect:** Show "Nie znaleziono przepisów pasujących do kryteriów" with "Wyczyść filtry" button
@@ -738,11 +808,13 @@ const data = await response.json();
 ### Loading State Conditions
 
 **Initial Load:**
+
 - **Condition:** `isLoading === true && recipes.length === 0`
 - **Component:** LoadingSkeletons
 - **Effect:** Show full grid of skeleton cards (12 skeletons)
 
 **Pagination Load:**
+
 - **Condition:** `isLoading === true && recipes.length > 0`
 - **Component:** Existing grid with overlay
 - **Effect:** Show existing recipes with reduced opacity + loading spinner overlay
@@ -750,11 +822,13 @@ const data = await response.json();
 ### Filter Badge Visibility
 
 **Filter Button Badge (Mobile):**
+
 - **Condition:** `activeFilterCount > 0`
 - **Component:** FilterButton
 - **Effect:** Badge with count appears on button: "Filtry (N)"
 
 **Active Filter Chips:**
+
 - **Condition:** Individual filters are set (search, tags, calories, prepTime)
 - **Component:** ActiveFilterChips
 - **Effect:** Show chip for each active filter with remove button
@@ -766,6 +840,7 @@ const data = await response.json();
 **Scenario:** API request fails due to network issue (connection lost, timeout, etc.)
 
 **Handling:**
+
 - Catch fetch errors in useRecipeList hook
 - Set error state with user-friendly message
 - Display error toast: "Nie udało się pobrać przepisów. Sprawdź połączenie internetowe."
@@ -774,6 +849,7 @@ const data = await response.json();
 - Log error details to console for debugging
 
 **User Recovery:**
+
 - Click "Spróbuj ponownie" button to retry fetch
 - Check internet connection
 - Reload page if issue persists
@@ -783,6 +859,7 @@ const data = await response.json();
 **Scenario:** Invalid query parameters sent to API (malformed UUID, out-of-range values, etc.)
 
 **Handling:**
+
 - Parse error response from API
 - Display specific validation error in toast: "Nieprawidłowe parametry filtrowania"
 - Reset invalid filter to default value automatically
@@ -790,6 +867,7 @@ const data = await response.json();
 - Log warning to console
 
 **Prevention:**
+
 - Client-side validation prevents most 400 errors
 - Slider components enforce numeric ranges
 - Tag checkboxes only allow valid UUID selection
@@ -800,6 +878,7 @@ const data = await response.json();
 **Scenario:** User session expired or user is not authenticated
 
 **Handling:**
+
 - Detect 401 status code in API response
 - Redirect to login page: `window.location.href = '/login'`
 - Preserve current URL in redirect query: `/login?redirect=/recipes/public?search=...`
@@ -813,6 +892,7 @@ const data = await response.json();
 **Scenario:** Internal server error or database connection issue
 
 **Handling:**
+
 - Catch 500 status code
 - Display error toast: "Wystąpił błąd serwera. Spróbuj ponownie później."
 - Show error state component with retry button
@@ -821,6 +901,7 @@ const data = await response.json();
 - If retries fail, show persistent error state with support contact info
 
 **User Recovery:**
+
 - Wait and retry after a few seconds
 - Contact support if issue persists
 - Check service status page (future enhancement)
@@ -830,6 +911,7 @@ const data = await response.json();
 **Scenario:** Cannot fetch available tags from GET /api/tags
 
 **Handling:**
+
 - Show warning toast: "Nie udało się pobrać kategorii. Filtrowanie po kategoriach jest niedostępne."
 - Hide tag filter section in FilterPanel OR show with disabled state
 - Allow other filters (search, calories, prepTime) to work normally
@@ -837,6 +919,7 @@ const data = await response.json();
 - Log error to console
 
 **User Impact:**
+
 - Minimal - user can still search and use other filters
 - Tag filtering temporarily unavailable
 - Page remains functional
@@ -846,6 +929,7 @@ const data = await response.json();
 **Scenario:** Cannot fetch user's favorites on page load (server-side or client-side)
 
 **Handling:**
+
 - Log warning to console
 - Continue page load with empty favorites set
 - Heart buttons show unfilled state by default
@@ -853,6 +937,7 @@ const data = await response.json();
 - Show warning toast: "Nie udało się załadować ulubionych. Funkcja dodawania ulubionych jest dostępna."
 
 **User Impact:**
+
 - Non-blocking error - page loads normally
 - Favorite state unknown initially
 - User can still add/remove favorites (state syncs on interaction)
@@ -862,6 +947,7 @@ const data = await response.json();
 **Scenario:** API call to add/remove favorite fails (POST/DELETE request fails)
 
 **Handling:**
+
 - **Revert optimistic UI update** immediately
 - If adding: Heart unfills, returns to gray color
 - If removing: Heart fills, returns to red color
@@ -871,6 +957,7 @@ const data = await response.json();
 - Do NOT automatically retry (let user control retry)
 
 **User Recovery:**
+
 - Click heart button again to retry
 - Check internet connection
 - Reload page if issue persists
@@ -880,6 +967,7 @@ const data = await response.json();
 **Scenario:** No recipes found but reason is unclear
 
 **Handling:**
+
 - Check activeFilterCount to determine empty state type
 - If activeFilterCount > 0: Show "no-results" empty state with clear filters option
 - If activeFilterCount === 0: Show "no-recipes" empty state (unlikely for public recipes)
@@ -891,6 +979,7 @@ const data = await response.json();
 **Scenario:** Invalid URL parameters (manually edited URL, corrupted bookmark, shared malformed URL)
 
 **Handling:**
+
 - Validate each parameter during parsing in useRecipeFilters hook
 - Replace invalid values with defaults:
   - Invalid search: Empty string (clear search)
@@ -905,6 +994,7 @@ const data = await response.json();
 - Continue with corrected state (no user-visible error)
 
 **User Impact:**
+
 - Seamless correction of invalid parameters
 - Page loads with valid defaults
 - No error message (silent correction for better UX)
@@ -914,8 +1004,10 @@ const data = await response.json();
 **Scenario:** User types in search, then navigates away before debounce completes
 
 **Handling:**
+
 - Cancel pending debounced calls on component unmount
 - Use cleanup function in useEffect:
+
   ```typescript
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -925,7 +1017,9 @@ const data = await response.json();
     return () => clearTimeout(timer);
   }, [value]);
   ```
+
 - Abort in-flight API calls on unmount:
+
   ```typescript
   useEffect(() => {
     const controller = new AbortController();
@@ -935,6 +1029,7 @@ const data = await response.json();
     return () => controller.abort();
   }, [filters]);
   ```
+
 - Prevent memory leaks from stale API calls
 - Prevent state updates on unmounted components
 
@@ -968,16 +1063,14 @@ const data = await response.json();
    **File:** `src/components/hooks/useRecipeList.ts`
 
    **Changes:**
+
    ```typescript
    interface UseRecipeListOptions {
-     endpoint?: '/api/recipes' | '/api/recipes/public';
+     endpoint?: "/api/recipes" | "/api/recipes/public";
    }
 
-   function useRecipeList(
-     filters: RecipeFilters,
-     options: UseRecipeListOptions = {}
-   ) {
-     const { endpoint = '/api/recipes' } = options;
+   function useRecipeList(filters: RecipeFilters, options: UseRecipeListOptions = {}) {
+     const { endpoint = "/api/recipes" } = options;
 
      // ... existing logic
 
@@ -1006,6 +1099,7 @@ const data = await response.json();
    **File:** `src/components/RecipeCard.tsx`
 
    **Changes:**
+
    ```typescript
    interface RecipeCardProps {
      recipe: RecipeListItemDTO;
@@ -1038,6 +1132,7 @@ const data = await response.json();
    **File:** `src/components/recipes/RecipeGrid.tsx`
 
    **Changes:**
+
    ```typescript
    interface RecipeGridProps {
      recipes: RecipeListItemDTO[];
@@ -1066,6 +1161,7 @@ const data = await response.json();
    **File:** `src/components/recipes/RecipeListLayout.tsx`
 
    **Changes:**
+
    ```typescript
    interface RecipeListLayoutProps {
      initialFavoriteIds: string[];
@@ -1114,6 +1210,7 @@ const data = await response.json();
    **File:** `src/pages/recipes/public.astro`
 
    **Template:**
+
    ```astro
    ---
    import AppLayout from "@/layouts/AppLayout.astro";
@@ -1149,11 +1246,7 @@ const data = await response.json();
    ---
 
    <AppLayout title={title}>
-     <RecipeListLayout
-       initialFavoriteIds={favoriteRecipeIds}
-       isPublicView={true}
-       client:load
-     />
+     <RecipeListLayout initialFavoriteIds={favoriteRecipeIds} isPublicView={true} client:load />
    </AppLayout>
    ```
 
@@ -1175,6 +1268,7 @@ const data = await response.json();
     - Test navigation flow
 
     **Example:**
+
     ```tsx
     <NavigationLink href="/recipes" label="Moje przepisy" />
     <NavigationLink href="/recipes/public" label="Publiczne przepisy" />
@@ -1286,21 +1380,25 @@ const data = await response.json();
 ### Key Decisions
 
 **Decision 1: Reuse RecipeListLayout vs. Create New Component**
+
 - **Chosen:** Reuse RecipeListLayout with `isPublicView` prop
 - **Rationale:** DRY principle, easier maintenance, consistent UX
 - **Trade-off:** Slight increase in component complexity
 
 **Decision 2: Author Information Display (MVP)**
+
 - **Chosen:** Show generic "Publiczny" badge without author name
 - **Rationale:** API doesn't return author name/avatar; extending API is out of scope for MVP
 - **Future Enhancement:** Extend API to join with profiles table and return author display name
 
 **Decision 3: Edit/Delete Action Visibility**
+
 - **Chosen:** Completely hide Edit/Delete actions when `isPublicView: true`
 - **Rationale:** Cleaner UI, prevents confusion, no dead actions
 - **Alternative:** Gray out actions with tooltip explaining why disabled (more complex)
 
 **Decision 4: Hook Modification Approach**
+
 - **Chosen:** Add optional endpoint parameter to existing useRecipeList hook
 - **Rationale:** Backward compatible, reuses all logic, flexible for future endpoints
 - **Alternative:** Create separate usePublicRecipeList hook (more code duplication)
@@ -1354,11 +1452,13 @@ const data = await response.json();
 ### Performance Considerations
 
 **Current Implementation:**
+
 - Page load: Fetch favorites + fetch recipes + fetch tags (3 requests)
 - Filter change: Debounced API call (max 1 per 500ms for search)
 - Pagination: New API call (expected behavior)
 
 **Optimization Opportunities:**
+
 - **Caching:** Implement client-side caching for recipe list (React Query)
 - **Prefetching:** Prefetch next page when user is near bottom
 - **Image Optimization:** Add image placeholders with blurhash or low-quality previews
@@ -1366,6 +1466,7 @@ const data = await response.json();
 - **Memoization:** Use React.memo for RecipeCard to prevent unnecessary re-renders
 
 **Benchmarks (Goals):**
+
 - Page load time: < 2 seconds (including API calls)
 - Filter change response: < 500ms (including debounce)
 - Favorite toggle: < 200ms (optimistic update feels instant)
@@ -1374,6 +1475,7 @@ const data = await response.json();
 ### Accessibility Reminders
 
 **WCAG 2.1 AA Compliance:**
+
 - ✅ All interactive elements keyboard accessible
 - ✅ Sufficient color contrast (4.5:1 for text, 3:1 for UI components)
 - ✅ Clear focus indicators (visible border/outline on focused elements)
@@ -1384,6 +1486,7 @@ const data = await response.json();
 - ✅ Screen reader announcements (search results, filter changes)
 
 **Testing Tools:**
+
 - axe DevTools browser extension
 - Lighthouse accessibility audit
 - NVDA or VoiceOver screen reader testing
@@ -1392,12 +1495,14 @@ const data = await response.json();
 ### Security Considerations
 
 **Frontend Security:**
+
 - ✅ No sensitive data in URL parameters (just filter values)
 - ✅ XSS protection via React's automatic escaping
 - ✅ CSRF protection via Supabase authentication
 - ✅ Input validation on all user inputs
 
 **Backend Security (API):**
+
 - ✅ Authentication required for all endpoints (even public recipes)
 - ✅ Rate limiting to prevent abuse
 - ✅ Query parameter validation (Zod schemas)
@@ -1405,6 +1510,7 @@ const data = await response.json();
 - ✅ SQL injection prevention (Supabase parameterized queries)
 
 **Privacy:**
+
 - ✅ Only recipes marked `isPublic: true` are visible
 - ✅ User IDs exposed but not sensitive user data (email, password)
 - ✅ Favorite data is private (not shown to other users)
@@ -1412,6 +1518,7 @@ const data = await response.json();
 ### Monitoring and Analytics (Future)
 
 **Key Metrics to Track:**
+
 - Page views on /recipes/public
 - Most popular filters (tags, calorie ranges)
 - Search queries (to improve suggestions)
@@ -1422,6 +1529,7 @@ const data = await response.json();
 - Bounce rate (indicates UX quality)
 
 **Tooling:**
+
 - Google Analytics or Plausible for page views
 - Sentry for error tracking
 - Custom logging for search queries and filters
@@ -1434,6 +1542,7 @@ const data = await response.json();
 The Public Recipes Page implementation follows a proven pattern from the My Recipes page while introducing minimal, focused modifications to support community recipe browsing. By reusing existing components and hooks with strategic prop additions, we maintain code consistency, reduce duplication, and ensure a coherent user experience across both recipe browsing contexts.
 
 **Key Implementation Highlights:**
+
 - ✅ Reuse 90% of existing components (minimal new code)
 - ✅ Backward-compatible hook enhancements
 - ✅ Clear visual distinction with author badge

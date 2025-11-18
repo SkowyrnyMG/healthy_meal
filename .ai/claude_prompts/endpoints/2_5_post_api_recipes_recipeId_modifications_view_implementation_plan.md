@@ -15,13 +15,16 @@
 ### 2. Parameters
 
 **Path Parameters**:
+
 - `recipeId` (required): UUID of the recipe to modify
 
 **Request Body Parameters**:
+
 - `modificationType` (required): One of 6 predefined types
 - `parameters` (required): Object with type-specific parameters
 
 **Modification Types**:
+
 1. `reduce_calories`: Requires `{ targetCalories: number }` OR `{ reductionPercentage: number }`
 2. `increase_calories`: Requires `{ targetCalories: number }` OR `{ increasePercentage: number }`
 3. `increase_protein`: Requires `{ targetProtein: number }` OR `{ increasePercentage: number }`
@@ -32,6 +35,7 @@
 ### 3. Required DTO Types and Command Models
 
 **Existing Types** (from `src/types.ts`):
+
 - `CreateModificationCommand`: Request payload type
 - `ModificationDTO`: Response type
 - `ModificationDataDTO`: Modified recipe data structure
@@ -41,6 +45,7 @@
 - `NutritionDTO`: Nutrition information
 
 **Database Types**:
+
 - `DbModificationInsert`: For inserting into `recipe_modifications` table
 
 ### 4. Service Logic
@@ -48,11 +53,13 @@
 **New Service**: `src/lib/services/modification.service.ts`
 
 Functions needed:
+
 - `createModification()`: Main function to create modification with mock AI response
 - `generateMockModification()`: Private helper to generate realistic mock data based on modification type
 - Helper functions for each modification type to generate appropriate mock data
 
 The service will:
+
 1. Accept recipe data and modification parameters
 2. Generate mock modified recipe data based on modification type
 3. Insert modification record into database
@@ -67,6 +74,7 @@ The service will:
 3. `CreateModificationCommandSchema`: Top-level request body validation
 
 **Validation Rules**:
+
 - recipeId must be valid UUID
 - modificationType must be one of 6 allowed values
 - parameters must match the requirements for the specific modification type
@@ -80,6 +88,7 @@ The service will:
 ### 6. Error Logging
 
 Errors should be logged to console with context:
+
 - Endpoint identifier: `[POST /api/recipes/[recipeId]/modifications]`
 - recipeId
 - userId
@@ -91,21 +100,26 @@ No database error logging table exists yet, so console logging is sufficient.
 ### 7. Security Threats
 
 **IDOR (Insecure Direct Object Reference)**:
+
 - Attacker could try to modify recipes they don't own
 - Mitigation: Verify user has access to recipe (owner OR recipe is public)
 
 **Rate Limit Bypass**:
+
 - Attacker could spam modification requests
 - Mitigation: Implement 10 req/min rate limiting (placeholder for now)
 
 **Invalid Parameter Injection**:
+
 - Attacker could send malicious parameters
 - Mitigation: Strict Zod validation with whitelisted values
 
 **Database Injection**:
+
 - Not a concern - using Supabase SDK with parameterized queries
 
 **Information Disclosure**:
+
 - Error messages could reveal system details
 - Mitigation: Return generic error messages, log details server-side
 
@@ -130,6 +144,7 @@ No database error logging table exists yet, so console logging is sufficient.
 **Purpose**: Creates an AI-powered modification of an existing recipe based on user-specified parameters. For the MVP phase, AI responses are mocked to allow development without AI integration costs.
 
 **Key Features**:
+
 - Supports 6 modification types: calorie reduction/increase, protein increase, fiber increase, portion adjustment, ingredient substitution
 - Validates user access to recipe (IDOR protection)
 - Stores modification separately from original recipe
@@ -140,20 +155,23 @@ No database error logging table exists yet, so console logging is sufficient.
 ## 2. Request Details
 
 ### HTTP Method
+
 POST
 
 ### URL Structure
+
 ```
 /api/recipes/{recipeId}/modifications
 ```
 
 ### Path Parameters
 
-| Parameter | Type | Required | Validation | Description |
-|-----------|------|----------|------------|-------------|
-| recipeId | string | Yes | UUID format | Unique identifier of the recipe to modify |
+| Parameter | Type   | Required | Validation  | Description                               |
+| --------- | ------ | -------- | ----------- | ----------------------------------------- |
+| recipeId  | string | Yes      | UUID format | Unique identifier of the recipe to modify |
 
 ### Request Headers
+
 ```
 Content-Type: application/json
 ```
@@ -171,18 +189,19 @@ Content-Type: application/json
 
 ### Modification Types and Parameters
 
-| Modification Type | Required Parameters | Optional Parameters | Constraints |
-|-------------------|---------------------|---------------------|-------------|
-| `reduce_calories` | `targetCalories` OR `reductionPercentage` | - | targetCalories: 0-10000, reductionPercentage: 1-100 |
-| `increase_calories` | `targetCalories` OR `increasePercentage` | - | targetCalories: 0-10000, increasePercentage: 1-100 |
-| `increase_protein` | `targetProtein` OR `increasePercentage` | - | targetProtein: 0-1000, increasePercentage: 1-100 |
-| `increase_fiber` | `targetFiber` OR `increasePercentage` | - | targetFiber: 0-1000, increasePercentage: 1-100 |
-| `portion_size` | `newServings` | - | newServings: 1-100 (integer) |
-| `ingredient_substitution` | `originalIngredient` | `preferredSubstitute` | originalIngredient: 1-100 chars, preferredSubstitute: 1-100 chars |
+| Modification Type         | Required Parameters                       | Optional Parameters   | Constraints                                                       |
+| ------------------------- | ----------------------------------------- | --------------------- | ----------------------------------------------------------------- |
+| `reduce_calories`         | `targetCalories` OR `reductionPercentage` | -                     | targetCalories: 0-10000, reductionPercentage: 1-100               |
+| `increase_calories`       | `targetCalories` OR `increasePercentage`  | -                     | targetCalories: 0-10000, increasePercentage: 1-100                |
+| `increase_protein`        | `targetProtein` OR `increasePercentage`   | -                     | targetProtein: 0-1000, increasePercentage: 1-100                  |
+| `increase_fiber`          | `targetFiber` OR `increasePercentage`     | -                     | targetFiber: 0-1000, increasePercentage: 1-100                    |
+| `portion_size`            | `newServings`                             | -                     | newServings: 1-100 (integer)                                      |
+| `ingredient_substitution` | `originalIngredient`                      | `preferredSubstitute` | originalIngredient: 1-100 chars, preferredSubstitute: 1-100 chars |
 
 ### Example Request Bodies
 
 **Reduce Calories (target)**:
+
 ```json
 {
   "modificationType": "reduce_calories",
@@ -193,6 +212,7 @@ Content-Type: application/json
 ```
 
 **Reduce Calories (percentage)**:
+
 ```json
 {
   "modificationType": "reduce_calories",
@@ -203,6 +223,7 @@ Content-Type: application/json
 ```
 
 **Portion Size**:
+
 ```json
 {
   "modificationType": "portion_size",
@@ -213,6 +234,7 @@ Content-Type: application/json
 ```
 
 **Ingredient Substitution**:
+
 ```json
 {
   "modificationType": "ingredient_substitution",
@@ -277,7 +299,7 @@ interface ModificationDataDTO {
 ```typescript
 // Path parameter validation
 const RecipeIdParamSchema = z.object({
-  recipeId: z.string().uuid("Recipe ID must be a valid UUID")
+  recipeId: z.string().uuid("Recipe ID must be a valid UUID"),
 });
 
 // Base nutrition schema for reuse
@@ -287,7 +309,7 @@ const NutritionSchema = z.object({
   fat: z.number().min(0).max(1000),
   carbs: z.number().min(0).max(1000),
   fiber: z.number().min(0).max(1000),
-  salt: z.number().min(0).max(100)
+  salt: z.number().min(0).max(100),
 });
 
 // Discriminated union for modification parameters
@@ -296,43 +318,43 @@ const CreateModificationCommandSchema = z.discriminatedUnion("modificationType",
     modificationType: z.literal("reduce_calories"),
     parameters: z.union([
       z.object({ targetCalories: z.number().positive().max(10000) }),
-      z.object({ reductionPercentage: z.number().min(1).max(100) })
-    ])
+      z.object({ reductionPercentage: z.number().min(1).max(100) }),
+    ]),
   }),
   z.object({
     modificationType: z.literal("increase_calories"),
     parameters: z.union([
       z.object({ targetCalories: z.number().positive().max(10000) }),
-      z.object({ increasePercentage: z.number().min(1).max(100) })
-    ])
+      z.object({ increasePercentage: z.number().min(1).max(100) }),
+    ]),
   }),
   z.object({
     modificationType: z.literal("increase_protein"),
     parameters: z.union([
       z.object({ targetProtein: z.number().positive().max(1000) }),
-      z.object({ increasePercentage: z.number().min(1).max(100) })
-    ])
+      z.object({ increasePercentage: z.number().min(1).max(100) }),
+    ]),
   }),
   z.object({
     modificationType: z.literal("increase_fiber"),
     parameters: z.union([
       z.object({ targetFiber: z.number().positive().max(1000) }),
-      z.object({ increasePercentage: z.number().min(1).max(100) })
-    ])
+      z.object({ increasePercentage: z.number().min(1).max(100) }),
+    ]),
   }),
   z.object({
     modificationType: z.literal("portion_size"),
     parameters: z.object({
-      newServings: z.number().int().positive().max(100)
-    })
+      newServings: z.number().int().positive().max(100),
+    }),
   }),
   z.object({
     modificationType: z.literal("ingredient_substitution"),
     parameters: z.object({
       originalIngredient: z.string().trim().min(1).max(100),
-      preferredSubstitute: z.string().trim().min(1).max(100).optional()
-    })
-  })
+      preferredSubstitute: z.string().trim().min(1).max(100).optional(),
+    }),
+  }),
 ]);
 ```
 
@@ -392,6 +414,7 @@ const CreateModificationCommandSchema = z.discriminatedUnion("modificationType",
 ### Error Responses
 
 #### 400 Bad Request
+
 ```json
 {
   "error": "Bad Request",
@@ -414,6 +437,7 @@ const CreateModificationCommandSchema = z.discriminatedUnion("modificationType",
 ```
 
 #### 401 Unauthorized (Production)
+
 ```json
 {
   "error": "Unauthorized",
@@ -422,6 +446,7 @@ const CreateModificationCommandSchema = z.discriminatedUnion("modificationType",
 ```
 
 #### 403 Forbidden
+
 ```json
 {
   "error": "Forbidden",
@@ -430,6 +455,7 @@ const CreateModificationCommandSchema = z.discriminatedUnion("modificationType",
 ```
 
 #### 404 Not Found
+
 ```json
 {
   "error": "Not Found",
@@ -438,6 +464,7 @@ const CreateModificationCommandSchema = z.discriminatedUnion("modificationType",
 ```
 
 #### 429 Too Many Requests
+
 ```json
 {
   "error": "Too Many Requests",
@@ -446,6 +473,7 @@ const CreateModificationCommandSchema = z.discriminatedUnion("modificationType",
 ```
 
 #### 500 Internal Server Error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -454,6 +482,7 @@ const CreateModificationCommandSchema = z.discriminatedUnion("modificationType",
 ```
 
 #### 504 Gateway Timeout (Future)
+
 ```json
 {
   "error": "Gateway Timeout",
@@ -510,24 +539,29 @@ const CreateModificationCommandSchema = z.discriminatedUnion("modificationType",
 ### Database Interactions
 
 **Tables Involved**:
+
 - `recipes` (read): Fetch original recipe data
 - `recipe_modifications` (write): Insert modification record
 
 **Queries**:
 
 1. **Get Recipe** (via `getRecipeById` service):
+
 ```typescript
 supabase
   .from("recipes")
-  .select(`
+  .select(
+    `
     id, user_id, title, ingredients, steps,
     servings, nutrition_per_serving, is_public
-  `)
+  `
+  )
   .eq("id", recipeId)
-  .single()
+  .single();
 ```
 
 2. **Insert Modification** (in new modification service):
+
 ```typescript
 supabase
   .from("recipe_modifications")
@@ -586,11 +620,13 @@ For MVP, the `generateMockModification()` helper function will:
 ## 6. Security Considerations
 
 ### Authentication
+
 - **Development**: Hardcoded userId for easier testing
 - **Production**: Must extract user from Supabase auth session
 - **Implementation**: Follow pattern from existing endpoints (`src/pages/api/recipes/[recipeId].ts`)
 
 ### Authorization (IDOR Protection)
+
 - **Threat**: User attempts to modify recipe they don't own
 - **Mitigation**: Verify user has access before allowing modification
 - **Rules**:
@@ -599,6 +635,7 @@ For MVP, the `generateMockModification()` helper function will:
   - Deny otherwise (403 Forbidden)
 
 ### Input Validation
+
 - **Threat**: Malicious or malformed input
 - **Mitigation**:
   - Strict Zod schemas with discriminated unions
@@ -608,6 +645,7 @@ For MVP, the `generateMockModification()` helper function will:
   - UUID format validation for recipeId
 
 ### Rate Limiting
+
 - **Threat**: User spams modification requests
 - **Requirement**: 10 requests per 5 minutes per user
 - **Implementation**:
@@ -616,6 +654,7 @@ For MVP, the `generateMockModification()` helper function will:
   - For MVP: Add placeholder comment where rate check should go
 
 ### Data Validation
+
 - **Threat**: Invalid data in database
 - **Mitigation**:
   - Database constraints on `recipe_modifications` table
@@ -623,6 +662,7 @@ For MVP, the `generateMockModification()` helper function will:
   - Foreign key constraints (CASCADE on recipe deletion)
 
 ### Error Handling
+
 - **Threat**: Information disclosure through error messages
 - **Mitigation**:
   - Return generic error messages to client
@@ -636,6 +676,7 @@ For MVP, the `generateMockModification()` helper function will:
 ### Validation Errors (400)
 
 **Scenarios**:
+
 - Invalid UUID format for recipeId
 - Invalid modification type (not in allowed list)
 - Missing required parameters for modification type
@@ -643,6 +684,7 @@ For MVP, the `generateMockModification()` helper function will:
 - Invalid JSON in request body
 
 **Handling**:
+
 ```typescript
 try {
   validatedParams = RecipeIdParamSchema.parse(rawParams);
@@ -651,7 +693,7 @@ try {
     return new Response(
       JSON.stringify({
         error: "Bad Request",
-        message: error.errors[0].message
+        message: error.errors[0].message,
       }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
@@ -663,18 +705,23 @@ try {
 ### Authentication Errors (401)
 
 **Scenarios** (Production only):
+
 - Missing auth token
 - Invalid auth token
 - Expired auth token
 
 **Handling**:
+
 ```typescript
-const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
+const {
+  data: { user },
+  error: authError,
+} = await context.locals.supabase.auth.getUser();
 if (authError || !user) {
   return new Response(
     JSON.stringify({
       error: "Unauthorized",
-      message: "Authentication required"
+      message: "Authentication required",
     }),
     { status: 401, headers: { "Content-Type": "application/json" } }
   );
@@ -684,18 +731,20 @@ if (authError || !user) {
 ### Authorization Errors (403)
 
 **Scenarios**:
+
 - Recipe exists but is private
 - User is not the recipe owner
 - User attempts to access recipe they don't have permission for
 
 **Handling**:
+
 ```typescript
 const hasAccess = recipe.isPublic || recipe.userId === user.id;
 if (!hasAccess) {
   return new Response(
     JSON.stringify({
       error: "Forbidden",
-      message: "You don't have permission to modify this recipe"
+      message: "You don't have permission to modify this recipe",
     }),
     { status: 403, headers: { "Content-Type": "application/json" } }
   );
@@ -705,16 +754,18 @@ if (!hasAccess) {
 ### Not Found Errors (404)
 
 **Scenarios**:
+
 - Recipe with given recipeId doesn't exist
 
 **Handling**:
+
 ```typescript
 const recipe = await getRecipeById(context.locals.supabase, validatedParams.recipeId);
 if (!recipe) {
   return new Response(
     JSON.stringify({
       error: "Not Found",
-      message: "Recipe not found"
+      message: "Recipe not found",
     }),
     { status: 404, headers: { "Content-Type": "application/json" } }
   );
@@ -724,9 +775,11 @@ if (!recipe) {
 ### Rate Limit Errors (429)
 
 **Scenarios**:
+
 - User exceeds 10 requests per 5 minutes
 
 **Handling** (Placeholder):
+
 ```typescript
 // TODO: Implement rate limiting
 // const isRateLimited = await checkRateLimit(userId);
@@ -744,11 +797,13 @@ if (!recipe) {
 ### Server Errors (500)
 
 **Scenarios**:
+
 - Database connection failures
 - Unexpected errors in service layer
 - JSONB serialization errors
 
 **Handling**:
+
 ```typescript
 } catch (error) {
   console.error("[POST /api/recipes/[recipeId]/modifications] Error:", {
@@ -772,9 +827,11 @@ if (!recipe) {
 ### Timeout Errors (504)
 
 **Scenarios** (Future - when real AI is integrated):
+
 - AI processing takes longer than 5 seconds
 
 **Handling** (Placeholder):
+
 ```typescript
 // TODO: When integrating real AI
 // Set timeout on AI API call
@@ -845,6 +902,7 @@ if (!recipe) {
 **File**: `src/lib/services/modification.service.ts`
 
 **Tasks**:
+
 1. Import necessary types from `src/types.ts`
 2. Import SupabaseClient type
 3. Define database query result interfaces
@@ -861,6 +919,7 @@ if (!recipe) {
 8. Add comprehensive JSDoc comments
 
 **Key Logic**:
+
 ```typescript
 export async function createModification(
   supabase: SupabaseClient,
@@ -878,7 +937,7 @@ export async function createModification(
       original_recipe_id: recipeId,
       user_id: userId,
       modification_type: command.modificationType,
-      modified_data: modifiedData as any // JSONB type assertion
+      modified_data: modifiedData as any, // JSONB type assertion
     })
     .select()
     .single();
@@ -895,6 +954,7 @@ export async function createModification(
 **File**: `src/pages/api/recipes/[recipeId]/modifications.ts`
 
 **Tasks**:
+
 1. Create directory: `src/pages/api/recipes/[recipeId]/`
 2. Set `export const prerender = false`
 3. Import necessary types and services
@@ -905,6 +965,7 @@ export async function createModification(
 6. Follow error handling pattern from existing endpoints
 
 **Structure**:
+
 ```typescript
 export const prerender = false;
 
@@ -913,7 +974,7 @@ export const prerender = false;
 // ============================================================================
 
 const RecipeIdParamSchema = z.object({
-  recipeId: z.string().uuid("Recipe ID must be a valid UUID")
+  recipeId: z.string().uuid("Recipe ID must be a valid UUID"),
 });
 
 const CreateModificationCommandSchema = z.discriminatedUnion("modificationType", [
@@ -945,6 +1006,7 @@ export const POST: APIRoute = async (context) => {
 **File**: `src/pages/api/recipes/[recipeId]/modifications.test.ts` (if testing framework is set up)
 
 **Test Cases**:
+
 1. Successful modification creation (each type)
 2. Invalid recipeId format (400)
 3. Invalid modification type (400)
@@ -958,6 +1020,7 @@ export const POST: APIRoute = async (context) => {
 **Using curl or Postman**:
 
 1. **Test reduce_calories**:
+
 ```bash
 curl -X POST http://localhost:3000/api/recipes/{valid-recipe-id}/modifications \
   -H "Content-Type: application/json" \
@@ -970,6 +1033,7 @@ curl -X POST http://localhost:3000/api/recipes/{valid-recipe-id}/modifications \
 ```
 
 2. **Test validation errors**:
+
 ```bash
 # Invalid UUID
 curl -X POST http://localhost:3000/api/recipes/invalid-uuid/modifications \
@@ -983,6 +1047,7 @@ curl -X POST http://localhost:3000/api/recipes/{valid-recipe-id}/modifications \
 ```
 
 3. **Test authorization**:
+
 ```bash
 # Try to modify recipe that doesn't exist (404)
 curl -X POST http://localhost:3000/api/recipes/00000000-0000-0000-0000-000000000000/modifications \
@@ -993,6 +1058,7 @@ curl -X POST http://localhost:3000/api/recipes/00000000-0000-0000-0000-000000000
 ### Step 5: Update Documentation
 
 **Tasks**:
+
 1. ✅ Implementation plan already created (this file)
 2. Update API documentation if separate docs exist
 3. Add endpoint to Postman collection if used
@@ -1001,6 +1067,7 @@ curl -X POST http://localhost:3000/api/recipes/00000000-0000-0000-0000-000000000
 ### Step 6: Future Enhancements (Post-MVP)
 
 **When ready to integrate real AI**:
+
 1. Create AI service with OpenRouter integration
 2. Replace mock generation with real AI calls
 3. Implement timeout handling (5 seconds)

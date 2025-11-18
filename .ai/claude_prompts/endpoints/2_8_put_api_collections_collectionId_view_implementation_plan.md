@@ -5,6 +5,7 @@
 The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to update the name of an existing recipe collection. The endpoint verifies collection ownership, prevents duplicate collection names, and returns the updated collection data.
 
 **Key Features:**
+
 - Updates collection name for authenticated user
 - Validates UUID format for collectionId
 - Prevents duplicate collection names per user
@@ -20,6 +21,7 @@ The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to
     - `collectionId` (string, UUID format) - The unique identifier of the collection to update
 - **Query Parameters**: None
 - **Request Body**:
+
 ```json
 {
   "name": "Szybkie i zdrowe kolacje"
@@ -27,6 +29,7 @@ The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to
 ```
 
 **Request Body Schema:**
+
 - `name` (string, required):
   - Minimum length: 1 character (after trimming)
   - Maximum length: 100 characters
@@ -35,6 +38,7 @@ The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to
 ## 3. Used Types
 
 **Command Models (Request):**
+
 - `UpdateCollectionCommand` (src/types.ts:538-540)
   ```typescript
   export interface UpdateCollectionCommand {
@@ -43,6 +47,7 @@ The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to
   ```
 
 **Response DTOs:**
+
 - Simplified collection response:
   ```typescript
   {
@@ -56,25 +61,25 @@ The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to
   ```
 
 **Custom Error Classes (to be added to collection.service.ts):**
+
 - `CollectionNotFoundError` - Collection doesn't exist (404)
 - `CollectionForbiddenError` - Collection belongs to another user (403) - **NEW**
 - `CollectionAlreadyExistsError` - Duplicate name conflict (409)
 
 **Validation Schemas:**
+
 - `CollectionIdParamSchema` - Zod schema for UUID validation (reuse from existing code)
 - `UpdateCollectionSchema` - Zod schema for request body validation
   ```typescript
   const UpdateCollectionSchema = z.object({
-    name: z.string()
-      .min(1, "Name is required")
-      .max(100, "Name must be 100 characters or less")
-      .trim()
+    name: z.string().min(1, "Name is required").max(100, "Name must be 100 characters or less").trim(),
   });
   ```
 
 ## 4. Response Details
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -88,16 +93,16 @@ The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to
 
 **Error Responses:**
 
-| Status Code | Error Type | Response Body |
-|------------|------------|---------------|
-| 400 | Bad Request | `{ "error": "Bad Request", "message": "Invalid JSON in request body" }` |
-| 400 | Validation Error | `{ "error": "Bad Request", "message": "Name is required" }` |
-| 400 | Invalid UUID | `{ "error": "Bad Request", "message": "Invalid collection ID format" }` |
-| 401 | Unauthorized | `{ "error": "Unauthorized", "message": "Authentication required" }` |
-| 403 | Forbidden | `{ "error": "Forbidden", "message": "You don't have permission to update this collection" }` |
-| 404 | Not Found | `{ "error": "Not Found", "message": "Collection not found" }` |
-| 409 | Conflict | `{ "error": "Conflict", "message": "Collection with this name already exists" }` |
-| 500 | Internal Error | `{ "error": "Internal Server Error", "message": "Failed to update collection" }` |
+| Status Code | Error Type       | Response Body                                                                                |
+| ----------- | ---------------- | -------------------------------------------------------------------------------------------- |
+| 400         | Bad Request      | `{ "error": "Bad Request", "message": "Invalid JSON in request body" }`                      |
+| 400         | Validation Error | `{ "error": "Bad Request", "message": "Name is required" }`                                  |
+| 400         | Invalid UUID     | `{ "error": "Bad Request", "message": "Invalid collection ID format" }`                      |
+| 401         | Unauthorized     | `{ "error": "Unauthorized", "message": "Authentication required" }`                          |
+| 403         | Forbidden        | `{ "error": "Forbidden", "message": "You don't have permission to update this collection" }` |
+| 404         | Not Found        | `{ "error": "Not Found", "message": "Collection not found" }`                                |
+| 409         | Conflict         | `{ "error": "Conflict", "message": "Collection with this name already exists" }`             |
+| 500         | Internal Error   | `{ "error": "Internal Server Error", "message": "Failed to update collection" }`             |
 
 ## 5. Data Flow
 
@@ -131,18 +136,21 @@ The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to
 ## 6. Security Considerations
 
 **Authentication:**
+
 - Use mocked userId for development: `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - Follow pattern from `.ai/claude_rules/auth_dev_mock.md`
 - Production: Uncomment Supabase auth.getUser() call
 - Return 401 if authentication fails
 
 **Authorization:**
+
 - Verify collection belongs to authenticated user
 - Return 403 Forbidden if user doesn't own the collection
 - Explicit differentiation between 404 (not found) and 403 (forbidden)
 - Prevents users from modifying other users' collections
 
 **Input Validation:**
+
 - Validate UUID format for collectionId to prevent injection attacks
 - Validate name length constraints (1-100 characters)
 - Trim whitespace from name to prevent duplicate detection issues
@@ -150,11 +158,13 @@ The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to
 - Reject malformed JSON with 400 error
 
 **Data Integrity:**
+
 - Prevent duplicate collection names per user
 - Use database constraints and application-level checks
 - Handle race conditions with proper error handling
 
 **Information Disclosure:**
+
 - Use generic error messages in production
 - Don't expose internal database errors to clients
 - Log detailed errors server-side only
@@ -194,6 +204,7 @@ The `PUT /api/collections/{collectionId}` endpoint allows authenticated users to
    - Return generic error message
 
 **Error Logging Pattern:**
+
 ```typescript
 // For expected business errors (403, 404, 409)
 console.info("[PUT /api/collections/{collectionId}] Business error:", {
@@ -214,23 +225,27 @@ console.error("[PUT /api/collections/{collectionId}] Error:", {
 ## 8. Performance Considerations
 
 **Database Queries:**
+
 - Total queries: 3
   1. Fetch collection and verify ownership (single SELECT with filters)
   2. Check for duplicate name (SELECT with user_id and name filters, excluding current collection)
   3. Update collection (single UPDATE)
 
 **Optimization Strategies:**
+
 - Use indexed columns for queries (user_id, id, name)
 - Use `.single()` for fetch operations to fail fast if not found
 - Use `.maybeSingle()` for duplicate check to handle no-match case
 - Leverage database constraints for data integrity
 
 **Potential Bottlenecks:**
+
 - None expected - simple CRUD operation with minimal queries
 - Collection name uniqueness check is scoped to single user (good performance)
 - All queries use indexed columns
 
 **Caching:**
+
 - Not applicable for write operations
 - Client may cache GET requests but should invalidate on successful PUT
 
@@ -288,11 +303,13 @@ export async function updateCollection(
 **Detailed implementation logic:**
 
 1. **Trim name:**
+
    ```typescript
    const trimmedName = command.name.trim();
    ```
 
 2. **Fetch and verify collection:**
+
    ```typescript
    const { data: collection, error: fetchError } = await supabase
      .from("collections")
@@ -317,6 +334,7 @@ export async function updateCollection(
    ```
 
 3. **Check for duplicate name:**
+
    ```typescript
    const { data: existing, error: existingError } = await supabase
      .from("collections")
@@ -336,6 +354,7 @@ export async function updateCollection(
    ```
 
 4. **Update collection:**
+
    ```typescript
    const { data: updated, error: updateError } = await supabase
      .from("collections")
@@ -364,10 +383,7 @@ export async function updateCollection(
 Add PUT handler to existing file `src/pages/api/collections/[collectionId].ts`:
 
 ```typescript
-import {
-  updateCollection,
-  CollectionForbiddenError
-} from "../../../lib/services/collection.service";
+import { updateCollection, CollectionForbiddenError } from "../../../lib/services/collection.service";
 ```
 
 Add validation schema at the top with other schemas:
@@ -377,11 +393,7 @@ Add validation schema at the top with other schemas:
  * Zod schema for updating collection
  */
 const UpdateCollectionSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(100, "Name must be 100 characters or less")
-    .trim(),
+  name: z.string().min(1, "Name is required").max(100, "Name must be 100 characters or less").trim(),
 });
 ```
 
@@ -423,6 +435,7 @@ export const PUT: APIRoute = async (context) => {
 1. **Authentication block** (copy from existing handlers)
 2. **Validate collectionId** (reuse existing validation logic)
 3. **Parse and validate request body:**
+
    ```typescript
    let body: unknown;
    try {
@@ -455,13 +468,9 @@ export const PUT: APIRoute = async (context) => {
    ```
 
 4. **Call service function:**
+
    ```typescript
-   const collection = await updateCollection(
-     context.locals.supabase,
-     userId,
-     validatedCollectionId,
-     validatedData
-   );
+   const collection = await updateCollection(context.locals.supabase, userId, validatedCollectionId, validatedData);
    ```
 
 5. **Error handling with catch blocks:**
@@ -475,11 +484,7 @@ export const PUT: APIRoute = async (context) => {
 Update collection.service.ts exports to include `CollectionForbiddenError`:
 
 ```typescript
-export {
-  CollectionNotFoundError,
-  CollectionAlreadyExistsError,
-  CollectionForbiddenError
-};
+export { CollectionNotFoundError, CollectionAlreadyExistsError, CollectionForbiddenError };
 ```
 
 ### Step 5: Test the endpoint

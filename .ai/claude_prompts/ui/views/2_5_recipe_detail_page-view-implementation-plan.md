@@ -5,6 +5,7 @@
 The Recipe Detail Page is a comprehensive view that displays full recipe information including ingredients, preparation steps, and nutrition values. It serves as the primary interface for viewing, modifying with AI, and managing individual recipes. The page features a responsive two-column layout on desktop (main content + sidebar) and a single-column layout on mobile. A key feature is the tab interface that appears when a recipe has been modified with AI, allowing users to switch between the original and modified versions. The page includes real-time servings adjustment with automatic ingredient recalculation, nutrition visualization with a pie chart, and action buttons for editing, deleting, favoriting, and AI modification.
 
 **Key Features:**
+
 - Display complete recipe details with ingredients, steps, and nutrition
 - Tab interface for original vs modified recipes (when modification exists)
 - Real-time servings adjustment with ingredient amount recalculation
@@ -20,6 +21,7 @@ The Recipe Detail Page is a comprehensive view that displays full recipe informa
 **Example:** `/recipes/a1b2c3d4-e5f6-7890-abcd-ef1234567890`
 
 **Route Parameters:**
+
 - `id` (required): UUID of the recipe to display
 
 **Server-side File:** `src/pages/recipes/[id].astro`
@@ -27,6 +29,7 @@ The Recipe Detail Page is a comprehensive view that displays full recipe informa
 **Authentication:** Required (currently mocked with hardcoded userId for MVP)
 
 **Authorization:**
+
 - Recipe must be public OR user must be the recipe owner
 - 403 Forbidden if recipe is private and user is not the owner
 - 404 Not Found if recipe doesn't exist
@@ -77,12 +80,14 @@ RecipeDetailPage (.astro)
 ### Layout Strategy
 
 **Desktop (≥768px):**
+
 - Two-column layout using CSS Grid
 - Left column (main content): Header, Servings Adjuster, Ingredients, Steps
 - Right sidebar (fixed width ~320px): Nutrition Card, Action Buttons
 - Tabs appear above content if modification exists
 
 **Mobile (<768px):**
+
 - Single column, stacked vertically
 - Order: Header → Nutrition Card → Servings Adjuster → Ingredients → Steps
 - Action buttons sticky at bottom or in floating menu
@@ -96,23 +101,28 @@ RecipeDetailPage (.astro)
 Server-rendered Astro page that fetches initial data, performs authentication checks, and renders the RecipeDetailLayout React component. This component handles the initial recipe load and favorite status fetch on the server side.
 
 **Main Elements:**
+
 - `<Layout>` wrapper from layout system
 - `<RecipeDetailLayout>` React component with `client:load` directive
 - Server-side data fetching for recipe and initial favorite status
 
 **Handled Interactions:**
+
 - None (server-rendered only)
 
 **Handled Validation:**
+
 - Authentication check (redirects to /login if not authenticated)
 - Recipe existence check (shows 404 if not found)
 - Authorization check (shows 403 if forbidden)
 
 **Types:**
+
 - `RecipeDetailDTO` (from API response)
 - `boolean` (isFavorited flag)
 
 **Props:**
+
 - None (Astro page component with route params)
 
 ### RecipeDetailLayout (React)
@@ -121,6 +131,7 @@ Server-rendered Astro page that fetches initial data, performs authentication ch
 Main React component that manages the entire recipe detail view, including state management, tab switching, and responsive layout orchestration. Integrates the custom `useRecipeDetail` hook for data and state management.
 
 **Main Elements:**
+
 - Conditional rendering: `LoadingState` → `ErrorState` → Main content
 - `<TabNavigation>` (if modification exists)
 - `<div className="desktop-layout">` (two-column grid, hidden on mobile)
@@ -128,21 +139,25 @@ Main React component that manages the entire recipe detail view, including state
 - Modals for actions
 
 **Handled Interactions:**
+
 - Tab switching between original and modified
 - All user actions via child component callbacks
 
 **Handled Validation:**
+
 - Loading state management
 - Error state handling
 - Conditional rendering based on modification existence
 
 **Types:**
+
 - `RecipeDetailDTO`
 - `ModificationDTO | null`
 - `RecipeViewState`
 - `ActionLoadingStates`
 
 **Props:**
+
 ```typescript
 interface RecipeDetailLayoutProps {
   recipeId: string;
@@ -156,23 +171,28 @@ interface RecipeDetailLayoutProps {
 Tab switcher component that appears when a recipe has modifications. Displays two tabs: "Oryginalny" (Original) and "Zmodyfikowany" (Modified). Uses Shadcn/ui Tabs component for accessibility.
 
 **Main Elements:**
+
 - `<Tabs>` from Shadcn/ui
 - `<TabsList>` containing tab triggers
 - `<TabsTrigger value="original">Oryginalny</TabsTrigger>`
 - `<TabsTrigger value="modified">Zmodyfikowany</TabsTrigger>`
 
 **Handled Interactions:**
+
 - Tab click to switch between original and modified views
 - Keyboard navigation (arrow keys)
 
 **Handled Validation:**
+
 - Only renders if modification exists
 - Tab state persisted in component state (not URL)
 
 **Types:**
+
 - `"original" | "modified"` (tab value)
 
 **Props:**
+
 ```typescript
 interface TabNavigationProps {
   activeTab: "original" | "modified";
@@ -186,20 +206,25 @@ interface TabNavigationProps {
 Information banner that appears at the top of the Modified tab to inform users they are viewing a modified version and can switch to the original tab.
 
 **Main Elements:**
+
 - `<div>` with info styling (background color, padding, icon)
 - Information icon
 - Text: "To jest zmodyfikowana wersja. Oryginalny przepis możesz zobaczyć w zakładce 'Oryginalny'."
 
 **Handled Interactions:**
+
 - None (informational only)
 
 **Handled Validation:**
+
 - Only renders on Modified tab
 
 **Types:**
+
 - None (static component)
 
 **Props:**
+
 ```typescript
 interface InfoBannerProps {
   // No props - static informational component
@@ -212,6 +237,7 @@ interface InfoBannerProps {
 Displays the recipe title, description, tags, preparation time, servings, and author information (for public recipes). Tags are clickable and navigate to recipe list filtered by that tag.
 
 **Main Elements:**
+
 - `<h1>` - Recipe title
 - `<p>` - Description paragraph
 - `<div>` - Tag badges container
@@ -221,18 +247,22 @@ Displays the recipe title, description, tags, preparation time, servings, and au
   - Author name (if public recipe)
 
 **Handled Interactions:**
+
 - Tag click: Navigate to `/recipes?tags={tagSlug}`
 
 **Handled Validation:**
+
 - Show "nie podano" if prep time is null
 - Show author only for public recipes
 - Handle empty description gracefully
 
 **Types:**
+
 - `RecipeDetailDTO` (for recipe data)
 - `TagDTO[]` (for tags)
 
 **Props:**
+
 ```typescript
 interface RecipeHeaderProps {
   title: string;
@@ -250,25 +280,30 @@ interface RecipeHeaderProps {
 Interactive component that allows users to adjust the number of servings using increment/decrement buttons. Displays current servings in the format "X porcje/porcji" (Polish plural forms). Triggers real-time recalculation of ingredient amounts.
 
 **Main Elements:**
+
 - `<div>` - Horizontal flex container
 - `<Button>` - Decrement button [-] (disabled at minimum)
 - `<span>` - Current servings display with proper Polish pluralization
 - `<Button>` - Increment button [+] (disabled at maximum)
 
 **Handled Interactions:**
+
 - Click [-]: Decrease servings by 1 (minimum 1)
 - Click [+]: Increase servings by 1 (maximum 100)
 - Keyboard support: Arrow keys or +/- keys
 
 **Handled Validation:**
+
 - Minimum servings: 1 (disable decrement button)
 - Maximum servings: 100 (disable increment button)
 - Immediate validation on each adjustment
 
 **Types:**
+
 - `number` (current servings value)
 
 **Props:**
+
 ```typescript
 interface ServingsAdjusterProps {
   currentServings: number;
@@ -284,6 +319,7 @@ interface ServingsAdjusterProps {
 Displays the list of ingredients with amounts that update dynamically based on servings adjustment. Each ingredient shows amount, unit, and name. Supports responsive multi-column layout on larger screens.
 
 **Main Elements:**
+
 - `<div>` - Container with responsive grid (1 column mobile, 2 columns desktop)
 - Multiple `<div>` - Ingredient items
   - `<span>` - Amount (formatted to 1-2 decimal places)
@@ -291,16 +327,20 @@ Displays the list of ingredients with amounts that update dynamically based on s
   - `<span>` - Ingredient name
 
 **Handled Interactions:**
+
 - None (display only, updates from parent state)
 
 **Handled Validation:**
+
 - Format amounts appropriately (avoid excessive decimals)
 - Handle zero or very small amounts gracefully
 
 **Types:**
+
 - `AdjustedIngredientDTO[]`
 
 **Props:**
+
 ```typescript
 interface IngredientsListProps {
   ingredients: AdjustedIngredientDTO[];
@@ -319,21 +359,26 @@ interface AdjustedIngredientDTO {
 Displays numbered preparation steps in a simple ordered list format. No interactive features for MVP (checkboxes and cooking mode excluded).
 
 **Main Elements:**
+
 - `<ol>` - Ordered list with CSS auto-numbering or explicit numbers
 - Multiple `<li>` - Step items
   - `<p>` - Step instruction text
 
 **Handled Interactions:**
+
 - None (display only)
 
 **Handled Validation:**
+
 - Ensure step numbers are sequential
 - Handle empty steps array
 
 **Types:**
+
 - `RecipeStepDTO[]`
 
 **Props:**
+
 ```typescript
 interface PreparationStepsProps {
   steps: RecipeStepDTO[];
@@ -346,6 +391,7 @@ interface PreparationStepsProps {
 Card component that displays comprehensive nutrition information including total calories, a pie chart for macronutrients, and a detailed breakdown list. Uses Shadcn/ui Card component.
 
 **Main Elements:**
+
 - `<Card>` - Shadcn/ui card wrapper
 - `<CardHeader>` - "Wartości odżywcze" title
 - `<CardContent>`
@@ -359,17 +405,21 @@ Card component that displays comprehensive nutrition information including total
     - Sól: Xg
 
 **Handled Interactions:**
+
 - None (display only)
 
 **Handled Validation:**
+
 - Calculate percentages for macros
 - Format numbers appropriately
 - Handle missing or zero values
 
 **Types:**
+
 - `NutritionDTO`
 
 **Props:**
+
 ```typescript
 interface NutritionCardProps {
   nutrition: NutritionDTO;
@@ -383,6 +433,7 @@ interface NutritionCardProps {
 Pie chart visualization component that displays macronutrient distribution (protein, fat, carbs) using Recharts library. Provides visual representation with legend showing actual gram values and percentages.
 
 **Main Elements:**
+
 - `<ResponsiveContainer>` - From Recharts
 - `<PieChart>` - Chart component
 - `<Pie>` - Pie data with segments for each macro
@@ -390,18 +441,22 @@ Pie chart visualization component that displays macronutrient distribution (prot
 - `<Tooltip>` - Interactive hover tooltip
 
 **Handled Interactions:**
+
 - Hover to see detailed tooltip
 - Legend click to highlight/filter segments (optional)
 
 **Handled Validation:**
+
 - Calculate percentages correctly
 - Handle zero values (don't show segment)
 - Ensure colors are distinguishable and accessible
 
 **Types:**
+
 - `NutritionDTO` (macros only: protein, fat, carbs)
 
 **Props:**
+
 ```typescript
 interface NutritionPieChartProps {
   protein: number;
@@ -411,6 +466,7 @@ interface NutritionPieChartProps {
 ```
 
 **Additional Notes:**
+
 - Requires Recharts library installation: `npm install recharts`
 - Use green for protein, yellow for carbs, orange for fats
 - Responsive sizing based on container
@@ -421,6 +477,7 @@ interface NutritionPieChartProps {
 Collection of action buttons for recipe management. Button visibility and enabled state vary based on current tab (Original vs Modified) and recipe ownership. Primary action is "Modyfikuj z AI" with sparkles icon. All buttons include loading states.
 
 **Main Elements:**
+
 - `<div>` - Button container (vertical stack)
 - `<Button variant="default">` - "Modyfikuj z AI" with sparkles icon (primary)
 - `<Button variant="secondary">` - "Edytuj" (only Original tab, owner only)
@@ -430,6 +487,7 @@ Collection of action buttons for recipe management. Button visibility and enable
 - `<Button variant="destructive">` - "Usuń modyfikację" (only Modified tab, if modification exists)
 
 **Handled Interactions:**
+
 - "Modyfikuj z AI": Opens ModifyWithAIModal
 - "Edytuj": Navigates to `/recipes/{id}/edit`
 - "Usuń przepis": Opens DeleteConfirmDialog
@@ -438,6 +496,7 @@ Collection of action buttons for recipe management. Button visibility and enable
 - "Usuń modyfikację": Opens DeleteModificationDialog
 
 **Handled Validation:**
+
 - Show/hide "Edytuj" based on tab (Original only)
 - Show/hide "Usuń modyfikację" based on tab (Modified only)
 - Check recipe ownership for Edit/Delete actions
@@ -445,11 +504,13 @@ Collection of action buttons for recipe management. Button visibility and enable
 - Check if modification exists before showing replacement warning
 
 **Types:**
+
 - `RecipeDetailDTO` (for ownership check)
 - `ActionLoadingStates` (for button loading states)
 - `boolean` (isFavorited, hasModification)
 
 **Props:**
+
 ```typescript
 interface ActionButtonsProps {
   recipeId: string;
@@ -482,6 +543,7 @@ interface ActionLoadingStates {
 Modal dialog for creating AI-powered recipe modifications. Displays modification type options and relevant input fields based on selected type. Shows replacement warning if recipe already has a modification.
 
 **Main Elements:**
+
 - `<Dialog>` - Shadcn/ui dialog component
 - `<DialogHeader>` - Title: "Modyfikuj przepis z AI"
 - `<DialogContent>`
@@ -501,22 +563,26 @@ Modal dialog for creating AI-powered recipe modifications. Displays modification
   - `<Button variant="default">` - Confirm (with loading state)
 
 **Handled Interactions:**
+
 - Modification type selection
 - Input value changes
 - Form submission
 - Cancel action
 
 **Handled Validation:**
+
 - Required fields validation
 - Number range validation (e.g., calories 1-10000)
 - Percentage validation (1-100%)
 - Show replacement warning if modification exists
 
 **Types:**
+
 - `CreateModificationCommand`
 - `ModificationParameters`
 
 **Props:**
+
 ```typescript
 interface ModifyWithAIModalProps {
   isOpen: boolean;
@@ -533,6 +599,7 @@ interface ModifyWithAIModalProps {
 Confirmation dialog for recipe deletion. Shows warning message and requires explicit confirmation before deleting.
 
 **Main Elements:**
+
 - `<AlertDialog>` - Shadcn/ui alert dialog
 - `<AlertDialogHeader>`
   - Title: "Usuń przepis"
@@ -542,17 +609,21 @@ Confirmation dialog for recipe deletion. Shows warning message and requires expl
   - `<Button variant="destructive">` - Confirm deletion (with loading state)
 
 **Handled Interactions:**
+
 - Cancel action
 - Confirm deletion action
 
 **Handled Validation:**
+
 - Disable confirm button during deletion
 - Show loading state
 
 **Types:**
+
 - None (simple confirmation)
 
 **Props:**
+
 ```typescript
 interface DeleteConfirmDialogProps {
   isOpen: boolean;
@@ -568,6 +639,7 @@ interface DeleteConfirmDialogProps {
 Confirmation dialog for deleting recipe modification. Similar to DeleteConfirmDialog but specific to modifications.
 
 **Main Elements:**
+
 - `<AlertDialog>` - Shadcn/ui alert dialog
 - `<AlertDialogHeader>`
   - Title: "Usuń modyfikację"
@@ -577,18 +649,22 @@ Confirmation dialog for deleting recipe modification. Similar to DeleteConfirmDi
   - `<Button variant="destructive">` - Confirm deletion (with loading state)
 
 **Handled Interactions:**
+
 - Cancel action
 - Confirm deletion action
 
 **Handled Validation:**
+
 - Disable confirm button during deletion
 - Show loading state
 - Switch to original tab after successful deletion
 
 **Types:**
+
 - None (simple confirmation)
 
 **Props:**
+
 ```typescript
 interface DeleteModificationDialogProps {
   isOpen: boolean;
@@ -604,6 +680,7 @@ interface DeleteModificationDialogProps {
 Dialog for adding recipe to a collection. Displays list of user's collections with ability to select one or create a new collection.
 
 **Main Elements:**
+
 - `<Dialog>` - Shadcn/ui dialog
 - `<DialogHeader>` - Title: "Dodaj do kolekcji"
 - `<DialogContent>`
@@ -615,18 +692,22 @@ Dialog for adding recipe to a collection. Displays list of user's collections wi
   - `<Button variant="default">` - Add to selected collection
 
 **Handled Interactions:**
+
 - Collection selection
 - New collection creation
 - Add to collection action
 
 **Handled Validation:**
+
 - At least one collection selected
 - Show loading state during addition
 
 **Types:**
+
 - `CollectionDTO[]`
 
 **Props:**
+
 ```typescript
 interface AddToCollectionDialogProps {
   isOpen: boolean;
@@ -643,6 +724,7 @@ interface AddToCollectionDialogProps {
 Skeleton loader component displayed while recipe data is being fetched. Mimics the layout of the actual content.
 
 **Main Elements:**
+
 - `<div>` - Container matching main layout
 - Multiple `<Skeleton>` components from Shadcn/ui
   - Header skeleton (title, description, tags)
@@ -651,15 +733,19 @@ Skeleton loader component displayed while recipe data is being fetched. Mimics t
   - Nutrition card skeleton
 
 **Handled Interactions:**
+
 - None (display only)
 
 **Handled Validation:**
+
 - None
 
 **Types:**
+
 - None
 
 **Props:**
+
 ```typescript
 interface LoadingStateProps {
   // No props - static skeleton
@@ -672,6 +758,7 @@ interface LoadingStateProps {
 Error display component shown when recipe fails to load or user doesn't have access. Displays appropriate error message and action button.
 
 **Main Elements:**
+
 - `<div>` - Centered container
 - Error icon
 - `<h2>` - Error title
@@ -679,15 +766,19 @@ Error display component shown when recipe fails to load or user doesn't have acc
 - `<Button>` - Action button (back to recipes list)
 
 **Handled Interactions:**
+
 - Back button click: Navigate to `/recipes`
 
 **Handled Validation:**
+
 - Display appropriate message based on error type (404, 403, 500)
 
 **Types:**
+
 - Error type enum
 
 **Props:**
+
 ```typescript
 interface ErrorStateProps {
   errorType: "not_found" | "forbidden" | "server_error";
@@ -703,6 +794,7 @@ interface ErrorStateProps {
 These types are already defined in the codebase and will be used as-is:
 
 **RecipeDetailDTO:**
+
 ```typescript
 interface RecipeDetailDTO {
   id: string;
@@ -723,6 +815,7 @@ interface RecipeDetailDTO {
 ```
 
 **RecipeIngredientDTO:**
+
 ```typescript
 interface RecipeIngredientDTO {
   name: string;
@@ -732,6 +825,7 @@ interface RecipeIngredientDTO {
 ```
 
 **RecipeStepDTO:**
+
 ```typescript
 interface RecipeStepDTO {
   stepNumber: number;
@@ -740,6 +834,7 @@ interface RecipeStepDTO {
 ```
 
 **NutritionDTO:**
+
 ```typescript
 interface NutritionDTO {
   calories: number;
@@ -752,6 +847,7 @@ interface NutritionDTO {
 ```
 
 **TagDTO:**
+
 ```typescript
 interface TagDTO {
   id: string;
@@ -762,6 +858,7 @@ interface TagDTO {
 ```
 
 **ModificationDTO:**
+
 ```typescript
 interface ModificationDTO {
   id: string;
@@ -782,6 +879,7 @@ interface ModificationDataDTO {
 ```
 
 **CreateModificationCommand:**
+
 ```typescript
 interface CreateModificationCommand {
   modificationType:
@@ -811,6 +909,7 @@ interface ModificationParameters {
 These types are specific to the Recipe Detail Page view and should be created in a new file or within the component file:
 
 **RecipeViewState:**
+
 ```typescript
 interface RecipeViewState {
   // Current active tab (if modification exists)
@@ -836,6 +935,7 @@ type RecipeError = {
 ```
 
 **ActionLoadingStates:**
+
 ```typescript
 interface ActionLoadingStates {
   favorite: boolean;
@@ -847,6 +947,7 @@ interface ActionLoadingStates {
 ```
 
 **AdjustedIngredientDTO:**
+
 ```typescript
 interface AdjustedIngredientDTO {
   name: string;
@@ -856,6 +957,7 @@ interface AdjustedIngredientDTO {
 ```
 
 **RecipeDetailViewModel:**
+
 ```typescript
 interface RecipeDetailViewModel {
   // Original recipe data
@@ -881,6 +983,7 @@ interface RecipeDetailViewModel {
 ```
 
 **PieChartDataItem:**
+
 ```typescript
 interface PieChartDataItem {
   name: string; // "Białko", "Tłuszcze", "Węglowodany"
@@ -891,6 +994,7 @@ interface PieChartDataItem {
 ```
 
 **TabType:**
+
 ```typescript
 type TabType = "original" | "modified";
 ```
@@ -898,16 +1002,19 @@ type TabType = "original" | "modified";
 ### Type Usage Summary
 
 **Component Props Types:**
+
 - All component props interfaces defined in Component Details section
 - Use existing DTOs for data props
 - Use new view models for state management props
 
 **API Response Types:**
+
 - `RecipeDetailDTO` - GET /api/recipes/{recipeId} response
 - `{ modifications: ModificationDTO[], pagination: PaginationDTO }` - GET /api/recipes/{recipeId}/modifications response
 - `{ success: true, modification: ModificationDTO }` - POST /api/recipes/{recipeId}/modifications response
 
 **Request Types:**
+
 - `CreateModificationCommand` - POST /api/recipes/{recipeId}/modifications request body
 - `{ recipeId: string }` - POST /api/favorites request body
 
@@ -920,11 +1027,9 @@ The Recipe Detail Page uses a custom React hook `useRecipeDetail` to manage all 
 **Hook Location:** `src/components/hooks/useRecipeDetail.ts`
 
 **Hook Signature:**
+
 ```typescript
-function useRecipeDetail(
-  recipeId: string,
-  initialIsFavorited: boolean
-): UseRecipeDetailReturn {
+function useRecipeDetail(recipeId: string, initialIsFavorited: boolean): UseRecipeDetailReturn {
   // Implementation
 }
 ```
@@ -974,30 +1079,32 @@ function useRecipeDetail(
    - Dynamically computed based on `activeTab` and `currentServings`
    - Returns adjusted ingredients, steps, nutrition, servings
    - Calculation logic:
+
      ```typescript
      const currentData = useMemo(() => {
        if (!recipe) return null;
 
        // Determine base data (original or modified)
-       const baseData = viewState.activeTab === "modified" && modification
-         ? {
-             ingredients: modification.modifiedData.ingredients || recipe.ingredients,
-             steps: modification.modifiedData.steps || recipe.steps,
-             nutrition: modification.modifiedData.nutritionPerServing || recipe.nutritionPerServing,
-             servings: modification.modifiedData.servings || recipe.servings,
-           }
-         : {
-             ingredients: recipe.ingredients,
-             steps: recipe.steps,
-             nutrition: recipe.nutritionPerServing,
-             servings: recipe.servings,
-           };
+       const baseData =
+         viewState.activeTab === "modified" && modification
+           ? {
+               ingredients: modification.modifiedData.ingredients || recipe.ingredients,
+               steps: modification.modifiedData.steps || recipe.steps,
+               nutrition: modification.modifiedData.nutritionPerServing || recipe.nutritionPerServing,
+               servings: modification.modifiedData.servings || recipe.servings,
+             }
+           : {
+               ingredients: recipe.ingredients,
+               steps: recipe.steps,
+               nutrition: recipe.nutritionPerServing,
+               servings: recipe.servings,
+             };
 
        // Calculate serving ratio
        const ratio = viewState.currentServings / viewState.originalServings;
 
        // Adjust ingredients
-       const adjustedIngredients = baseData.ingredients.map(ing => ({
+       const adjustedIngredients = baseData.ingredients.map((ing) => ({
          name: ing.name,
          amount: ing.amount * ratio,
          unit: ing.unit,
@@ -1074,6 +1181,7 @@ function useRecipeDetail(
 **Effects:**
 
 1. **Initial Data Load** (on mount)
+
    ```typescript
    useEffect(() => {
      fetchRecipe();
@@ -1085,6 +1193,7 @@ function useRecipeDetail(
    - When recipe loads, set `originalServings` and `currentServings`
 
 **Return Value:**
+
 ```typescript
 interface UseRecipeDetailReturn {
   // Data
@@ -1144,6 +1253,7 @@ User Interactions:
 ### Local Storage (Optional Enhancement)
 
 For future consideration (not MVP):
+
 - Persist `currentServings` adjustment in localStorage
 - Persist `activeTab` preference in localStorage
 - Key format: `recipe_detail_{recipeId}_servings` and `recipe_detail_{recipeId}_tab`
@@ -1159,15 +1269,17 @@ For future consideration (not MVP):
 **When Called:** On component mount, when recipeId changes
 
 **Request:**
+
 - Method: GET
 - URL: `/api/recipes/{recipeId}`
 - Headers: Standard (cookies for authentication)
 - Body: None
 
 **Response:**
+
 - Status 200: Success
   ```typescript
-  RecipeDetailDTO
+  RecipeDetailDTO;
   ```
 - Status 401: Unauthorized (not authenticated)
   ```typescript
@@ -1187,33 +1299,35 @@ For future consideration (not MVP):
   ```
 
 **Error Handling:**
+
 - 401: Redirect to /login (handled by middleware)
 - 403: Show ErrorState with "Nie masz dostępu do tego przepisu"
 - 404: Show ErrorState with "Nie znaleziono przepisu"
 - 500: Show ErrorState with "Wystąpił błąd serwera"
 
 **Implementation:**
+
 ```typescript
 const fetchRecipe = async () => {
   try {
-    setViewState(prev => ({ ...prev, isLoading: true }));
+    setViewState((prev) => ({ ...prev, isLoading: true }));
 
     const response = await fetch(`/api/recipes/${recipeId}`);
 
     if (response.status === 403) {
-      setViewState(prev => ({
+      setViewState((prev) => ({
         ...prev,
         isLoading: false,
-        error: { type: "forbidden", message: "Nie masz dostępu do tego przepisu" }
+        error: { type: "forbidden", message: "Nie masz dostępu do tego przepisu" },
       }));
       return;
     }
 
     if (response.status === 404) {
-      setViewState(prev => ({
+      setViewState((prev) => ({
         ...prev,
         isLoading: false,
-        error: { type: "not_found", message: "Nie znaleziono przepisu" }
+        error: { type: "not_found", message: "Nie znaleziono przepisu" },
       }));
       return;
     }
@@ -1224,7 +1338,7 @@ const fetchRecipe = async () => {
 
     const data: RecipeDetailDTO = await response.json();
     setRecipe(data);
-    setViewState(prev => ({
+    setViewState((prev) => ({
       ...prev,
       originalServings: data.servings,
       currentServings: data.servings,
@@ -1233,10 +1347,10 @@ const fetchRecipe = async () => {
     }));
   } catch (error) {
     console.error("Error fetching recipe:", error);
-    setViewState(prev => ({
+    setViewState((prev) => ({
       ...prev,
       isLoading: false,
-      error: { type: "server_error", message: "Wystąpił błąd podczas ładowania przepisu" }
+      error: { type: "server_error", message: "Wystąpił błąd podczas ładowania przepisu" },
     }));
   }
 };
@@ -1249,12 +1363,14 @@ const fetchRecipe = async () => {
 **When Called:** On component mount, after creating or deleting a modification
 
 **Request:**
+
 - Method: GET
 - URL: `/api/recipes/{recipeId}/modifications?page=1&limit=1`
 - Headers: Standard (cookies for authentication)
 - Body: None
 
 **Response:**
+
 - Status 200: Success
   ```typescript
   {
@@ -1268,11 +1384,13 @@ const fetchRecipe = async () => {
 - Status 500: Server Error
 
 **Error Handling:**
+
 - Log errors but don't block main view
 - Show toast notification: "Nie udało się załadować modyfikacji"
 - Hide tabs if modification load fails
 
 **Implementation:**
+
 ```typescript
 const fetchModifications = async () => {
   try {
@@ -1311,15 +1429,19 @@ const fetchModifications = async () => {
 **When Called:** User clicks favorite button (when not favorited)
 
 **Request:**
+
 - Method: POST
 - URL: `/api/favorites`
 - Headers: `Content-Type: application/json`
 - Body:
   ```typescript
-  { recipeId: string }
+  {
+    recipeId: string;
+  }
   ```
 
 **Response:**
+
 - Status 201: Created
   ```typescript
   { success: true, favorite: FavoriteDTO }
@@ -1330,6 +1452,7 @@ const fetchModifications = async () => {
 - Status 500: Server Error
 
 **Error Handling:**
+
 - Optimistic UI: Update immediately
 - On error: Revert state, show toast
 - On 409: Treat as success (already favorited)
@@ -1341,29 +1464,33 @@ const fetchModifications = async () => {
 **When Called:** User clicks favorite button (when favorited)
 
 **Request:**
+
 - Method: DELETE
 - URL: `/api/favorites/${recipeId}`
 - Headers: Standard
 - Body: None
 
 **Response:**
+
 - Status 204: No Content (success)
 - Status 401: Unauthorized
 - Status 404: Not Found (not favorited)
 - Status 500: Server Error
 
 **Error Handling:**
+
 - Optimistic UI: Update immediately
 - On error: Revert state, show toast
 - On 404: Treat as success (already not favorited)
 
 **Implementation (Toggle):**
+
 ```typescript
 const toggleFavorite = async () => {
   // Optimistic update
   const previousState = isFavorited;
   setIsFavorited(!isFavorited);
-  setActionStates(prev => ({ ...prev, favorite: true }));
+  setActionStates((prev) => ({ ...prev, favorite: true }));
 
   try {
     const method = previousState ? "DELETE" : "POST";
@@ -1395,7 +1522,7 @@ const toggleFavorite = async () => {
       variant: "destructive",
     });
   } finally {
-    setActionStates(prev => ({ ...prev, favorite: false }));
+    setActionStates((prev) => ({ ...prev, favorite: false }));
   }
 };
 ```
@@ -1407,15 +1534,17 @@ const toggleFavorite = async () => {
 **When Called:** User submits ModifyWithAIModal form
 
 **Request:**
+
 - Method: POST
 - URL: `/api/recipes/${recipeId}/modifications`
 - Headers: `Content-Type: application/json`
 - Body:
   ```typescript
-  CreateModificationCommand
+  CreateModificationCommand;
   ```
 
 **Response:**
+
 - Status 201: Created
   ```typescript
   { success: true, modification: ModificationDTO }
@@ -1428,15 +1557,17 @@ const toggleFavorite = async () => {
 - Status 500: Server Error
 
 **Error Handling:**
+
 - Show loading state in modal
 - On success: Close modal, update modification, switch to modified tab, show success toast
 - On error: Show error message in modal
 - On 429: Show specific rate limit message
 
 **Implementation:**
+
 ```typescript
 const modifyWithAI = async (command: CreateModificationCommand) => {
-  setActionStates(prev => ({ ...prev, modify: true }));
+  setActionStates((prev) => ({ ...prev, modify: true }));
 
   try {
     const response = await fetch(`/api/recipes/${recipeId}/modifications`, {
@@ -1467,7 +1598,7 @@ const modifyWithAI = async (command: CreateModificationCommand) => {
       variant: "destructive",
     });
   } finally {
-    setActionStates(prev => ({ ...prev, modify: false }));
+    setActionStates((prev) => ({ ...prev, modify: false }));
   }
 };
 ```
@@ -1479,12 +1610,14 @@ const modifyWithAI = async (command: CreateModificationCommand) => {
 **When Called:** User confirms deletion in DeleteConfirmDialog
 
 **Request:**
+
 - Method: DELETE
 - URL: `/api/recipes/${recipeId}`
 - Headers: Standard
 - Body: None
 
 **Response:**
+
 - Status 204: No Content (success)
 - Status 401: Unauthorized
 - Status 403: Forbidden (not owner)
@@ -1492,15 +1625,17 @@ const modifyWithAI = async (command: CreateModificationCommand) => {
 - Status 500: Server Error
 
 **Error Handling:**
+
 - Show loading state in button
 - On success: Redirect to /recipes
 - On error: Show error toast
 - On 403: Show "You don't have permission" message
 
 **Implementation:**
+
 ```typescript
 const deleteRecipe = async () => {
-  setActionStates(prev => ({ ...prev, delete: true }));
+  setActionStates((prev) => ({ ...prev, delete: true }));
 
   try {
     const response = await fetch(`/api/recipes/${recipeId}`, {
@@ -1518,7 +1653,7 @@ const deleteRecipe = async () => {
     window.location.href = "/recipes";
   } catch (error) {
     console.error("Error deleting recipe:", error);
-    setActionStates(prev => ({ ...prev, delete: false }));
+    setActionStates((prev) => ({ ...prev, delete: false }));
     closeDialog("deleteRecipe");
     showToast({
       title: "Błąd",
@@ -1536,12 +1671,14 @@ const deleteRecipe = async () => {
 **When Called:** User confirms deletion in DeleteModificationDialog
 
 **Request:**
+
 - Method: DELETE
 - URL: `/api/recipes/${recipeId}/modifications/${modificationId}`
 - Headers: Standard
 - Body: None
 
 **Response:**
+
 - Status 204: No Content (success)
 - Status 401: Unauthorized
 - Status 403: Forbidden (not owner)
@@ -1549,16 +1686,18 @@ const deleteRecipe = async () => {
 - Status 500: Server Error
 
 **Error Handling:**
+
 - Show loading state in button
 - On success: Clear modification, switch to original tab, show success toast
 - On error: Show error toast
 
 **Implementation:**
+
 ```typescript
 const deleteModification = async () => {
   if (!modification) return;
 
-  setActionStates(prev => ({ ...prev, deleteModification: true }));
+  setActionStates((prev) => ({ ...prev, deleteModification: true }));
 
   try {
     const response = await fetch(`/api/recipes/${recipeId}/modifications/${modification.id}`, {
@@ -1585,22 +1724,22 @@ const deleteModification = async () => {
       variant: "destructive",
     });
   } finally {
-    setActionStates(prev => ({ ...prev, deleteModification: false }));
+    setActionStates((prev) => ({ ...prev, deleteModification: false }));
   }
 };
 ```
 
 ### API Call Summary
 
-| Action | Method | Endpoint | When | Optimistic UI |
-|--------|--------|----------|------|---------------|
-| Fetch Recipe | GET | /api/recipes/{id} | Mount | No |
-| Fetch Modifications | GET | /api/recipes/{id}/modifications | Mount, after create/delete mod | No |
-| Add Favorite | POST | /api/favorites | Toggle favorite (not favorited) | Yes |
-| Remove Favorite | DELETE | /api/favorites/{id} | Toggle favorite (favorited) | Yes |
-| Create Modification | POST | /api/recipes/{id}/modifications | Submit AI modification | No |
-| Delete Recipe | DELETE | /api/recipes/{id} | Confirm delete | No |
-| Delete Modification | DELETE | /api/recipes/{id}/modifications/{modId} | Confirm delete mod | No |
+| Action              | Method | Endpoint                                | When                            | Optimistic UI |
+| ------------------- | ------ | --------------------------------------- | ------------------------------- | ------------- |
+| Fetch Recipe        | GET    | /api/recipes/{id}                       | Mount                           | No            |
+| Fetch Modifications | GET    | /api/recipes/{id}/modifications         | Mount, after create/delete mod  | No            |
+| Add Favorite        | POST   | /api/favorites                          | Toggle favorite (not favorited) | Yes           |
+| Remove Favorite     | DELETE | /api/favorites/{id}                     | Toggle favorite (favorited)     | Yes           |
+| Create Modification | POST   | /api/recipes/{id}/modifications         | Submit AI modification          | No            |
+| Delete Recipe       | DELETE | /api/recipes/{id}                       | Confirm delete                  | No            |
+| Delete Modification | DELETE | /api/recipes/{id}/modifications/{modId} | Confirm delete mod              | No            |
 
 ## 8. User Interactions
 
@@ -1609,6 +1748,7 @@ const deleteModification = async () => {
 **Trigger:** User clicks [-] or [+] button in ServingsAdjuster
 
 **Flow:**
+
 1. User clicks [-] button
 2. `adjustServings(-1)` function called
 3. Check minimum constraint (servings >= 1)
@@ -1618,11 +1758,13 @@ const deleteModification = async () => {
 7. Button disabled state updates if at boundary (min/max)
 
 **Edge Cases:**
+
 - At minimum (1 serving): Disable [-] button
 - At maximum (100 servings): Disable [+] button
 - Rapid clicks: Debounce not necessary, calculations are fast
 
 **Visual Feedback:**
+
 - Button hover/active states
 - Smooth number transition (optional CSS animation)
 - Immediate ingredient amount updates
@@ -1632,6 +1774,7 @@ const deleteModification = async () => {
 **Trigger:** User clicks "Oryginalny" or "Zmodyfikowany" tab
 
 **Flow:**
+
 1. User clicks "Zmodyfikowany" tab
 2. `switchTab("modified")` function called
 3. Update `activeTab` in viewState
@@ -1641,11 +1784,13 @@ const deleteModification = async () => {
 7. InfoBanner appears at top
 
 **Behavior:**
+
 - Tab state not persisted in URL (simpler UX)
 - Always defaults to "original" tab on page load
 - Servings adjustment persists across tab switches
 
 **Visual Feedback:**
+
 - Active tab highlighted with underline and color
 - Smooth transition (optional fade)
 - InfoBanner slides in
@@ -1655,6 +1800,7 @@ const deleteModification = async () => {
 **Trigger:** User clicks heart button
 
 **Flow:**
+
 1. User clicks heart button (currently not favorited)
 2. `toggleFavorite()` function called
 3. Optimistic update: Set `isFavorited = true` immediately
@@ -1669,11 +1815,13 @@ const deleteModification = async () => {
 8. Set `actionStates.favorite = false`
 
 **Edge Cases:**
+
 - Double-click prevention: Disable button during loading
 - Network error: Revert state, show toast
 - 409 Conflict (already favorited): Treat as success
 
 **Visual Feedback:**
+
 - Immediate heart fill/unfill animation
 - Loading spinner in button during request
 - Toast notification on completion
@@ -1684,15 +1832,18 @@ const deleteModification = async () => {
 **Trigger:** User clicks "Edytuj" button (Original tab only)
 
 **Flow:**
+
 1. User clicks "Edytuj" button
 2. Navigate to `/recipes/{recipeId}/edit`
 3. (Edit page implementation is separate)
 
 **Conditions:**
+
 - Button only visible on Original tab
 - Button only visible if user is recipe owner
 
 **Visual Feedback:**
+
 - Button hover state
 - No loading state (instant navigation)
 
@@ -1701,6 +1852,7 @@ const deleteModification = async () => {
 **Trigger:** User clicks "Usuń przepis" button
 
 **Flow:**
+
 1. User clicks "Usuń przepis" button
 2. `openDialog("deleteRecipe")` called
 3. DeleteConfirmDialog appears
@@ -1717,10 +1869,12 @@ const deleteModification = async () => {
    - Dialog closes, no action taken
 
 **Edge Cases:**
+
 - Only owner can delete (check on backend, hide button on frontend if not owner)
 - Deletion is permanent, cannot be undone
 
 **Visual Feedback:**
+
 - Destructive button color (red)
 - Modal with prominent warning
 - Loading spinner in confirm button
@@ -1731,6 +1885,7 @@ const deleteModification = async () => {
 **Trigger:** User clicks "Modyfikuj z AI" button
 
 **Flow:**
+
 1. User clicks "Modyfikuj z AI" button
 2. Check if `hasModification === true`
 3. If has modification: Show replacement warning in modal
@@ -1757,6 +1912,7 @@ const deleteModification = async () => {
     - Modal closes, no action taken
 
 **Modification Types:**
+
 - reduce_calories: Target calories OR reduction percentage
 - increase_calories: Target calories OR increase percentage
 - increase_protein: Target protein OR increase percentage
@@ -1765,12 +1921,14 @@ const deleteModification = async () => {
 - ingredient_substitution: Original ingredient, optional preferred substitute
 
 **Edge Cases:**
+
 - If recipe already has modification: Show warning "Ten przepis ma już modyfikację. Nowa modyfikacja zastąpi obecną. Kontynuować?"
 - Validation errors: Show inline error messages
 - Rate limit (429): Show "Zbyt wiele żądań, spróbuj później"
 - AI generation failure: Show error toast
 
 **Visual Feedback:**
+
 - Primary button with sparkles icon
 - Modal with form fields
 - Warning banner if has modification
@@ -1783,6 +1941,7 @@ const deleteModification = async () => {
 **Trigger:** User clicks "Usuń modyfikację" button (Modified tab only)
 
 **Flow:**
+
 1. User clicks "Usuń modyfikację" button
 2. `openDialog("deleteModification")` called
 3. DeleteModificationDialog appears
@@ -1805,10 +1964,12 @@ const deleteModification = async () => {
    - Dialog closes, no action taken
 
 **Conditions:**
+
 - Button only visible on Modified tab
 - Button only visible if modification exists
 
 **Visual Feedback:**
+
 - Destructive button color
 - Modal with warning
 - Loading spinner in confirm button
@@ -1820,6 +1981,7 @@ const deleteModification = async () => {
 **Trigger:** User clicks "Dodaj do kolekcji" button
 
 **Flow:**
+
 1. User clicks "Dodaj do kolekcji" button
 2. `openDialog("addToCollection")` called
 3. Fetch user's collections (if not already loaded)
@@ -1838,13 +2000,16 @@ const deleteModification = async () => {
    - Dialog closes, no action taken
 
 **Additional Actions:**
+
 - User can click "+ Nowa kolekcja" to create new collection inline
 
 **Edge Cases:**
+
 - Empty collections list: Show message "Nie masz jeszcze żadnych kolekcji" + "Utwórz pierwszą kolekcję" button
 - Recipe already in collection: Show "Już dodano" status or disable selection
 
 **Visual Feedback:**
+
 - Modal with scrollable collection list
 - Selected collection highlighted
 - Loading spinner in add button
@@ -1855,11 +2020,13 @@ const deleteModification = async () => {
 **Trigger:** User clicks on a tag badge in RecipeHeader
 
 **Flow:**
+
 1. User clicks on tag badge (e.g., "Obiad")
 2. Navigate to `/recipes?tags={tagSlug}`
 3. Recipe list page filters by selected tag
 
 **Visual Feedback:**
+
 - Tag badge hover state (cursor pointer)
 - Instant navigation
 
@@ -1868,12 +2035,14 @@ const deleteModification = async () => {
 **Trigger:** User encounters error and clicks back button
 
 **Flow:**
+
 1. Error occurs (404, 403, 500)
 2. ErrorState component renders
 3. User clicks "Wróć do przepisów" button
 4. Navigate to `/recipes`
 
 **Visual Feedback:**
+
 - Button hover state
 - Instant navigation
 
@@ -1884,14 +2053,17 @@ const deleteModification = async () => {
 **Component Level: RecipeDetailLayout**
 
 **Condition:** User can access recipe if:
+
 - Recipe is public (`recipe.isPublic === true`), OR
 - User is recipe owner (`recipe.userId === currentUserId`)
 
 **Validation:**
+
 - Checked on server-side (API returns 403 if unauthorized)
 - Frontend displays appropriate error state
 
 **Effect on UI:**
+
 - 403 error: Show ErrorState with message "Nie masz dostępu do tego przepisu"
 - 404 error: Show ErrorState with message "Nie znaleziono przepisu"
 
@@ -1900,12 +2072,15 @@ const deleteModification = async () => {
 **Component Level: RecipeDetailLayout**
 
 **Condition:** Show tabs if:
+
 - `modification !== null` (modification exists)
 
 **Validation:**
+
 - Computed value: `hasModification = modification !== null`
 
 **Effect on UI:**
+
 - If `hasModification === true`: Show TabNavigation component
 - If `hasModification === false`: Hide TabNavigation, only show original recipe
 
@@ -1914,15 +2089,18 @@ const deleteModification = async () => {
 **Component Level: ActionButtons**
 
 **Condition:** Show "Edytuj" button if:
+
 - `activeTab === "original"` (on Original tab only), AND
 - `recipe.userId === currentUserId` (user is owner)
 
 **Validation:**
+
 ```typescript
 const showEditButton = activeTab === "original" && recipe.userId === currentUserId;
 ```
 
 **Effect on UI:**
+
 - Button rendered conditionally based on `showEditButton`
 - Hidden completely on Modified tab
 
@@ -1931,19 +2109,19 @@ const showEditButton = activeTab === "original" && recipe.userId === currentUser
 **Component Level: ActionButtons**
 
 **Condition:** Show "Usuń modyfikację" button if:
+
 - `activeTab === "modified"` (on Modified tab only), AND
 - `hasModification === true` (modification exists), AND
 - `modification.userId === currentUserId` (user is modification owner)
 
 **Validation:**
+
 ```typescript
-const showDeleteModButton =
-  activeTab === "modified" &&
-  hasModification &&
-  modification?.userId === currentUserId;
+const showDeleteModButton = activeTab === "modified" && hasModification && modification?.userId === currentUserId;
 ```
 
 **Effect on UI:**
+
 - Button rendered conditionally based on `showDeleteModButton`
 - Hidden completely on Original tab
 
@@ -1952,18 +2130,21 @@ const showDeleteModButton =
 **Component Level: ServingsAdjuster**
 
 **Conditions:**
+
 1. Minimum servings: 1
    - Disable [-] button when `currentServings <= minServings`
 2. Maximum servings: 100
    - Disable [+] button when `currentServings >= maxServings`
 
 **Validation:**
+
 ```typescript
 const canDecrement = currentServings > minServings;
 const canIncrement = currentServings < maxServings;
 ```
 
 **Effect on UI:**
+
 - [-] button disabled if `canDecrement === false`
 - [+] button disabled if `canIncrement === false`
 - Disabled buttons have reduced opacity and no-drop cursor
@@ -1973,6 +2154,7 @@ const canIncrement = currentServings < maxServings;
 **Component Level: ModifyWithAIModal**
 
 **Condition:** Show warning if:
+
 - User opens ModifyWithAIModal, AND
 - `hasModification === true` (recipe already has modification)
 
@@ -1980,9 +2162,11 @@ const canIncrement = currentServings < maxServings;
 "Ten przepis ma już modyfikację. Nowa modyfikacja zastąpi obecną. Kontynuować?"
 
 **Validation:**
+
 - Check `hasModification` prop when modal opens
 
 **Effect on UI:**
+
 - Warning banner appears at top of modal
 - Different button text: "Zastąp modyfikację" instead of "Zatwierdź"
 - User can still cancel
@@ -1994,11 +2178,13 @@ const canIncrement = currentServings < maxServings;
 **Condition:** Disable all action buttons during any async operation
 
 **Validation:**
+
 ```typescript
-const isAnyActionLoading = Object.values(actionStates).some(state => state === true);
+const isAnyActionLoading = Object.values(actionStates).some((state) => state === true);
 ```
 
 **Effect on UI:**
+
 - All buttons disabled if `isAnyActionLoading === true`
 - Active button shows loading spinner
 - Prevents duplicate requests
@@ -2008,12 +2194,15 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 **Component Level: Multiple**
 
 **Condition:** User is recipe owner if:
+
 - `recipe.userId === currentUserId`
 
 **Validation:**
+
 - Computed value: `isOwner = recipe.userId === currentUserId`
 
 **Effect on UI:**
+
 - Show/hide Edit button (owner only)
 - Show/hide Delete button (owner only)
 - Edit button on Original tab only
@@ -2024,12 +2213,15 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 **Component Level: ActionButtons**
 
 **Condition:** User is modification owner if:
+
 - `modification.userId === currentUserId`
 
 **Validation:**
+
 - Computed value: `isModificationOwner = modification?.userId === currentUserId`
 
 **Effect on UI:**
+
 - Show/hide Delete Modification button (owner only)
 - Backend enforces, frontend just improves UX
 
@@ -2038,13 +2230,16 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 **Component Level: RecipeDetailLayout**
 
 **Condition:** Show LoadingState if:
+
 - `viewState.isLoading === true`
 
 **Validation:**
+
 - Set during initial data fetch
 - Cleared after recipe and modifications loaded (or error)
 
 **Effect on UI:**
+
 - Render LoadingState component (skeleton)
 - Hide all other content
 
@@ -2053,13 +2248,16 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 **Component Level: RecipeDetailLayout**
 
 **Condition:** Show ErrorState if:
+
 - `viewState.error !== null`
 
 **Validation:**
+
 - Error set during fetch failures
 - Error cleared on successful retry
 
 **Effect on UI:**
+
 - Render ErrorState component with appropriate message
 - Show back button to return to recipes list
 - Hide all other content
@@ -2090,11 +2288,13 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
    - `preferredSubstitute`: 1 - 100 characters (optional)
 
 **Validation:**
+
 - Client-side validation before submission
 - Show inline error messages for invalid inputs
 - Disable submit button until valid
 
 **Effect on UI:**
+
 - Error messages appear below inputs
 - Submit button disabled if form invalid
 - Error styling on input fields
@@ -2104,14 +2304,15 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Recipe Load Failures
 
 **Scenario 1: Recipe Not Found (404)**
+
 - **Cause:** Recipe ID doesn't exist in database
 - **Detection:** GET /api/recipes/{id} returns 404
 - **Handling:**
   ```typescript
-  setViewState(prev => ({
+  setViewState((prev) => ({
     ...prev,
     isLoading: false,
-    error: { type: "not_found", message: "Nie znaleziono przepisu" }
+    error: { type: "not_found", message: "Nie znaleziono przepisu" },
   }));
   ```
 - **UI:** Show ErrorState with:
@@ -2121,14 +2322,15 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Action: "Wróć do przepisów" button → Navigate to /recipes
 
 **Scenario 2: Access Denied (403)**
+
 - **Cause:** Recipe is private and user is not the owner
 - **Detection:** GET /api/recipes/{id} returns 403
 - **Handling:**
   ```typescript
-  setViewState(prev => ({
+  setViewState((prev) => ({
     ...prev,
     isLoading: false,
-    error: { type: "forbidden", message: "Nie masz dostępu do tego przepisu" }
+    error: { type: "forbidden", message: "Nie masz dostępu do tego przepisu" },
   }));
   ```
 - **UI:** Show ErrorState with:
@@ -2138,14 +2340,15 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Action: "Wróć do przepisów" button → Navigate to /recipes
 
 **Scenario 3: Server Error (500)**
+
 - **Cause:** Database error, network failure, or other server issue
 - **Detection:** GET /api/recipes/{id} returns 500 or network error
 - **Handling:**
   ```typescript
-  setViewState(prev => ({
+  setViewState((prev) => ({
     ...prev,
     isLoading: false,
-    error: { type: "server_error", message: "Wystąpił błąd podczas ładowania przepisu" }
+    error: { type: "server_error", message: "Wystąpił błąd podczas ładowania przepisu" },
   }));
   ```
 - **UI:** Show ErrorState with:
@@ -2157,6 +2360,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Modification Load Failures
 
 **Scenario:** Failed to load modifications list
+
 - **Cause:** API error, network failure
 - **Detection:** GET /api/recipes/{id}/modifications fails
 - **Handling:**
@@ -2179,6 +2383,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Favorite Toggle Failures
 
 **Scenario:** Failed to add/remove favorite
+
 - **Cause:** Network error, server error, permission issue
 - **Detection:** POST /api/favorites or DELETE /api/favorites/{id} fails
 - **Handling:**
@@ -2197,16 +2402,19 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - User can retry by clicking again
 
 **Edge Case: Already Favorited (409)**
+
 - **Handling:** Treat as success (idempotent operation)
 - **UI:** Keep optimistic update, no error shown
 
 **Edge Case: Already Not Favorited (404 on DELETE)**
+
 - **Handling:** Treat as success (idempotent operation)
 - **UI:** Keep optimistic update, no error shown
 
 ### Recipe Deletion Failures
 
 **Scenario 1: Permission Denied (403)**
+
 - **Cause:** User is not recipe owner
 - **Detection:** DELETE /api/recipes/{id} returns 403
 - **Handling:**
@@ -2224,6 +2432,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - User remains on recipe page
 
 **Scenario 2: Server Error (500)**
+
 - **Cause:** Database error, network failure
 - **Detection:** DELETE /api/recipes/{id} returns 500 or network error
 - **Handling:**
@@ -2243,6 +2452,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### AI Modification Failures
 
 **Scenario 1: Validation Error (400)**
+
 - **Cause:** Invalid input parameters
 - **Detection:** POST /api/recipes/{id}/modifications returns 400
 - **Handling:**
@@ -2257,6 +2467,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - User can correct inputs and retry
 
 **Scenario 2: Rate Limit Exceeded (429)**
+
 - **Cause:** User exceeded rate limit (10 requests per 5 minutes)
 - **Detection:** POST /api/recipes/{id}/modifications returns 429
 - **Handling:**
@@ -2274,6 +2485,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - User must wait before retrying
 
 **Scenario 3: AI Generation Failure (500)**
+
 - **Cause:** AI service error, timeout
 - **Detection:** POST /api/recipes/{id}/modifications returns 500
 - **Handling:**
@@ -2293,6 +2505,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Modification Deletion Failures
 
 **Scenario:** Failed to delete modification
+
 - **Cause:** Permission error, server error
 - **Detection:** DELETE /api/recipes/{id}/modifications/{modId} fails
 - **Handling:**
@@ -2313,6 +2526,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Network Failures
 
 **Scenario:** Network connection lost
+
 - **Cause:** User's internet connection drops, server unreachable
 - **Detection:** Fetch throws network error
 - **Handling:**
@@ -2335,6 +2549,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Graceful Degradation
 
 **Missing Optional Data:**
+
 1. **Prep Time Null:**
    - Show "nie podano" instead of minutes
    - Don't break layout
@@ -2353,6 +2568,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
    - No error shown (expected state)
 
 **Calculation Edge Cases:**
+
 1. **Zero Servings (should never happen):**
    - Fallback to 1 serving
    - Log warning
@@ -2386,16 +2602,19 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### User Communication
 
 **Toast Notifications:**
+
 - Success actions: Green toast, auto-dismiss after 3 seconds
 - Error actions: Red toast, manual dismiss or auto-dismiss after 5 seconds
 - Info/warnings: Blue/yellow toast, manual dismiss
 
 **Error Messages:**
+
 - Clear, user-friendly language (Polish)
 - Actionable (e.g., "Spróbuj ponownie" instead of just "Błąd")
 - No technical jargon or error codes in UI
 
 **Loading States:**
+
 - Skeleton loaders for initial content load
 - Spinners for button actions
 - Disabled state for inputs during processing
@@ -2406,6 +2625,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Phase 1: Foundation and Setup (Day 1)
 
 #### Step 1: Create Type Definitions
+
 - [ ] Create `src/types/recipeDetail.types.ts` file
 - [ ] Define `RecipeViewState` interface
 - [ ] Define `ActionLoadingStates` interface
@@ -2416,6 +2636,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Export all types from types file
 
 #### Step 2: Set Up Custom Hook Structure
+
 - [ ] Create `src/components/hooks/useRecipeDetail.ts` file
 - [ ] Import necessary dependencies (useState, useEffect, useMemo)
 - [ ] Import type definitions
@@ -2425,6 +2646,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Export hook
 
 #### Step 3: Create Component Files Structure
+
 - [ ] Create `src/pages/recipes/[id].astro` (main page file)
 - [ ] Create `src/components/recipes/detail/RecipeDetailLayout.tsx`
 - [ ] Create component folders:
@@ -2436,12 +2658,14 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Phase 2: Core Components (Day 1-2)
 
 #### Step 4: Implement LoadingState Component
+
 - [ ] Create `src/components/recipes/detail/shared/LoadingState.tsx`
 - [ ] Import Skeleton from Shadcn/ui
 - [ ] Design skeleton layout matching final layout (header, ingredients, steps, nutrition)
 - [ ] Test responsive behavior (desktop vs mobile skeletons)
 
 #### Step 5: Implement ErrorState Component
+
 - [ ] Create `src/components/recipes/detail/shared/ErrorState.tsx`
 - [ ] Define ErrorStateProps with error type and message
 - [ ] Import icons from lucide-react (AlertCircle, Lock, Search)
@@ -2451,6 +2675,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Style with Tailwind (centered, good spacing)
 
 #### Step 6: Implement RecipeHeader Component
+
 - [ ] Create `src/components/recipes/detail/core/RecipeHeader.tsx`
 - [ ] Define RecipeHeaderProps interface
 - [ ] Implement title (H1) with proper styling
@@ -2462,6 +2687,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test with various data (long titles, many tags, null values)
 
 #### Step 7: Implement ServingsAdjuster Component
+
 - [ ] Create `src/components/recipes/detail/core/ServingsAdjuster.tsx`
 - [ ] Define ServingsAdjusterProps interface
 - [ ] Implement horizontal flex layout
@@ -2475,6 +2701,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test min/max boundaries
 
 #### Step 8: Implement IngredientsList Component
+
 - [ ] Create `src/components/recipes/detail/core/IngredientsList.tsx`
 - [ ] Define IngredientsListProps interface
 - [ ] Implement responsive grid layout (1 col mobile, 2 cols desktop)
@@ -2485,6 +2712,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test with various amounts (whole numbers, decimals, very small)
 
 #### Step 9: Implement PreparationSteps Component
+
 - [ ] Create `src/components/recipes/detail/core/PreparationSteps.tsx`
 - [ ] Define PreparationStepsProps interface
 - [ ] Implement ordered list (`<ol>`) with CSS auto-numbering
@@ -2495,6 +2723,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Style with Tailwind (typography, spacing)
 
 #### Step 10: Implement NutritionPieChart Component
+
 - [ ] Install Recharts: `npm install recharts`
 - [ ] Create `src/components/recipes/detail/core/NutritionPieChart.tsx`
 - [ ] Define NutritionPieChartProps interface
@@ -2508,6 +2737,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test with various nutrition data
 
 #### Step 11: Implement NutritionCard Component
+
 - [ ] Create `src/components/recipes/detail/core/NutritionCard.tsx`
 - [ ] Define NutritionCardProps interface
 - [ ] Import Card, CardHeader, CardContent from Shadcn/ui
@@ -2523,6 +2753,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Phase 3: Tab System and State Management (Day 2-3)
 
 #### Step 12: Implement TabNavigation Component
+
 - [ ] Create `src/components/recipes/detail/core/TabNavigation.tsx`
 - [ ] Define TabNavigationProps interface
 - [ ] Import Tabs, TabsList, TabsTrigger from Shadcn/ui
@@ -2533,6 +2764,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test accessibility (screen reader)
 
 #### Step 13: Implement InfoBanner Component
+
 - [ ] Create `src/components/recipes/detail/shared/InfoBanner.tsx`
 - [ ] Import Info icon from lucide-react
 - [ ] Implement info styling (blue background, icon, text)
@@ -2540,6 +2772,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Style with Tailwind (padding, rounded, color)
 
 #### Step 14: Implement useRecipeDetail Hook - Data Fetching
+
 - [ ] Implement `fetchRecipe()` function
   - Add try-catch block
   - Set loading state
@@ -2558,6 +2791,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Call fetchRecipe() and fetchModifications()
 
 #### Step 15: Implement useRecipeDetail Hook - Servings Adjustment
+
 - [ ] Implement `adjustServings(delta)` function
   - Calculate new servings: currentServings + delta
   - Check min/max constraints (1-100)
@@ -2570,6 +2804,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Dependencies: [recipe, modification, viewState.activeTab, viewState.currentServings, viewState.originalServings]
 
 #### Step 16: Implement useRecipeDetail Hook - Tab Switching
+
 - [ ] Implement `switchTab(tab)` function
   - Update viewState.activeTab
   - Trigger currentData recalculation (via useMemo dependency)
@@ -2577,6 +2812,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Phase 4: Action Components and Dialogs (Day 3-4)
 
 #### Step 17: Implement useRecipeDetail Hook - Favorite Toggle
+
 - [ ] Implement `toggleFavorite()` async function
   - Store previous state
   - Optimistically update isFavorited
@@ -2589,6 +2825,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Add toast notification helper (or use existing toast system)
 
 #### Step 18: Implement useRecipeDetail Hook - Recipe Deletion
+
 - [ ] Implement `deleteRecipe()` async function
   - Set actionStates.delete = true
   - Call DELETE /api/recipes/{recipeId}
@@ -2598,6 +2835,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Clear actionStates.delete
 
 #### Step 19: Implement useRecipeDetail Hook - AI Modification
+
 - [ ] Implement `modifyWithAI(command)` async function
   - Set actionStates.modify = true
   - Call POST /api/recipes/{recipeId}/modifications
@@ -2607,6 +2845,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Clear actionStates.modify
 
 #### Step 20: Implement useRecipeDetail Hook - Delete Modification
+
 - [ ] Implement `deleteModification()` async function
   - Check modification exists
   - Set actionStates.deleteModification = true
@@ -2616,17 +2855,20 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Clear actionStates.deleteModification
 
 #### Step 21: Implement useRecipeDetail Hook - Dialog Management
+
 - [ ] Add dialogStates state variable
 - [ ] Implement `openDialog(name)` function
 - [ ] Implement `closeDialog(name)` function
 
 #### Step 22: Finalize useRecipeDetail Hook
+
 - [ ] Define complete UseRecipeDetailReturn interface
 - [ ] Return all state, computed values, and functions
 - [ ] Add JSDoc comments for documentation
 - [ ] Test hook in isolation (optional: write unit tests)
 
 #### Step 23: Implement ActionButtons Component
+
 - [ ] Create `src/components/recipes/detail/actions/ActionButtons.tsx`
 - [ ] Define ActionButtonsProps interface
 - [ ] Implement vertical button stack container
@@ -2654,6 +2896,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test all button interactions
 
 #### Step 24: Implement DeleteConfirmDialog Component
+
 - [ ] Create `src/components/recipes/detail/dialogs/DeleteConfirmDialog.tsx`
 - [ ] Define DeleteConfirmDialogProps interface
 - [ ] Import AlertDialog components from Shadcn/ui
@@ -2665,6 +2908,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test loading state
 
 #### Step 25: Implement DeleteModificationDialog Component
+
 - [ ] Create `src/components/recipes/detail/dialogs/DeleteModificationDialog.tsx`
 - [ ] Define DeleteModificationDialogProps interface
 - [ ] Import AlertDialog components from Shadcn/ui
@@ -2674,6 +2918,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test dialog interactions
 
 #### Step 26: Implement ModifyWithAIModal Component
+
 - [ ] Create `src/components/recipes/detail/dialogs/ModifyWithAIModal.tsx`
 - [ ] Define ModifyWithAIModalProps interface
 - [ ] Import Dialog components from Shadcn/ui
@@ -2697,6 +2942,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test validation
 
 #### Step 27: Implement AddToCollectionDialog Component (Stub)
+
 - [ ] Create `src/components/recipes/detail/dialogs/AddToCollectionDialog.tsx`
 - [ ] Define AddToCollectionDialogProps interface
 - [ ] Import Dialog components from Shadcn/ui
@@ -2708,6 +2954,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Phase 5: Layout and Integration (Day 4-5)
 
 #### Step 28: Implement RecipeDetailLayout Component - Structure
+
 - [ ] Create `src/components/recipes/detail/RecipeDetailLayout.tsx`
 - [ ] Define RecipeDetailLayoutProps interface
 - [ ] Import useRecipeDetail hook
@@ -2719,6 +2966,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Else: show main content
 
 #### Step 29: Implement RecipeDetailLayout - Content Structure
+
 - [ ] Add TabNavigation (conditional: if hasModification)
 - [ ] Add InfoBanner (conditional: if activeTab === "modified")
 - [ ] Create two layout containers:
@@ -2726,6 +2974,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Mobile layout (hidden on desktop)
 
 #### Step 30: Implement RecipeDetailLayout - Desktop Layout
+
 - [ ] Create two-column grid container (CSS Grid or Flexbox)
   - Left column: Main content (flex-1)
   - Right sidebar: Fixed width (~320px)
@@ -2741,6 +2990,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test layout with various screen sizes
 
 #### Step 31: Implement RecipeDetailLayout - Mobile Layout
+
 - [ ] Create single-column stack container
 - [ ] Populate in order:
   - RecipeHeader
@@ -2758,12 +3008,14 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test mobile layout on various devices
 
 #### Step 32: Implement RecipeDetailLayout - Dialogs
+
 - [ ] Add all dialog components at end of layout (outside content flow)
 - [ ] Connect dialog open/close state to dialogStates from hook
 - [ ] Pass appropriate props to each dialog
 - [ ] Test all dialogs open/close
 
 #### Step 33: Create Astro Page
+
 - [ ] Create `src/pages/recipes/[id].astro`
 - [ ] Add authentication check (currently mocked)
 - [ ] Extract recipeId from Astro.params
@@ -2779,18 +3031,21 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Phase 6: Styling and Polish (Day 5)
 
 #### Step 34: Refine Typography and Spacing
+
 - [ ] Review all components for consistent typography (font sizes, weights, line heights)
 - [ ] Ensure consistent spacing (padding, margins, gaps)
 - [ ] Use Tailwind spacing scale consistently (4, 6, 8, 12, 16, etc.)
 - [ ] Test readability on various screen sizes
 
 #### Step 35: Refine Colors and Theming
+
 - [ ] Ensure consistent color usage (primary, secondary, destructive, muted)
 - [ ] Use Shadcn/ui design tokens for colors
 - [ ] Test color contrast for accessibility (WCAG AA)
 - [ ] Add hover/focus states for all interactive elements
 
 #### Step 36: Add Loading Transitions
+
 - [ ] Add smooth transitions for:
   - Tab switches (fade or slide)
   - Modal open/close (fade + scale)
@@ -2799,6 +3054,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test performance (no jank)
 
 #### Step 37: Optimize Responsive Design
+
 - [ ] Test all breakpoints (mobile, tablet, desktop, large desktop)
 - [ ] Ensure touch targets are large enough on mobile (min 44x44px)
 - [ ] Test landscape orientation on mobile
@@ -2806,6 +3062,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test with various content lengths (short/long titles, many ingredients, etc.)
 
 #### Step 38: Add Accessibility Features
+
 - [ ] Ensure proper heading hierarchy (H1 → H2 → H3)
 - [ ] Add ARIA labels for icon-only buttons
 - [ ] Ensure keyboard navigation works (tab order, focus states)
@@ -2816,6 +3073,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Phase 7: Testing and Refinement (Day 6)
 
 #### Step 39: Manual Testing - Happy Paths
+
 - [ ] Test complete flow:
   1. Navigate to recipe detail page
   2. View original recipe
@@ -2832,6 +3090,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test delete recipe (confirm redirect)
 
 #### Step 40: Manual Testing - Edge Cases
+
 - [ ] Test with recipe that has no modifications (tabs hidden)
 - [ ] Test with recipe that has null description
 - [ ] Test with recipe that has null prep time
@@ -2845,6 +3104,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test with very small ingredient amounts (e.g., 0.5g)
 
 #### Step 41: Manual Testing - Error Scenarios
+
 - [ ] Test with invalid recipe ID (404 error)
 - [ ] Test with private recipe, not owner (403 error)
 - [ ] Test with network error (disconnect during load)
@@ -2854,6 +3114,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test validation errors in ModifyWithAIModal
 
 #### Step 42: Manual Testing - Different Users
+
 - [ ] Test as recipe owner:
   - Edit button visible on Original tab
   - Delete button visible
@@ -2864,6 +3125,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
   - Favorite and Modify actions available
 
 #### Step 43: Manual Testing - Responsive Design
+
 - [ ] Test on mobile device (iPhone, Android)
 - [ ] Test on tablet (iPad, Android tablet)
 - [ ] Test on desktop (various browser widths)
@@ -2871,6 +3133,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test with browser zoom (125%, 150%, 200%)
 
 #### Step 44: Performance Testing
+
 - [ ] Test initial page load time (should be < 2 seconds)
 - [ ] Test time to interactive (buttons clickable)
 - [ ] Test servings adjustment performance (should be instant)
@@ -2879,6 +3142,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Check bundle size (use build analysis tools)
 
 #### Step 45: Browser Compatibility Testing
+
 - [ ] Test in Chrome/Chromium (latest)
 - [ ] Test in Firefox (latest)
 - [ ] Test in Safari (latest, if on Mac)
@@ -2886,6 +3150,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test in mobile browsers (Chrome Mobile, Safari iOS)
 
 #### Step 46: Accessibility Testing
+
 - [ ] Test keyboard navigation (tab through all elements)
 - [ ] Test screen reader (VoiceOver on Mac/iOS, NVDA on Windows)
 - [ ] Test with high contrast mode
@@ -2896,6 +3161,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Phase 8: Final Refinements and Documentation (Day 6-7)
 
 #### Step 47: Code Review and Cleanup
+
 - [ ] Review all component code for consistency
 - [ ] Remove console.logs used for debugging
 - [ ] Remove commented-out code
@@ -2904,6 +3170,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Ensure all TODOs are addressed or documented
 
 #### Step 48: Error Handling Review
+
 - [ ] Ensure all API calls have try-catch blocks
 - [ ] Ensure all errors are logged to console
 - [ ] Ensure all errors show appropriate user messages
@@ -2911,6 +3178,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Test all error scenarios one more time
 
 #### Step 49: Performance Optimization
+
 - [ ] Check for unnecessary re-renders (use React DevTools Profiler)
 - [ ] Add useMemo/useCallback where appropriate (especially currentData)
 - [ ] Ensure images are optimized (if any added later)
@@ -2918,6 +3186,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Lazy load dialogs if bundle is large
 
 #### Step 50: Documentation
+
 - [ ] Add README.md for recipe detail feature (optional)
 - [ ] Document any custom hooks with usage examples
 - [ ] Document any complex calculations (servings ratio, macro percentages)
@@ -2925,6 +3194,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Update main project README if needed
 
 #### Step 51: Final Testing
+
 - [ ] Run complete test suite one more time
 - [ ] Test with fresh eyes (ask teammate or do tomorrow)
 - [ ] Test with real data from database (not just mock data)
@@ -2932,6 +3202,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Verify all acceptance criteria from user story US-016 are met
 
 #### Step 52: Prepare for Production
+
 - [ ] Remove mock authentication (uncomment real auth in Astro page and hook)
 - [ ] Verify all environment variables are set
 - [ ] Test in staging environment (if available)
@@ -2941,6 +3212,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 ### Phase 9: Deployment and Monitoring (Day 7)
 
 #### Step 53: Deploy to Production
+
 - [ ] Merge feature branch to main
 - [ ] Trigger CI/CD pipeline (GitHub Actions)
 - [ ] Monitor build for errors
@@ -2949,6 +3221,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Verify deployment health checks
 
 #### Step 54: Production Smoke Testing
+
 - [ ] Test recipe detail page with real data
 - [ ] Test all major flows (view, adjust servings, favorite, modify)
 - [ ] Test on mobile device (real device, not just DevTools)
@@ -2956,6 +3229,7 @@ const isAnyActionLoading = Object.values(actionStates).some(state => state === t
 - [ ] Monitor server logs for errors
 
 #### Step 55: Monitor and Iterate
+
 - [ ] Set up error tracking (if not already done)
 - [ ] Monitor API response times
 - [ ] Monitor user behavior (if analytics set up)
@@ -3026,6 +3300,7 @@ This implementation plan provides a comprehensive, step-by-step guide to buildin
 **Estimated Timeline:** 6-7 working days for MVP
 
 **Key Deliverables:**
+
 - Fully functional Recipe Detail Page at `/recipes/[id]`
 - Responsive layout (desktop two-column, mobile single-column)
 - Tab system for original vs modified recipes
@@ -3036,6 +3311,7 @@ This implementation plan provides a comprehensive, step-by-step guide to buildin
 - Accessible and user-friendly UI
 
 **Technologies Used:**
+
 - Astro 5 (SSR page)
 - React 19 (interactive components)
 - TypeScript 5 (type safety)

@@ -1,6 +1,7 @@
 # OpenRouter Service Implementation Plan
 
 ## Table of Contents
+
 1. [Service Description](#service-description)
 2. [Constructor Description](#constructor-description)
 3. [Public Methods and Fields](#public-methods-and-fields)
@@ -51,6 +52,7 @@ const apiKey = import.meta.env.OPENROUTER_API_KEY;
 ```
 
 **Validation:**
+
 - Check if API key exists before making requests
 - Throw descriptive error if missing
 - Never expose API key in logs or error messages
@@ -68,20 +70,20 @@ Primary method for executing chat completions with OpenRouter API.
 ```typescript
 export async function createChatCompletion<T = string>(
   config: ChatCompletionConfig<T>
-): Promise<ChatCompletionResponse<T>>
+): Promise<ChatCompletionResponse<T>>;
 ```
 
 #### Parameters
 
 **`config: ChatCompletionConfig<T>`** - Configuration object with the following properties:
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `model` | `string` | Yes | Model identifier in format `provider/model-name` (e.g., `"openai/gpt-4o"`) |
-| `userMessage` | `string` | Yes | User message content to send to the model |
-| `systemMessage` | `string` | No | System message to set model behavior/context |
-| `responseSchema` | `JSONSchema<T>` | No | JSON schema for structured outputs. When provided, enforces response format |
-| `parameters` | `ModelParameters` | No | Model configuration parameters (temperature, max_tokens, etc.) |
+| Property         | Type              | Required | Description                                                                 |
+| ---------------- | ----------------- | -------- | --------------------------------------------------------------------------- |
+| `model`          | `string`          | Yes      | Model identifier in format `provider/model-name` (e.g., `"openai/gpt-4o"`)  |
+| `userMessage`    | `string`          | Yes      | User message content to send to the model                                   |
+| `systemMessage`  | `string`          | No       | System message to set model behavior/context                                |
+| `responseSchema` | `JSONSchema<T>`   | No       | JSON schema for structured outputs. When provided, enforces response format |
+| `parameters`     | `ModelParameters` | No       | Model configuration parameters (temperature, max_tokens, etc.)              |
 
 #### Return Value
 
@@ -89,9 +91,10 @@ Returns `Promise<ChatCompletionResponse<T>>`:
 
 ```typescript
 interface ChatCompletionResponse<T = string> {
-  content: T;           // Parsed response content (string or typed object)
-  model: string;        // Model that generated the response
-  usage?: {             // Token usage statistics (if available)
+  content: T; // Parsed response content (string or typed object)
+  model: string; // Model that generated the response
+  usage?: {
+    // Token usage statistics (if available)
     prompt_tokens: number;
     completion_tokens: number;
     total_tokens: number;
@@ -203,7 +206,7 @@ Constructs the OpenRouter API request body from configuration.
 #### Signature
 
 ```typescript
-function buildRequestBody<T>(config: ChatCompletionConfig<T>): OpenRouterRequestBody
+function buildRequestBody<T>(config: ChatCompletionConfig<T>): OpenRouterRequestBody;
 ```
 
 #### Functionality
@@ -263,7 +266,7 @@ Returns default model parameters.
 #### Signature
 
 ```typescript
-function getDefaultParameters(): ModelParameters
+function getDefaultParameters(): ModelParameters;
 ```
 
 #### Default Values
@@ -287,10 +290,7 @@ Parses OpenRouter API response and extracts content.
 #### Signature
 
 ```typescript
-function parseResponse<T>(
-  rawResponse: OpenRouterAPIResponse,
-  hasResponseSchema: boolean
-): T
+function parseResponse<T>(rawResponse: OpenRouterAPIResponse, hasResponseSchema: boolean): T;
 ```
 
 #### Functionality
@@ -303,20 +303,12 @@ function parseResponse<T>(
 #### Implementation Details
 
 ```typescript
-function parseResponse<T>(
-  rawResponse: OpenRouterAPIResponse,
-  hasResponseSchema: boolean
-): T {
+function parseResponse<T>(rawResponse: OpenRouterAPIResponse, hasResponseSchema: boolean): T {
   // Extract message content
   const content = rawResponse.choices?.[0]?.message?.content;
 
   if (!content) {
-    throw new OpenRouterError(
-      "No content in response",
-      "EMPTY_RESPONSE",
-      null,
-      { response: rawResponse }
-    );
+    throw new OpenRouterError("No content in response", "EMPTY_RESPONSE", null, { response: rawResponse });
   }
 
   // Return string content for unstructured responses
@@ -328,12 +320,10 @@ function parseResponse<T>(
   try {
     return JSON.parse(content) as T;
   } catch (error) {
-    throw new OpenRouterError(
-      "Failed to parse structured response as JSON",
-      "JSON_PARSE_ERROR",
-      null,
-      { content, parseError: error }
-    );
+    throw new OpenRouterError("Failed to parse structured response as JSON", "JSON_PARSE_ERROR", null, {
+      content,
+      parseError: error,
+    });
   }
 }
 ```
@@ -345,7 +335,7 @@ Validates that OpenRouter API key is available.
 #### Signature
 
 ```typescript
-function validateAPIKey(): string
+function validateAPIKey(): string;
 ```
 
 #### Functionality
@@ -380,7 +370,7 @@ Converts fetch errors and OpenRouter API errors into `OpenRouterError` instances
 #### Signature
 
 ```typescript
-function handleAPIError(error: unknown, response?: Response): never
+function handleAPIError(error: unknown, response?: Response): never;
 ```
 
 #### Functionality
@@ -397,12 +387,9 @@ function handleAPIError(error: unknown, response?: Response): never
 async function handleAPIError(error: unknown, response?: Response): Promise<never> {
   // Handle network errors
   if (error instanceof TypeError) {
-    throw new OpenRouterError(
-      "Network error occurred while connecting to OpenRouter",
-      "NETWORK_ERROR",
-      null,
-      { originalError: error }
-    );
+    throw new OpenRouterError("Network error occurred while connecting to OpenRouter", "NETWORK_ERROR", null, {
+      originalError: error,
+    });
   }
 
   // Handle HTTP errors with response
@@ -419,21 +406,11 @@ async function handleAPIError(error: unknown, response?: Response): Promise<neve
     const errorCode = mapStatusCodeToErrorCode(response.status);
     const metadata = errorBody?.error?.metadata;
 
-    throw new OpenRouterError(
-      errorMessage,
-      errorCode,
-      response.status,
-      metadata
-    );
+    throw new OpenRouterError(errorMessage, errorCode, response.status, metadata);
   }
 
   // Unknown error
-  throw new OpenRouterError(
-    "An unknown error occurred",
-    "UNKNOWN_ERROR",
-    null,
-    { originalError: error }
-  );
+  throw new OpenRouterError("An unknown error occurred", "UNKNOWN_ERROR", null, { originalError: error });
 }
 ```
 
@@ -444,7 +421,7 @@ Maps HTTP status codes to internal error codes.
 #### Signature
 
 ```typescript
-function mapStatusCodeToErrorCode(status: number): string
+function mapStatusCodeToErrorCode(status: number): string;
 ```
 
 #### Status Code Mapping
@@ -506,68 +483,69 @@ export class OpenRouterError extends Error {
 
 #### 1. Configuration Errors
 
-| Error Code | HTTP Status | Scenario | User-Friendly Message |
-|------------|-------------|----------|----------------------|
-| `MISSING_API_KEY` | - | API key not in environment | "OpenRouter API key is not configured" |
-| `INVALID_CONFIG` | - | Missing required config fields | "Invalid configuration: [details]" |
-| `INVALID_PARAMETERS` | - | Parameter out of range | "Invalid parameter [name]: [reason]" |
+| Error Code           | HTTP Status | Scenario                       | User-Friendly Message                  |
+| -------------------- | ----------- | ------------------------------ | -------------------------------------- |
+| `MISSING_API_KEY`    | -           | API key not in environment     | "OpenRouter API key is not configured" |
+| `INVALID_CONFIG`     | -           | Missing required config fields | "Invalid configuration: [details]"     |
+| `INVALID_PARAMETERS` | -           | Parameter out of range         | "Invalid parameter [name]: [reason]"   |
 
 #### 2. Authentication Errors
 
-| Error Code | HTTP Status | Scenario | User-Friendly Message |
-|------------|-------------|----------|----------------------|
-| `UNAUTHORIZED` | 401 | Invalid/expired API key | "Invalid or expired OpenRouter API key" |
+| Error Code     | HTTP Status | Scenario                | User-Friendly Message                   |
+| -------------- | ----------- | ----------------------- | --------------------------------------- |
+| `UNAUTHORIZED` | 401         | Invalid/expired API key | "Invalid or expired OpenRouter API key" |
 
 #### 3. Payment Errors
 
-| Error Code | HTTP Status | Scenario | User-Friendly Message |
-|------------|-------------|----------|----------------------|
-| `INSUFFICIENT_CREDITS` | 402 | Account has no credits | "Insufficient credits on OpenRouter account" |
+| Error Code             | HTTP Status | Scenario               | User-Friendly Message                        |
+| ---------------------- | ----------- | ---------------------- | -------------------------------------------- |
+| `INSUFFICIENT_CREDITS` | 402         | Account has no credits | "Insufficient credits on OpenRouter account" |
 
 #### 4. Content Moderation Errors
 
-| Error Code | HTTP Status | Scenario | User-Friendly Message |
-|------------|-------------|----------|----------------------|
-| `MODERATION_FLAGGED` | 403 | Content flagged by provider | "Content was flagged by moderation system" |
+| Error Code           | HTTP Status | Scenario                    | User-Friendly Message                      |
+| -------------------- | ----------- | --------------------------- | ------------------------------------------ |
+| `MODERATION_FLAGGED` | 403         | Content flagged by provider | "Content was flagged by moderation system" |
 
 **Metadata includes:**
+
 - `reasons`: Array of flagging reasons
 - `flagged_input`: First 100 chars of problematic content
 - `provider_name`: Provider that flagged content
 
 #### 5. Request Errors
 
-| Error Code | HTTP Status | Scenario | User-Friendly Message |
-|------------|-------------|----------|----------------------|
-| `BAD_REQUEST` | 400 | Invalid request parameters | "Invalid request: [details]" |
-| `REQUEST_TIMEOUT` | 408 | Request exceeded time limit | "Request timed out" |
+| Error Code        | HTTP Status | Scenario                    | User-Friendly Message        |
+| ----------------- | ----------- | --------------------------- | ---------------------------- |
+| `BAD_REQUEST`     | 400         | Invalid request parameters  | "Invalid request: [details]" |
+| `REQUEST_TIMEOUT` | 408         | Request exceeded time limit | "Request timed out"          |
 
 #### 6. Rate Limiting Errors
 
-| Error Code | HTTP Status | Scenario | User-Friendly Message |
-|------------|-------------|----------|----------------------|
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests | "Rate limit exceeded. Please try again later." |
+| Error Code            | HTTP Status | Scenario          | User-Friendly Message                          |
+| --------------------- | ----------- | ----------------- | ---------------------------------------------- |
+| `RATE_LIMIT_EXCEEDED` | 429         | Too many requests | "Rate limit exceeded. Please try again later." |
 
 #### 7. Service Availability Errors
 
-| Error Code | HTTP Status | Scenario | User-Friendly Message |
-|------------|-------------|----------|----------------------|
-| `MODEL_UNAVAILABLE` | 502 | Model not available | "Model is currently unavailable" |
-| `SERVICE_UNAVAILABLE` | 503 | No provider available | "Service temporarily unavailable" |
+| Error Code            | HTTP Status | Scenario              | User-Friendly Message             |
+| --------------------- | ----------- | --------------------- | --------------------------------- |
+| `MODEL_UNAVAILABLE`   | 502         | Model not available   | "Model is currently unavailable"  |
+| `SERVICE_UNAVAILABLE` | 503         | No provider available | "Service temporarily unavailable" |
 
 #### 8. Response Parsing Errors
 
-| Error Code | HTTP Status | Scenario | User-Friendly Message |
-|------------|-------------|----------|----------------------|
-| `EMPTY_RESPONSE` | 200 | No content in response | "No content received from model" |
-| `JSON_PARSE_ERROR` | 200 | Invalid JSON in structured response | "Failed to parse response as JSON" |
+| Error Code         | HTTP Status | Scenario                            | User-Friendly Message              |
+| ------------------ | ----------- | ----------------------------------- | ---------------------------------- |
+| `EMPTY_RESPONSE`   | 200         | No content in response              | "No content received from model"   |
+| `JSON_PARSE_ERROR` | 200         | Invalid JSON in structured response | "Failed to parse response as JSON" |
 
 #### 9. Network Errors
 
-| Error Code | HTTP Status | Scenario | User-Friendly Message |
-|------------|-------------|----------|----------------------|
-| `NETWORK_ERROR` | - | Connection failed | "Network error occurred" |
-| `UNKNOWN_ERROR` | - | Unexpected error | "An unexpected error occurred" |
+| Error Code      | HTTP Status | Scenario          | User-Friendly Message          |
+| --------------- | ----------- | ----------------- | ------------------------------ |
+| `NETWORK_ERROR` | -           | Connection failed | "Network error occurred"       |
+| `UNKNOWN_ERROR` | -           | Unexpected error  | "An unexpected error occurred" |
 
 ### Error Handling Best Practices
 
@@ -619,6 +597,7 @@ try {
 **Risk**: Exposed API key can lead to unauthorized usage and charges.
 
 **Mitigation:**
+
 1. Store API key in environment variables only
 2. Never commit API key to version control
 3. Use `.env` file locally (gitignored)
@@ -641,6 +620,7 @@ const apiKey = "sk-or-v1-abc123...";
 **Risk**: Invalid input can cause errors, waste tokens, or bypass rate limiting.
 
 **Mitigation:**
+
 1. Validate all required fields are provided
 2. Check parameter ranges before sending requests
 3. Sanitize user input to prevent injection attacks
@@ -653,21 +633,11 @@ const apiKey = "sk-or-v1-abc123...";
 function validateConfig<T>(config: ChatCompletionConfig<T>): void {
   // Required fields
   if (!config.model) {
-    throw new OpenRouterError(
-      "Model is required",
-      "INVALID_CONFIG",
-      null,
-      null
-    );
+    throw new OpenRouterError("Model is required", "INVALID_CONFIG", null, null);
   }
 
   if (!config.userMessage) {
-    throw new OpenRouterError(
-      "User message is required",
-      "INVALID_CONFIG",
-      null,
-      null
-    );
+    throw new OpenRouterError("User message is required", "INVALID_CONFIG", null, null);
   }
 
   // Parameter validation
@@ -675,30 +645,24 @@ function validateConfig<T>(config: ChatCompletionConfig<T>): void {
     const { temperature, max_tokens, top_p } = config.parameters;
 
     if (temperature !== undefined && (temperature < 0 || temperature > 2)) {
-      throw new OpenRouterError(
-        "Temperature must be between 0 and 2",
-        "INVALID_PARAMETERS",
-        null,
-        { parameter: "temperature", value: temperature }
-      );
+      throw new OpenRouterError("Temperature must be between 0 and 2", "INVALID_PARAMETERS", null, {
+        parameter: "temperature",
+        value: temperature,
+      });
     }
 
     if (max_tokens !== undefined && max_tokens < 1) {
-      throw new OpenRouterError(
-        "max_tokens must be at least 1",
-        "INVALID_PARAMETERS",
-        null,
-        { parameter: "max_tokens", value: max_tokens }
-      );
+      throw new OpenRouterError("max_tokens must be at least 1", "INVALID_PARAMETERS", null, {
+        parameter: "max_tokens",
+        value: max_tokens,
+      });
     }
 
     if (top_p !== undefined && (top_p < 0 || top_p > 1)) {
-      throw new OpenRouterError(
-        "top_p must be between 0 and 1",
-        "INVALID_PARAMETERS",
-        null,
-        { parameter: "top_p", value: top_p }
-      );
+      throw new OpenRouterError("top_p must be between 0 and 1", "INVALID_PARAMETERS", null, {
+        parameter: "top_p",
+        value: top_p,
+      });
     }
   }
 }
@@ -709,6 +673,7 @@ function validateConfig<T>(config: ChatCompletionConfig<T>): void {
 **Risk**: Malformed responses can break application logic.
 
 **Mitigation:**
+
 1. Validate response structure before parsing
 2. Use try-catch for JSON parsing
 3. Check for expected fields (choices, message, content)
@@ -720,6 +685,7 @@ function validateConfig<T>(config: ChatCompletionConfig<T>): void {
 **Risk**: Excessive requests can lead to rate limiting or high costs.
 
 **Mitigation:**
+
 1. Implement client-side rate limiting if needed
 2. Handle 429 errors gracefully with retry logic
 3. Add exponential backoff for retries
@@ -743,7 +709,7 @@ async function createChatCompletionWithRetry<T>(
       if (error instanceof OpenRouterError && error.code === "RATE_LIMIT_EXCEEDED") {
         lastError = error;
         const delay = baseDelay * Math.pow(2, i); // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
       throw error; // Re-throw non-rate-limit errors
@@ -759,6 +725,7 @@ async function createChatCompletionWithRetry<T>(
 **Risk**: User data in messages could contain PII or sensitive information.
 
 **Mitigation:**
+
 1. Never log full message content
 2. Sanitize messages before logging errors
 3. Be cautious with system messages containing business logic
@@ -770,6 +737,7 @@ async function createChatCompletionWithRetry<T>(
 **Risk**: Using untrusted or expensive models without validation.
 
 **Mitigation:**
+
 1. Maintain whitelist of approved models
 2. Validate model format (provider/model-name)
 3. Consider cost implications of model selection
@@ -786,13 +754,11 @@ const APPROVED_MODELS = [
 ] as const;
 
 function validateModel(model: string): void {
-  if (!APPROVED_MODELS.includes(model as typeof APPROVED_MODELS[number])) {
-    throw new OpenRouterError(
-      `Model ${model} is not approved for use`,
-      "INVALID_CONFIG",
-      null,
-      { model, approvedModels: APPROVED_MODELS }
-    );
+  if (!APPROVED_MODELS.includes(model as (typeof APPROVED_MODELS)[number])) {
+    throw new OpenRouterError(`Model ${model} is not approved for use`, "INVALID_CONFIG", null, {
+      model,
+      approvedModels: APPROVED_MODELS,
+    });
   }
 }
 ```
@@ -810,6 +776,7 @@ function validateModel(model: string): void {
 #### Actions:
 
 1. **Define Message Type**
+
    ```typescript
    interface Message {
      role: "system" | "user" | "assistant";
@@ -818,20 +785,22 @@ function validateModel(model: string): void {
    ```
 
 2. **Define Model Parameters Interface**
+
    ```typescript
    interface ModelParameters {
-     temperature?: number;        // 0.0-2.0, default 1.0
-     max_tokens?: number;         // >= 1, default 1024
-     top_p?: number;              // 0.0-1.0, default 1.0
-     frequency_penalty?: number;  // -2.0 to 2.0, default 0.0
-     presence_penalty?: number;   // -2.0 to 2.0, default 0.0
-     stop?: string[];             // Array of stop sequences
-     top_k?: number;              // >= 0, default 0
-     seed?: number;               // For deterministic sampling
+     temperature?: number; // 0.0-2.0, default 1.0
+     max_tokens?: number; // >= 1, default 1024
+     top_p?: number; // 0.0-1.0, default 1.0
+     frequency_penalty?: number; // -2.0 to 2.0, default 0.0
+     presence_penalty?: number; // -2.0 to 2.0, default 0.0
+     stop?: string[]; // Array of stop sequences
+     top_k?: number; // >= 0, default 0
+     seed?: number; // For deterministic sampling
    }
    ```
 
 3. **Define JSON Schema Type**
+
    ```typescript
    interface JSONSchema<T = unknown> {
      name: string;
@@ -847,6 +816,7 @@ function validateModel(model: string): void {
    ```
 
 4. **Define Chat Completion Config**
+
    ```typescript
    interface ChatCompletionConfig<T = string> {
      model: string;
@@ -858,6 +828,7 @@ function validateModel(model: string): void {
    ```
 
 5. **Define OpenRouter Request Body**
+
    ```typescript
    interface OpenRouterRequestBody {
      model: string;
@@ -878,6 +849,7 @@ function validateModel(model: string): void {
    ```
 
 6. **Define OpenRouter API Response**
+
    ```typescript
    interface OpenRouterAPIResponse {
      id: string;
@@ -899,6 +871,7 @@ function validateModel(model: string): void {
    ```
 
 7. **Define OpenRouter Error Response**
+
    ```typescript
    interface OpenRouterErrorResponse {
      error: {
@@ -923,6 +896,7 @@ function validateModel(model: string): void {
    ```
 
 **Validation Criteria:**
+
 - All interfaces compile without errors
 - Generic type `T` is properly constrained
 - All optional fields are marked with `?`
@@ -939,6 +913,7 @@ function validateModel(model: string): void {
 #### Actions:
 
 1. **Define Error Class**
+
    ```typescript
    export class OpenRouterError extends Error {
      public readonly code: string;
@@ -966,6 +941,7 @@ function validateModel(model: string): void {
    ```
 
 **Validation Criteria:**
+
 - Error class extends Error properly
 - All properties are readonly
 - Stack trace is preserved
@@ -982,6 +958,7 @@ function validateModel(model: string): void {
 #### Actions:
 
 1. **Implement `validateAPIKey`**
+
    ```typescript
    function validateAPIKey(): string {
      const apiKey = import.meta.env.OPENROUTER_API_KEY;
@@ -1000,6 +977,7 @@ function validateModel(model: string): void {
    ```
 
 2. **Implement `getDefaultParameters`**
+
    ```typescript
    function getDefaultParameters(): ModelParameters {
      return {
@@ -1013,24 +991,15 @@ function validateModel(model: string): void {
    ```
 
 3. **Implement `validateConfig`**
+
    ```typescript
    function validateConfig<T>(config: ChatCompletionConfig<T>): void {
      if (!config.model) {
-       throw new OpenRouterError(
-         "Model is required",
-         "INVALID_CONFIG",
-         null,
-         { field: "model" }
-       );
+       throw new OpenRouterError("Model is required", "INVALID_CONFIG", null, { field: "model" });
      }
 
      if (!config.userMessage) {
-       throw new OpenRouterError(
-         "User message is required",
-         "INVALID_CONFIG",
-         null,
-         { field: "userMessage" }
-       );
+       throw new OpenRouterError("User message is required", "INVALID_CONFIG", null, { field: "userMessage" });
      }
 
      // Validate parameters if provided
@@ -1046,98 +1015,82 @@ function validateModel(model: string): void {
    ```
 
 4. **Implement `validateParameters`**
+
    ```typescript
    function validateParameters(params: ModelParameters): void {
      if (params.temperature !== undefined) {
        if (params.temperature < 0 || params.temperature > 2) {
-         throw new OpenRouterError(
-           "Temperature must be between 0 and 2",
-           "INVALID_PARAMETERS",
-           null,
-           { parameter: "temperature", value: params.temperature }
-         );
+         throw new OpenRouterError("Temperature must be between 0 and 2", "INVALID_PARAMETERS", null, {
+           parameter: "temperature",
+           value: params.temperature,
+         });
        }
      }
 
      if (params.max_tokens !== undefined) {
        if (params.max_tokens < 1) {
-         throw new OpenRouterError(
-           "max_tokens must be at least 1",
-           "INVALID_PARAMETERS",
-           null,
-           { parameter: "max_tokens", value: params.max_tokens }
-         );
+         throw new OpenRouterError("max_tokens must be at least 1", "INVALID_PARAMETERS", null, {
+           parameter: "max_tokens",
+           value: params.max_tokens,
+         });
        }
      }
 
      if (params.top_p !== undefined) {
        if (params.top_p < 0 || params.top_p > 1) {
-         throw new OpenRouterError(
-           "top_p must be between 0 and 1",
-           "INVALID_PARAMETERS",
-           null,
-           { parameter: "top_p", value: params.top_p }
-         );
+         throw new OpenRouterError("top_p must be between 0 and 1", "INVALID_PARAMETERS", null, {
+           parameter: "top_p",
+           value: params.top_p,
+         });
        }
      }
 
      if (params.frequency_penalty !== undefined) {
        if (params.frequency_penalty < -2 || params.frequency_penalty > 2) {
-         throw new OpenRouterError(
-           "frequency_penalty must be between -2 and 2",
-           "INVALID_PARAMETERS",
-           null,
-           { parameter: "frequency_penalty", value: params.frequency_penalty }
-         );
+         throw new OpenRouterError("frequency_penalty must be between -2 and 2", "INVALID_PARAMETERS", null, {
+           parameter: "frequency_penalty",
+           value: params.frequency_penalty,
+         });
        }
      }
 
      if (params.presence_penalty !== undefined) {
        if (params.presence_penalty < -2 || params.presence_penalty > 2) {
-         throw new OpenRouterError(
-           "presence_penalty must be between -2 and 2",
-           "INVALID_PARAMETERS",
-           null,
-           { parameter: "presence_penalty", value: params.presence_penalty }
-         );
+         throw new OpenRouterError("presence_penalty must be between -2 and 2", "INVALID_PARAMETERS", null, {
+           parameter: "presence_penalty",
+           value: params.presence_penalty,
+         });
        }
      }
    }
    ```
 
 5. **Implement `validateResponseSchema`**
+
    ```typescript
    function validateResponseSchema(schema: JSONSchema): void {
      if (!schema.name) {
-       throw new OpenRouterError(
-         "Response schema must have a name",
-         "INVALID_CONFIG",
-         null,
-         { field: "responseSchema.name" }
-       );
+       throw new OpenRouterError("Response schema must have a name", "INVALID_CONFIG", null, {
+         field: "responseSchema.name",
+       });
      }
 
      if (typeof schema.strict !== "boolean") {
-       throw new OpenRouterError(
-         "Response schema must specify strict as boolean",
-         "INVALID_CONFIG",
-         null,
-         { field: "responseSchema.strict" }
-       );
+       throw new OpenRouterError("Response schema must specify strict as boolean", "INVALID_CONFIG", null, {
+         field: "responseSchema.strict",
+       });
      }
 
      if (!schema.schema || schema.schema.type !== "object") {
-       throw new OpenRouterError(
-         "Response schema must have a schema with type 'object'",
-         "INVALID_CONFIG",
-         null,
-         { field: "responseSchema.schema" }
-       );
+       throw new OpenRouterError("Response schema must have a schema with type 'object'", "INVALID_CONFIG", null, {
+         field: "responseSchema.schema",
+       });
      }
    }
    ```
 
 6. **Implement `buildRequestBody`**
+
    ```typescript
    function buildRequestBody<T>(config: ChatCompletionConfig<T>): OpenRouterRequestBody {
      const messages: Message[] = [];
@@ -1177,6 +1130,7 @@ function validateModel(model: string): void {
    ```
 
 7. **Implement `mapStatusCodeToErrorCode`**
+
    ```typescript
    function mapStatusCodeToErrorCode(status: number): string {
      const statusMap: Record<number, string> = {
@@ -1195,16 +1149,14 @@ function validateModel(model: string): void {
    ```
 
 8. **Implement `handleAPIError`**
+
    ```typescript
    async function handleAPIError(error: unknown, response?: Response): Promise<never> {
      // Handle network errors
      if (error instanceof TypeError) {
-       throw new OpenRouterError(
-         "Network error occurred while connecting to OpenRouter",
-         "NETWORK_ERROR",
-         null,
-         { originalError: error }
-       );
+       throw new OpenRouterError("Network error occurred while connecting to OpenRouter", "NETWORK_ERROR", null, {
+         originalError: error,
+       });
      }
 
      // Handle HTTP errors with response
@@ -1221,40 +1173,23 @@ function validateModel(model: string): void {
        const errorCode = mapStatusCodeToErrorCode(response.status);
        const metadata = errorBody?.error?.metadata;
 
-       throw new OpenRouterError(
-         errorMessage,
-         errorCode,
-         response.status,
-         metadata
-       );
+       throw new OpenRouterError(errorMessage, errorCode, response.status, metadata);
      }
 
      // Unknown error
-     throw new OpenRouterError(
-       "An unknown error occurred",
-       "UNKNOWN_ERROR",
-       null,
-       { originalError: error }
-     );
+     throw new OpenRouterError("An unknown error occurred", "UNKNOWN_ERROR", null, { originalError: error });
    }
    ```
 
 9. **Implement `parseResponse`**
+
    ```typescript
-   function parseResponse<T>(
-     rawResponse: OpenRouterAPIResponse,
-     hasResponseSchema: boolean
-   ): T {
+   function parseResponse<T>(rawResponse: OpenRouterAPIResponse, hasResponseSchema: boolean): T {
      // Extract message content
      const content = rawResponse.choices?.[0]?.message?.content;
 
      if (!content) {
-       throw new OpenRouterError(
-         "No content in response",
-         "EMPTY_RESPONSE",
-         null,
-         { response: rawResponse }
-       );
+       throw new OpenRouterError("No content in response", "EMPTY_RESPONSE", null, { response: rawResponse });
      }
 
      // Return string content for unstructured responses
@@ -1266,17 +1201,16 @@ function validateModel(model: string): void {
      try {
        return JSON.parse(content) as T;
      } catch (error) {
-       throw new OpenRouterError(
-         "Failed to parse structured response as JSON",
-         "JSON_PARSE_ERROR",
-         null,
-         { content, parseError: error }
-       );
+       throw new OpenRouterError("Failed to parse structured response as JSON", "JSON_PARSE_ERROR", null, {
+         content,
+         parseError: error,
+       });
      }
    }
    ```
 
 **Validation Criteria:**
+
 - All functions implement early returns for error conditions
 - Parameter validation covers all edge cases
 - Error messages are descriptive and actionable
@@ -1293,6 +1227,7 @@ function validateModel(model: string): void {
 #### Actions:
 
 1. **Implement Function**
+
    ```typescript
    /**
     * Create a chat completion using OpenRouter API
@@ -1328,7 +1263,7 @@ function validateModel(model: string): void {
        response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
          method: "POST",
          headers: {
-           "Authorization": `Bearer ${apiKey}`,
+           Authorization: `Bearer ${apiKey}`,
            "Content-Type": "application/json",
          },
          body: JSON.stringify(requestBody),
@@ -1354,12 +1289,9 @@ function validateModel(model: string): void {
      try {
        rawResponse = await response.json();
      } catch (error) {
-       throw new OpenRouterError(
-         "Failed to parse API response as JSON",
-         "JSON_PARSE_ERROR",
-         null,
-         { originalError: error }
-       );
+       throw new OpenRouterError("Failed to parse API response as JSON", "JSON_PARSE_ERROR", null, {
+         originalError: error,
+       });
      }
 
      // ========================================
@@ -1381,6 +1313,7 @@ function validateModel(model: string): void {
    ```
 
 **Validation Criteria:**
+
 - Function signature matches specification
 - All error paths are handled
 - Configuration is validated before making request
@@ -1419,6 +1352,7 @@ function validateModel(model: string): void {
    - Note any side effects
 
 **Example:**
+
 ```typescript
 /**
  * Configuration for creating a chat completion
@@ -1457,6 +1391,7 @@ interface ChatCompletionConfig<T = string> {
 ```
 
 **Validation Criteria:**
+
 - All public APIs have complete JSDoc
 - Examples are included for complex types
 - Parameter constraints are documented
@@ -1473,21 +1408,19 @@ interface ChatCompletionConfig<T = string> {
 #### Actions:
 
 1. **Export Public Interfaces**
+
    ```typescript
-   export type {
-     ChatCompletionConfig,
-     ChatCompletionResponse,
-     ModelParameters,
-     JSONSchema,
-   };
+   export type { ChatCompletionConfig, ChatCompletionResponse, ModelParameters, JSONSchema };
    ```
 
 2. **Export Error Class**
+
    ```typescript
    export { OpenRouterError };
    ```
 
 3. **Export Main Function**
+
    ```typescript
    export { createChatCompletion };
    ```
@@ -1497,6 +1430,7 @@ interface ChatCompletionConfig<T = string> {
    - These are implementation details
 
 **Validation Criteria:**
+
 - Only necessary types are exported
 - Implementation details remain private
 - TypeScript compilation succeeds
@@ -1517,6 +1451,7 @@ interface ChatCompletionConfig<T = string> {
    - Add comments explaining how to obtain key
 
 2. **Update if Needed**
+
    ```env
    # OpenRouter API Key
    # Get your key from: https://openrouter.ai/keys
@@ -1528,6 +1463,7 @@ interface ChatCompletionConfig<T = string> {
    - Ensure OPENROUTER_API_KEY is typed
 
 **Validation Criteria:**
+
 - `.env.example` includes OPENROUTER_API_KEY
 - Environment variable is properly typed
 - Validation function throws clear error if missing
@@ -1583,6 +1519,7 @@ interface ChatCompletionConfig<T = string> {
    - Network error handling
 
 **Validation Criteria:**
+
 - All test cases pass
 - Code coverage > 80%
 - Tests use mocks for API calls
@@ -1599,6 +1536,7 @@ interface ChatCompletionConfig<T = string> {
 #### Examples to Include:
 
 1. **Recipe Modification**
+
    ```typescript
    // Modify recipe to be vegan
    const response = await createChatCompletion<RecipeModification>({
@@ -1614,6 +1552,7 @@ interface ChatCompletionConfig<T = string> {
    ```
 
 2. **Ingredient Substitution**
+
    ```typescript
    // Find ingredient substitution
    const response = await createChatCompletion({
@@ -1628,6 +1567,7 @@ interface ChatCompletionConfig<T = string> {
    ```
 
 3. **Dietary Analysis**
+
    ```typescript
    // Analyze recipe for allergens
    interface AllergenAnalysis {
@@ -1646,6 +1586,7 @@ interface ChatCompletionConfig<T = string> {
    ```
 
 **Validation Criteria:**
+
 - Examples are relevant to the application
 - Examples demonstrate key features
 - Examples include error handling
@@ -1693,7 +1634,9 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   // AUTHENTICATION CHECK
   // ========================================
 
-  const { data: { session } } = await locals.supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await locals.supabase.auth.getSession();
 
   if (!session) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -1738,7 +1681,8 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   try {
     const response = await createChatCompletion<ModifiedRecipe>({
       model: "openai/gpt-4o",
-      systemMessage: "You are a recipe expert. Modify recipes based on user requirements while maintaining taste and nutrition.",
+      systemMessage:
+        "You are a recipe expert. Modify recipes based on user requirements while maintaining taste and nutrition.",
       userMessage: `Modify this recipe with these changes: ${body.modifications.join(", ")}. Recipe: ${JSON.stringify(recipe)}`,
       responseSchema: modifiedRecipeSchema,
       parameters: {
@@ -1751,7 +1695,6 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
     if (error instanceof OpenRouterError) {
       // Handle specific OpenRouter errors
@@ -1769,13 +1712,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
     // Unknown error
     console.error("Unexpected error:", error);
-    return new Response(
-      JSON.stringify({ error: "An unexpected error occurred" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 };
 
@@ -1783,6 +1723,7 @@ export const prerender = false;
 ```
 
 **Validation Criteria:**
+
 - Service integrates with existing architecture
 - Error handling follows codebase patterns
 - Authentication checks are performed
@@ -1830,11 +1771,7 @@ async function createChatCompletionWithRetry<T>(
     try {
       return await createChatCompletion(config);
     } catch (error) {
-      if (
-        error instanceof OpenRouterError &&
-        error.code === "RATE_LIMIT_EXCEEDED" &&
-        attempt < maxRetries - 1
-      ) {
+      if (error instanceof OpenRouterError && error.code === "RATE_LIMIT_EXCEEDED" && attempt < maxRetries - 1) {
         lastError = error;
         const delay = baseDelay * Math.pow(2, attempt);
         await new Promise((resolve) => setTimeout(resolve, delay));
@@ -1849,6 +1786,7 @@ async function createChatCompletionWithRetry<T>(
 ```
 
 **Validation Criteria:**
+
 - Optimizations don't compromise correctness
 - Performance improvements are measurable
 - Caching respects data freshness requirements
@@ -1885,8 +1823,8 @@ Before considering the implementation complete, verify:
 
 ### Recommended Models by Use Case
 
-| Use Case | Recommended Model | Reasoning |
-|----------|------------------|-----------|
+| Use Case                           | Recommended Model    | Reasoning                       |
+| ---------------------------------- | -------------------- | ------------------------------- |
 | For all use cases for MVP purposes | `openai/gpt-4o-mini` | Cost-effective for simple tasks |
 
 ### Model Format
@@ -1894,6 +1832,7 @@ Before considering the implementation complete, verify:
 All models use the format: `provider/model-name`
 
 **Examples:**
+
 - OpenAI: `openai/gpt-4o`, `openai/gpt-4o-mini`
 - Anthropic: `anthropic/claude-3-opus`, `anthropic/claude-3-sonnet`
 - Google: `google/gemini-pro`
@@ -1902,13 +1841,17 @@ All models use the format: `provider/model-name`
 ### Structured Outputs Support
 
 Only certain models support the `response_format` parameter with JSON schema:
+
 - All OpenAI models (GPT-4o and later)
 - Fireworks-provided models
 - Check model details on openrouter.ai/models
 
 For models without structured output support, use JSON mode:
+
 ```typescript
-response_format: { type: "json_object" }
+response_format: {
+  type: "json_object";
+}
 ```
 
 ---
@@ -1958,6 +1901,7 @@ response_format: { type: "json_object" }
 **Problem:** Service fails with unclear error message
 
 **Solution:**
+
 - Validate API key in constructor/initialization
 - Provide clear error message with instructions
 - Check environment variable loading
@@ -1967,6 +1911,7 @@ response_format: { type: "json_object" }
 **Problem:** Model returns text instead of JSON
 
 **Solution:**
+
 - Ensure model supports structured outputs
 - Use `strict: true` in schema
 - Add retry logic with clearer instructions
@@ -1977,6 +1922,7 @@ response_format: { type: "json_object" }
 **Problem:** Frequent 429 errors under load
 
 **Solution:**
+
 - Implement exponential backoff
 - Add request queuing
 - Use caching for common requests
@@ -1987,6 +1933,7 @@ response_format: { type: "json_object" }
 **Problem:** Responses get truncated
 
 **Solution:**
+
 - Estimate tokens before sending
 - Set appropriate max_tokens
 - Handle truncation in response parser
@@ -1997,6 +1944,7 @@ response_format: { type: "json_object" }
 **Problem:** Long-running requests timeout
 
 **Solution:**
+
 - Increase fetch timeout
 - Use shorter max_tokens for faster responses
 - Handle 408 errors gracefully

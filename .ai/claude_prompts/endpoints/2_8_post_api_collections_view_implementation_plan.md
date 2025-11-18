@@ -11,6 +11,7 @@
 **Authentication**: Required (mocked userId `a85d6d6c-b7d4-4605-9cc4-3743401b67a0` for development)
 
 **Key Features**:
+
 - Creates a new empty collection (recipeCount: 0)
 - Validates collection name (1-100 characters)
 - Ensures name uniqueness per user
@@ -19,23 +20,28 @@
 ## 2. Request Details
 
 ### HTTP Method
+
 POST
 
 ### URL Structure
+
 ```
 /api/collections
 ```
 
 ### Parameters
+
 - **Required**: None in URL
 - **Optional**: None
 
 ### Request Headers
+
 ```
 Content-Type: application/json
 ```
 
 ### Request Body
+
 ```json
 {
   "name": "Szybkie kolacje"
@@ -43,6 +49,7 @@ Content-Type: application/json
 ```
 
 **Field Specifications**:
+
 - `name` (string, required): Collection name
   - Minimum length: 1 character
   - Maximum length: 100 characters
@@ -54,6 +61,7 @@ Content-Type: application/json
 ### DTO Types (from `src/types.ts`)
 
 **CreateCollectionCommand** (Request Payload):
+
 ```typescript
 export interface CreateCollectionCommand {
   name: string;
@@ -61,6 +69,7 @@ export interface CreateCollectionCommand {
 ```
 
 **CollectionDTO** (Response):
+
 ```typescript
 export interface CollectionDTO {
   id: string;
@@ -72,24 +81,25 @@ export interface CollectionDTO {
 ```
 
 ### Database Types
+
 **DbCollectionInsert** (Database Insert):
+
 ```typescript
 export type DbCollectionInsert = TablesInsert<"collections">;
 ```
 
 ### Zod Validation Schema (to be created)
+
 ```typescript
 const CreateCollectionSchema = z.object({
-  name: z.string()
-    .min(1, "Name is required")
-    .max(100, "Name must be 100 characters or less")
-    .trim()
+  name: z.string().min(1, "Name is required").max(100, "Name must be 100 characters or less").trim(),
 });
 ```
 
 ## 4. Response Details
 
 ### Success Response (201 Created)
+
 ```json
 {
   "success": true,
@@ -106,6 +116,7 @@ const CreateCollectionSchema = z.object({
 ### Error Responses
 
 **400 Bad Request** - Invalid name:
+
 ```json
 {
   "error": "Bad Request",
@@ -114,6 +125,7 @@ const CreateCollectionSchema = z.object({
 ```
 
 **401 Unauthorized** - Not authenticated:
+
 ```json
 {
   "error": "Unauthorized",
@@ -122,6 +134,7 @@ const CreateCollectionSchema = z.object({
 ```
 
 **409 Conflict** - Duplicate collection name:
+
 ```json
 {
   "error": "Conflict",
@@ -130,6 +143,7 @@ const CreateCollectionSchema = z.object({
 ```
 
 **500 Internal Server Error** - Database or server error:
+
 ```json
 {
   "error": "Internal Server Error",
@@ -140,6 +154,7 @@ const CreateCollectionSchema = z.object({
 ## 5. Data Flow
 
 ### Request Flow
+
 1. **Request Reception**: API route receives POST request
 2. **Authentication Check**: Validate user session (mocked for development)
 3. **Request Parsing**: Parse JSON body
@@ -151,9 +166,11 @@ const CreateCollectionSchema = z.object({
 9. **Response Return**: Return 201 with collection data
 
 ### Service Layer (`CollectionsService`)
+
 **Method**: `createCollection(userId: string, command: CreateCollectionCommand): Promise<CollectionDTO>`
 
 **Logic**:
+
 1. Check for duplicate collection name for the user
    - Query: `SELECT id FROM collections WHERE user_id = ? AND name = ?`
    - If exists, throw error with 409 status
@@ -164,53 +181,61 @@ const CreateCollectionSchema = z.object({
 3. Return mapped CollectionDTO
 
 ### Database Interactions
+
 **Table**: `collections`
 
 **Insert Query** (via Supabase SDK):
+
 ```typescript
 const { data, error } = await supabase
-  .from('collections')
+  .from("collections")
   .insert({
     user_id: userId,
-    name: trimmedName
+    name: trimmedName,
   })
-  .select('id, user_id, name, created_at')
+  .select("id, user_id, name, created_at")
   .single();
 ```
 
 **Duplicate Check Query**:
+
 ```typescript
 const { data: existing } = await supabase
-  .from('collections')
-  .select('id')
-  .eq('user_id', userId)
-  .eq('name', trimmedName)
+  .from("collections")
+  .select("id")
+  .eq("user_id", userId)
+  .eq("name", trimmedName)
   .maybeSingle();
 ```
 
 ## 6. Security Considerations
 
 ### Authentication
+
 - **Development**: Use mocked userId `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - **Production**: Retrieve user from `context.locals.supabase.auth.getUser()`
 - Return 401 if authentication fails
 
 ### Authorization
+
 - Users can only create collections for their own account
 - User ID from session is used for the collection (no user input for userId)
 
 ### Input Validation
+
 - Validate all input using Zod schemas
 - Trim whitespace from collection names
 - Enforce length constraints (1-100 characters)
 - Validate JSON structure before parsing
 
 ### Data Sanitization
+
 - Names are stored as-is in database
 - XSS protection should be handled at output/rendering layer
 - Use parameterized queries (Supabase SDK handles this)
 
 ### Threats and Mitigations
+
 1. **SQL Injection**: Mitigated by Supabase prepared statements
 2. **Duplicate Names**: Check uniqueness before insert
 3. **XSS**: Sanitize on output, not input
@@ -219,6 +244,7 @@ const { data: existing } = await supabase
 6. **Rate Limiting**: Consider implementing to prevent spam
 
 ### Database Constraints
+
 - Foreign key constraint: `collections.user_id` → `profiles.user_id` (CASCADE)
 - Ensure user_id exists in profiles table (should exist due to authentication)
 
@@ -226,18 +252,19 @@ const { data: existing } = await supabase
 
 ### Error Scenarios
 
-| Error Type | Status Code | Handling Strategy |
-|------------|-------------|-------------------|
-| Invalid JSON | 400 | Catch JSON parse error, return user-friendly message |
-| Validation failure | 400 | Return Zod validation errors with field details |
-| Missing name | 400 | Return "Name is required" |
-| Name too long | 400 | Return "Name must be 100 characters or less" |
-| Not authenticated | 401 | Return "Authentication required" |
-| Duplicate name | 409 | Return "Collection with this name already exists" |
-| Database error | 500 | Log error, return generic message |
-| Supabase connection error | 500 | Log error, return generic message |
+| Error Type                | Status Code | Handling Strategy                                    |
+| ------------------------- | ----------- | ---------------------------------------------------- |
+| Invalid JSON              | 400         | Catch JSON parse error, return user-friendly message |
+| Validation failure        | 400         | Return Zod validation errors with field details      |
+| Missing name              | 400         | Return "Name is required"                            |
+| Name too long             | 400         | Return "Name must be 100 characters or less"         |
+| Not authenticated         | 401         | Return "Authentication required"                     |
+| Duplicate name            | 409         | Return "Collection with this name already exists"    |
+| Database error            | 500         | Log error, return generic message                    |
+| Supabase connection error | 500         | Log error, return generic message                    |
 
 ### Error Logging
+
 - Log 500-level errors to error table with:
   - userId
   - Error message
@@ -246,7 +273,9 @@ const { data: existing } = await supabase
 - Do not log 400/401/409 errors (expected user errors)
 
 ### Error Response Format
+
 All errors follow consistent structure:
+
 ```json
 {
   "error": "Error Type",
@@ -255,6 +284,7 @@ All errors follow consistent structure:
 ```
 
 ### Try-Catch Strategy
+
 ```typescript
 try {
   // 1. Parse and validate input
@@ -275,21 +305,25 @@ try {
 ## 8. Performance Considerations
 
 ### Database Performance
+
 - **Index on (user_id, name)**: Ensure composite index exists for duplicate check queries
 - **Single Database Round Trip**: Combine duplicate check and insert if possible using RPC
 - **Connection Pooling**: Use Supabase connection pooling
 
 ### Optimization Strategies
+
 1. Use `maybeSingle()` instead of `select().limit(1)` for duplicate checks
 2. Use `single()` for insert to get result directly
 3. Minimize selected fields in queries (only what's needed)
 4. Consider caching user collection names if frequently accessed
 
 ### Potential Bottlenecks
+
 - Duplicate name check query (mitigated by index)
 - Multiple database round trips (check then insert)
 
 ### Scalability
+
 - Endpoint is lightweight (single insert)
 - No N+1 query problems
 - Stateless endpoint (scales horizontally)
@@ -297,22 +331,23 @@ try {
 ## 9. Implementation Steps
 
 ### Step 1: Create Zod Validation Schema
+
 **File**: `src/pages/api/collections/index.ts` (inline) or `src/lib/schemas/collections.schema.ts` (if shared)
 
 Create validation schema:
+
 ```typescript
 const CreateCollectionSchema = z.object({
-  name: z.string()
-    .min(1, "Name is required")
-    .max(100, "Name must be 100 characters or less")
-    .trim()
+  name: z.string().min(1, "Name is required").max(100, "Name must be 100 characters or less").trim(),
 });
 ```
 
 ### Step 2: Create CollectionsService
+
 **File**: `src/lib/services/collections.service.ts`
 
 Implement:
+
 - `createCollection(supabase: SupabaseClient, userId: string, command: CreateCollectionCommand): Promise<CollectionDTO>`
   - Check for duplicate name
   - Insert collection
@@ -322,9 +357,11 @@ Implement:
 Export service methods.
 
 ### Step 3: Create API Route Handler
+
 **File**: `src/pages/api/collections/index.ts`
 
 Implement:
+
 1. Add `export const prerender = false`
 2. Implement POST handler:
    - Mock authentication (use hardcoded userId)
@@ -335,7 +372,9 @@ Implement:
    - Handle errors with appropriate status codes
 
 ### Step 4: Implement Error Handling
+
 In the POST handler:
+
 - Wrap logic in try-catch
 - Handle ZodError (400)
 - Handle duplicate name error (409)
@@ -344,19 +383,25 @@ In the POST handler:
 - Return consistent error format
 
 ### Step 5: Test Duplicate Name Handling
+
 Ensure:
+
 - Case sensitivity is correct (default PostgreSQL is case-sensitive)
 - Whitespace trimming works correctly
 - Duplicate check is scoped to user (not global)
 
 ### Step 6: Verify Database Constraints
+
 Check:
+
 - `collections` table has `user_id` foreign key to `profiles.user_id`
 - `created_at` has default value (CURRENT_TIMESTAMP)
 - UUID generation works (default gen_random_uuid())
 
 ### Step 7: Add Response Mapping
+
 Map database result to CollectionDTO:
+
 - `id` → `id`
 - `user_id` → `userId` (camelCase)
 - `name` → `name`
@@ -364,7 +409,9 @@ Map database result to CollectionDTO:
 - `recipeCount` → 0 (hardcoded for new collections)
 
 ### Step 8: Manual Testing
+
 Test scenarios:
+
 1. ✅ Create collection with valid name
 2. ❌ Create collection with missing name (400)
 3. ❌ Create collection with name > 100 chars (400)

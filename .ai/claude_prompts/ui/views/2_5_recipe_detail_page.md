@@ -3,12 +3,13 @@ As a senior frontend developer, your task is to create a detailed implementation
 First, review the following information:
 
 1. Product Requirements Document (PRD):
-<prd>
-`.ai/prd.md`
-</prd>
+   <prd>
+   `.ai/prd.md`
+   </prd>
 
 2. View Description:
-<view_description>
+   <view_description>
+
 ### 2.5 Recipe Detail Page
 
 **Path:** `/recipes/[id]`
@@ -16,6 +17,7 @@ First, review the following information:
 **Main Purpose:** Display full recipe information including ingredients, preparation steps, nutrition values. Primary interface for viewing, modifying with AI, and managing individual recipes.
 
 **Key Information to Display:**
+
 - Complete recipe data (title, description, tags, prep time, servings)
 - Full ingredients list with amounts
 - Step-by-step preparation instructions
@@ -28,6 +30,7 @@ First, review the following information:
 **Layout Components:**
 
 **Desktop Layout (Two-Column):**
+
 - Left column (main content):
   - `<RecipeHeader>` - Title, description, tags, metadata (prep time, servings)
   - `<ServingsAdjuster>` - [−] **4 porcje** [+] buttons
@@ -38,11 +41,13 @@ First, review the following information:
   - `<ActionButtons>` - Stacked action buttons
 
 **Mobile Layout (Single Column):**
+
 - All sections stacked vertically
 - Nutrition card appears after recipe header
 - Action buttons sticky at bottom or in floating action menu
 
 **Tab Interface (when modification exists):**
+
 - `<TabNavigation>` - "Oryginalny" | "Zmodyfikowany" tabs
 - **Original Tab:**
   - Shows original recipe data
@@ -56,6 +61,7 @@ First, review the following information:
 **Core Components:**
 
 `<RecipeHeader>`
+
 - Title (H1)
 - Description paragraph
 - Tag badges (clickable to filter)
@@ -63,22 +69,26 @@ First, review the following information:
 - Author name (if public recipe)
 
 `<ServingsAdjuster>`
+
 - Decrement button [−]
 - Current servings display: "4 porcje"
 - Increment button [+]
 - Real-time ingredient amount recalculation using ratio: `newAmount = originalAmount × (newServings / originalServings)`
 
 `<IngredientsList>`
+
 - Each ingredient shows: amount, unit, name
 - Amounts update dynamically with servings adjustment
 - Responsive layout (multi-column on desktop if space allows)
 
 `<PreparationSteps>`
+
 - Simple numbered list (auto-numbered with CSS or explicit)
 - Each step as paragraph
 - No checkboxes or cooking mode features (excluded from MVP)
 
 `<NutritionCard>`
+
 - Total calories prominently displayed
 - `<NutritionPieChart>` - Pie chart for macros (see section 5.4 for details)
 - Macronutrient breakdown list:
@@ -89,6 +99,7 @@ First, review the following information:
   - Sól: Xg
 
 `<ActionButtons>`
+
 - Primary: "Modyfikuj z AI" (prominent button with sparkles icon)
 - Secondary actions:
   - "Edytuj" (only on Original tab)
@@ -98,6 +109,7 @@ First, review the following information:
   - "Usuń modyfikację" (only on Modified tab, if modification exists)
 
 **Interactive Components:**
+
 - Tab switching (if modification exists)
 - Servings increment/decrement with real-time updates
 - Favorite toggle (optimistic UI)
@@ -107,6 +119,7 @@ First, review the following information:
 - Delete modification confirmation
 
 **UX Considerations:**
+
 - Responsive layout shift (two-column to single-column)
 - Ingredient amounts update smoothly with servings changes
 - Clear visual distinction between Original and Modified tabs
@@ -117,6 +130,7 @@ First, review the following information:
 - Tab state not persisted in URL (simpler UX)
 
 **Accessibility Considerations:**
+
 - Proper heading hierarchy (H1 recipe title, H2 for sections)
 - Tab panel accessibility (ARIA tabs pattern from Shadcn/ui)
 - Servings adjuster keyboard support (arrow keys or +/- keys)
@@ -125,17 +139,20 @@ First, review the following information:
 - Chart has text alternative (legend with actual values)
 
 **Security Considerations:**
+
 - Recipe ownership check for Edit/Delete actions
 - Public recipes viewable by all authenticated users
 - Private recipes only viewable by owner
 - Modification ownership verified before deletion
 
 **Empty/Error States:**
+
 - Recipe not found: "Nie znaleziono przepisu" with back button
 - Recipe access denied: "Nie masz dostępu do tego przepisu"
 - Failed to load modification: Toast error, show original only
 
 **Future Enhancements (Post-MVP):**
+
 - Recipe rating display (stars, "Did you cook this?" status)
 - Comments section
 - Print-friendly view
@@ -145,9 +162,9 @@ First, review the following information:
 </view_description>
 
 3. User Stories:
-<user_stories>
-US-016: Displaying Recipe Details
-As a user, I want to see the full details of a recipe to learn all the information needed for preparation.
+   <user_stories>
+   US-016: Displaying Recipe Details
+   As a user, I want to see the full details of a recipe to learn all the information needed for preparation.
 
 Acceptance Criteria:
 
@@ -161,7 +178,8 @@ As a user, I can change the number of servings using a slider/buttons +/-, and t
 </user_stories>
 
 1. Endpoint Description:
-<endpoint_description>
+   <endpoint_description>
+
 #### GET /api/profile
 
 **Description**: Get current user's profile
@@ -250,28 +268,31 @@ As a user, I can change the number of servings using a slider/buttons +/-, and t
 </endpoint_description>
 
 1. Endpoint Implementation:
-<endpoint_implementation>
-`src/pages/api/profile.ts`
-`src/pages/api/recipes/[recipeId].ts`
-</endpoint_implementation>
+   <endpoint_implementation>
+   `src/pages/api/profile.ts`
+   `src/pages/api/recipes/[recipeId].ts`
+   </endpoint_implementation>
 
 1. Type Definitions:
-<type_definitions>
-`src/types.ts`
-</type_definitions>
+   <type_definitions>
+   `src/types.ts`
+   </type_definitions>
 
 1. Tech Stack:
-<tech_stack>
-`.ai/tech-stack.md`
-</tech_stack>
+   <tech_stack>
+   `.ai/tech-stack.md`
+   </tech_stack>
 
 Before creating the final implementation plan, conduct analysis and planning inside <implementation_breakdown> tags in your thinking block. This section can be quite long, as it's important to be thorough.
 
 In your implementation breakdown, execute the following steps:
+
 1. For each input section (PRD, User Stories, Endpoint Description, Endpoint Implementation, Type Definitions, Tech Stack):
-  - Summarize key points
- - List any requirements or constraints
- - Note any potential challenges or important issues
+
+- Summarize key points
+- List any requirements or constraints
+- Note any potential challenges or important issues
+
 2. Extract and list key requirements from the PRD
 3. List all needed main components, along with a brief description of their purpose, needed types, handled events, and validation conditions
 4. Create a high-level component tree diagram
@@ -290,12 +311,14 @@ After conducting the analysis, provide an implementation plan in Markdown format
 2. View Routing: Specify the path where the view should be accessible.
 3. Component Structure: Outline of main components and their hierarchy.
 4. Component Details: For each component, describe:
- - Component description, its purpose and what it consists of
- - Main HTML elements and child components that build the component
- - Handled events
- - Validation conditions (detailed conditions, according to API)
- - Types (DTO and ViewModel) required by the component
- - Props that the component accepts from parent (component interface)
+
+- Component description, its purpose and what it consists of
+- Main HTML elements and child components that build the component
+- Handled events
+- Validation conditions (detailed conditions, according to API)
+- Types (DTO and ViewModel) required by the component
+- Props that the component accepts from parent (component interface)
+
 5. Types: Detailed description of types required for view implementation, including exact breakdown of any new types or view models by fields and types.
 6. State Management: Detailed description of how state is managed in the view, specifying whether a custom hook is required.
 7. API Integration: Explanation of how to integrate with the provided endpoint. Precisely indicate request and response types.
@@ -314,16 +337,21 @@ Here's an example of what the output file should look like (content is to be rep
 # View Implementation Plan [View Name]
 
 ## 1. Overview
+
 [Brief description of the view and its purpose]
 
 ## 2. View Routing
+
 [Path where the view should be accessible]
 
 ## 3. Component Structure
+
 [Outline of main components and their hierarchy]
 
 ## 4. Component Details
+
 ### [Component Name 1]
+
 - Component description [description]
 - Main elements: [description]
 - Handled interactions: [list]
@@ -332,29 +360,38 @@ Here's an example of what the output file should look like (content is to be rep
 - Props: [list]
 
 ### [Component Name 2]
+
 [...]
 
 ## 5. Types
+
 [Detailed description of required types]
 
 ## 6. State Management
+
 [Description of state management in the view]
 
 ## 7. API Integration
+
 [Explanation of integration with provided endpoint, indication of request and response types]
 
 ## 8. User Interactions
+
 [Detailed description of user interactions]
 
 ## 9. Conditions and Validation
+
 [Detailed description of conditions and their validation]
 
 ## 10. Error Handling
+
 [Description of handling potential errors]
+
 ## 11. Implementation Steps
+
 1. [Step 1]
 2. [Step 2]
 3. [...]
 ```
 
-Begin analysis and planning now. Your final output should consist solely of the implementation plan in English in markdown format, which you will save in the .ai/claude_prompts/ui/views/2_5_{view-name}-view-implementation-plan.md file and should not duplicate or repeat any work done in the implementation breakdown.
+Begin analysis and planning now. Your final output should consist solely of the implementation plan in English in markdown format, which you will save in the .ai/claude*prompts/ui/views/2_5*{view-name}-view-implementation-plan.md file and should not duplicate or repeat any work done in the implementation breakdown.

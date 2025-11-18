@@ -61,7 +61,7 @@ Before we begin, review the following information:
 - 401 Unauthorized: Not authenticated
 - 403 Forbidden: Recipe is private and user is not the owner
 - 404 Not Found: Recipe not found
-</route_api_specification>
+  </route_api_specification>
 
 2. Related database resources:
    <related_db_resources>

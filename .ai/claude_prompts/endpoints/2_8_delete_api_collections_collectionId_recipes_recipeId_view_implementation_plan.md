@@ -5,6 +5,7 @@
 This endpoint allows authenticated users to remove a recipe from one of their collections. It performs authorization checks to ensure the user owns the collection and validates that the recipe exists in the collection before deletion. The endpoint follows REST principles by using the DELETE HTTP method and returns 204 No Content on success.
 
 **Key Features:**
+
 - Removes recipe from collection
 - Validates user ownership of collection (authorization)
 - Returns 204 No Content on successful deletion
@@ -24,6 +25,7 @@ This endpoint allows authenticated users to remove a recipe from one of their co
 - **Authentication**: Required (currently mocked with userId: `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`)
 
 **Example Request:**
+
 ```http
 DELETE /api/collections/123e4567-e89b-12d3-a456-426614174000/recipes/987fcdeb-51a2-43d7-8912-123456789abc
 ```
@@ -63,12 +65,13 @@ function removeRecipeFromCollection(
   userId: string,
   collectionId: string,
   recipeId: string
-): Promise<void>
+): Promise<void>;
 ```
 
 ### Custom Error Classes
 
 **New Error Class (to be added):**
+
 ```typescript
 /**
  * Error thrown when recipe is not found in the collection
@@ -82,6 +85,7 @@ export class RecipeNotInCollectionError extends Error {
 ```
 
 **Existing Error Classes (reused):**
+
 - `CollectionNotFoundError` - Thrown when collection doesn't exist or user is not authorized
 
 ## 4. Response Details
@@ -97,6 +101,7 @@ HTTP/1.1 204 No Content
 ### Error Responses
 
 #### 400 Bad Request - Invalid UUID Format
+
 ```json
 {
   "error": "Bad Request",
@@ -114,6 +119,7 @@ or
 ```
 
 #### 401 Unauthorized - Not Authenticated
+
 ```json
 {
   "error": "Unauthorized",
@@ -122,6 +128,7 @@ or
 ```
 
 #### 404 Not Found - Collection/Recipe Not Found or Not Authorized
+
 ```json
 {
   "error": "Not Found",
@@ -130,11 +137,13 @@ or
 ```
 
 **Note**: This error is returned for multiple scenarios to prevent enumeration attacks:
+
 - Collection doesn't exist
 - User doesn't own the collection
 - Recipe is not in the collection
 
 #### 500 Internal Server Error - Unexpected Error
+
 ```json
 {
   "error": "Internal Server Error",
@@ -178,6 +187,7 @@ or
 **Table**: `collection_recipes`
 
 **Query 1**: Verify collection ownership (anti-enumeration pattern)
+
 ```sql
 SELECT id, user_id
 FROM collections
@@ -186,6 +196,7 @@ LIMIT 1
 ```
 
 **Query 2**: Delete recipe from collection
+
 ```sql
 DELETE FROM collection_recipes
 WHERE collection_id = {collectionId} AND recipe_id = {recipeId}
@@ -197,11 +208,13 @@ RETURNING collection_id
 ## 6. Security Considerations
 
 ### Authentication
+
 - Verify user is authenticated before processing request
 - Currently mocked with hardcoded userId for development
 - Production: Use Supabase `auth.getUser()` method
 
 ### Authorization
+
 - **Collection Ownership**: Verify the collection belongs to the authenticated user
 - **Anti-enumeration Pattern**:
   - Use single query combining existence and ownership check
@@ -209,6 +222,7 @@ RETURNING collection_id
   - Prevents attackers from discovering which collections exist in the system
 
 ### Input Validation
+
 - **UUID Format Validation**: Validate both `collectionId` and `recipeId` are valid UUIDs
 - **Benefits**:
   - Prevents SQL injection attempts
@@ -216,19 +230,20 @@ RETURNING collection_id
   - Reduces unnecessary database queries
 
 ### Data Access Control
+
 - Users can only remove recipes from their own collections
 - No cross-user data access possible
 - Database foreign key constraints ensure referential integrity
 
 ### Security Threats Mitigation
 
-| Threat | Mitigation |
-|--------|-----------|
-| Enumeration Attack | Same 404 response for unauthorized and non-existent collections |
-| SQL Injection | UUID validation + Supabase parameterized queries |
-| Unauthorized Access | Verify collection ownership before deletion |
-| CSRF | Not applicable for DELETE with no session cookies (using bearer tokens) |
-| Rate Limiting | Should be implemented at API gateway level (not in this endpoint) |
+| Threat              | Mitigation                                                              |
+| ------------------- | ----------------------------------------------------------------------- |
+| Enumeration Attack  | Same 404 response for unauthorized and non-existent collections         |
+| SQL Injection       | UUID validation + Supabase parameterized queries                        |
+| Unauthorized Access | Verify collection ownership before deletion                             |
+| CSRF                | Not applicable for DELETE with no session cookies (using bearer tokens) |
+| Rate Limiting       | Should be implemented at API gateway level (not in this endpoint)       |
 
 ## 7. Error Handling
 
@@ -242,20 +257,21 @@ Follow the existing pattern from other collection endpoints:
 
 ### Error Scenarios
 
-| Scenario | Status Code | Error Type | Response Message |
-|----------|-------------|------------|------------------|
-| Invalid collectionId UUID | 400 | Bad Request | "Invalid collection ID format" |
-| Invalid recipeId UUID | 400 | Bad Request | "Invalid recipe ID format" |
-| User not authenticated | 401 | Unauthorized | "Authentication required" |
-| Collection doesn't exist | 404 | Not Found | "Recipe not found in collection" |
-| User doesn't own collection | 404 | Not Found | "Recipe not found in collection" |
-| Recipe not in collection | 404 | Not Found | "Recipe not found in collection" |
-| Database error | 500 | Internal Server Error | "Failed to remove recipe from collection" |
-| Unknown error | 500 | Internal Server Error | "Failed to remove recipe from collection" |
+| Scenario                    | Status Code | Error Type            | Response Message                          |
+| --------------------------- | ----------- | --------------------- | ----------------------------------------- |
+| Invalid collectionId UUID   | 400         | Bad Request           | "Invalid collection ID format"            |
+| Invalid recipeId UUID       | 400         | Bad Request           | "Invalid recipe ID format"                |
+| User not authenticated      | 401         | Unauthorized          | "Authentication required"                 |
+| Collection doesn't exist    | 404         | Not Found             | "Recipe not found in collection"          |
+| User doesn't own collection | 404         | Not Found             | "Recipe not found in collection"          |
+| Recipe not in collection    | 404         | Not Found             | "Recipe not found in collection"          |
+| Database error              | 500         | Internal Server Error | "Failed to remove recipe from collection" |
+| Unknown error               | 500         | Internal Server Error | "Failed to remove recipe from collection" |
 
 ### Error Logging Examples
 
 **Business Logic Error (console.info):**
+
 ```typescript
 console.info("[DELETE /api/collections/{collectionId}/recipes/{recipeId}] Recipe not in collection:", {
   userId,
@@ -266,6 +282,7 @@ console.info("[DELETE /api/collections/{collectionId}/recipes/{recipeId}] Recipe
 ```
 
 **Unexpected Error (console.error):**
+
 ```typescript
 console.error("[DELETE /api/collections/{collectionId}/recipes/{recipeId}] Error:", {
   userId,
@@ -414,6 +431,7 @@ export async function removeRecipeFromCollection(
 Create new file with the following structure:
 
 **Section 1: Imports**
+
 ```typescript
 import type { APIRoute } from "astro";
 import { z } from "zod";
@@ -427,6 +445,7 @@ export const prerender = false;
 ```
 
 **Section 2: Validation Schemas**
+
 ```typescript
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -444,6 +463,7 @@ const RecipeIdParamSchema = z.string().uuid("Invalid recipe ID format");
 ```
 
 **Section 3: DELETE Handler**
+
 ```typescript
 // ============================================================================
 // API ROUTE HANDLERS
@@ -541,12 +561,7 @@ export const DELETE: APIRoute = async (context) => {
     // REMOVE RECIPE FROM COLLECTION VIA SERVICE
     // ========================================
 
-    await removeRecipeFromCollection(
-      context.locals.supabase,
-      userId,
-      validatedCollectionId,
-      validatedRecipeId
-    );
+    await removeRecipeFromCollection(context.locals.supabase, userId, validatedCollectionId, validatedRecipeId);
 
     // ========================================
     // RETURN SUCCESS RESPONSE (204 NO CONTENT)
@@ -627,6 +642,7 @@ export const DELETE: APIRoute = async (context) => {
 Ensure `RecipeNotInCollectionError` is exported (should be automatic with `export class` keyword).
 
 The error class should be importable in the API route:
+
 ```typescript
 import {
   removeRecipeFromCollection,
@@ -640,30 +656,36 @@ import {
 After implementation, test the following scenarios:
 
 **Success Cases:**
+
 - [ ] DELETE request removes recipe from collection → 204 No Content
 - [ ] Verify recipe is actually removed from database
 - [ ] Verify collection still exists after recipe removal
 
 **Validation Errors:**
+
 - [ ] Invalid collectionId UUID → 400 Bad Request with "Invalid collection ID format"
 - [ ] Invalid recipeId UUID → 400 Bad Request with "Invalid recipe ID format"
 
 **Authorization Errors:**
+
 - [ ] Collection doesn't exist → 404 Not Found
 - [ ] Collection belongs to another user → 404 Not Found
 - [ ] Recipe not in collection → 404 Not Found
 
 **Edge Cases:**
+
 - [ ] Deleting last recipe from collection (collection should remain)
 - [ ] Deleting same recipe twice (second attempt should return 404)
 
 **Error Handling:**
+
 - [ ] Database connection error → 500 Internal Server Error
 - [ ] Unexpected errors logged to console with stack trace
 
 ### Step 6: Manual Testing Examples
 
 **Test 1: Successful Deletion**
+
 ```bash
 # First, add a recipe to a collection
 curl -X POST http://localhost:3000/api/collections/COLLECTION_ID/recipes \
@@ -678,6 +700,7 @@ curl -X DELETE http://localhost:3000/api/collections/COLLECTION_ID/recipes/RECIP
 ```
 
 **Test 2: Invalid UUID Format**
+
 ```bash
 curl -X DELETE http://localhost:3000/api/collections/invalid-uuid/recipes/RECIPE_ID \
   -i
@@ -687,6 +710,7 @@ curl -X DELETE http://localhost:3000/api/collections/invalid-uuid/recipes/RECIPE
 ```
 
 **Test 3: Recipe Not in Collection**
+
 ```bash
 curl -X DELETE http://localhost:3000/api/collections/COLLECTION_ID/recipes/NON_EXISTENT_RECIPE_ID \
   -i
@@ -698,18 +722,21 @@ curl -X DELETE http://localhost:3000/api/collections/COLLECTION_ID/recipes/NON_E
 ## 10. Additional Notes
 
 ### REST API Best Practices
+
 - Using DELETE method for resource removal (REST convention)
 - Using 204 No Content for successful deletion (no response body needed)
 - UUID validation prevents malformed requests
 - Idempotency: Deleting non-existent recipe returns 404 (not idempotent by strict definition, but follows REST conventions)
 
 ### Database Considerations
+
 - Foreign key CASCADE rules in database handle cleanup automatically
 - Deleting a collection automatically removes all `collection_recipes` entries
 - Deleting a recipe automatically removes it from all collections
 - No orphaned records possible
 
 ### Compliance with Tech Stack
+
 - ✅ Astro 5: API routes with `export const prerender = false`
 - ✅ TypeScript 5: Full type safety with interfaces and types
 - ✅ Zod: Input validation for path parameters
@@ -721,4 +748,3 @@ curl -X DELETE http://localhost:3000/api/collections/COLLECTION_ID/recipes/NON_E
 ## Summary
 
 This implementation plan provides comprehensive guidance for developing the DELETE endpoint to remove recipes from collections. The plan follows established patterns in the codebase, implements proper security measures (anti-enumeration, authorization), and adheres to REST API best practices.
-

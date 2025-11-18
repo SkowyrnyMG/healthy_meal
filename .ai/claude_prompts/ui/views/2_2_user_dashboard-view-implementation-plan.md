@@ -5,6 +5,7 @@
 The User Dashboard is a post-login landing page that serves as the main navigation hub for authenticated users. It provides quick access to user's own recipes, favorited recipes, and public recipes for inspiration. The dashboard is designed to minimize the time needed to reach any destination in the application while providing personalized content based on user activity.
 
 **Key Features:**
+
 - Personalized welcome banner with user's name
 - Display of last 4-6 user-created recipes
 - Display of last 4-6 favorited recipes
@@ -46,12 +47,14 @@ src/pages/dashboard.astro (Server-rendered page)
 Server-rendered Astro page that fetches all required data in parallel and orchestrates the dashboard layout. Handles authentication, data fetching, error states, and passes data to React components.
 
 **Main Elements:**
+
 - HTML structure with proper semantic markup
 - Main container with max-width constraint
 - Section containers for different recipe categories
 - Footer component
 
 **Server-Side Logic:**
+
 1. Check user authentication via Supabase session
 2. Fetch user profile (for welcome name)
 3. Fetch user's recent recipes (limit: 6)
@@ -62,20 +65,24 @@ Server-rendered Astro page that fetches all required data in parallel and orches
 8. Pass data to client components
 
 **Handled Events:**
+
 - None (server-side only)
 
 **Validation Conditions:**
+
 - User must be authenticated (redirect to `/login` if not)
 - Handle missing profile gracefully (null name)
 - Handle empty recipe lists (show empty states)
 
 **Types:**
+
 - `DashboardData` (custom type for server data)
 - `RecipeListItemDTO` (from types.ts)
 - `FavoriteDTO` (from types.ts)
 - `ProfileDTO` (from types.ts)
 
 **Props:**
+
 - None (this is a page component)
 
 ### 4.2 WelcomeBanner (`src/components/WelcomeBanner.tsx`)
@@ -84,18 +91,22 @@ Server-rendered Astro page that fetches all required data in parallel and orches
 React component displaying a personalized greeting message with the user's name and a prominent call-to-action button for adding new recipes.
 
 **Main Elements:**
+
 - Container `<div>` with padding and background
 - Heading `<h1>` with greeting text: "Witaj, {name}!" or "Witaj!" if no name
 - Subheading `<p>` with welcome message
 - Button (Shadcn/ui) with "+ Dodaj przepis" text and plus icon
 
 **Handled Events:**
+
 - Button click: Navigate to `/recipes/new` using `window.location.href` or Next-style router
 
 **Validation Conditions:**
+
 - None
 
 **Types:**
+
 ```typescript
 interface WelcomeBannerProps {
   userName: string | null;
@@ -103,6 +114,7 @@ interface WelcomeBannerProps {
 ```
 
 **Props:**
+
 - `userName` (string | null): User's name from profile or auth metadata
 
 ### 4.3 RecipeSectionRow (`src/components/RecipeSectionRow.tsx`)
@@ -111,6 +123,7 @@ interface WelcomeBannerProps {
 Reusable React component that displays a horizontal scrolling row of recipe cards with a section title and "View All" link. Handles empty states with custom messages.
 
 **Main Elements:**
+
 - Container `<div>` with section padding
 - Header `<div>` with flex layout
   - Section title `<h2>`
@@ -122,14 +135,17 @@ Reusable React component that displays a horizontal scrolling row of recipe card
   - Action button (conditional, based on section type)
 
 **Handled Events:**
+
 - Scroll: Native browser horizontal scroll with touch support
 - Keyboard navigation: Arrow keys for scrolling (accessibility)
 
 **Validation Conditions:**
+
 - If `recipes.length === 0`, show empty state
 - If `viewAllLink` is provided and recipes exist, show "Zobacz wszystkie" link
 
 **Types:**
+
 ```typescript
 interface RecipeSectionRowProps {
   title: string;
@@ -155,6 +171,7 @@ interface RecipeCardData {
 ```
 
 **Props:**
+
 - `title`: Section heading text
 - `recipes`: Array of recipe data for cards
 - `viewAllLink`: Optional URL for "View All" link
@@ -169,6 +186,7 @@ interface RecipeCardData {
 Interactive React component displaying a summarized recipe card with key information, favorite toggle, and navigation to recipe detail. Features a colored placeholder with recipe initial and icon, nutrition badges, and quick actions.
 
 **Main Elements:**
+
 - Card container `<div>` with shadow and hover effects
 - Colored placeholder `<div>` with:
   - Recipe title initial letter
@@ -185,14 +203,17 @@ Interactive React component displaying a summarized recipe card with key informa
   - Menu button (Shadcn/ui Button) with "..." icon
 
 **Handled Events:**
+
 - Card click: Navigate to `/recipes/{id}`
 - Favorite button click: Call `onFavoriteToggle(recipeId)`, prevent event bubbling
 - Menu button click: Open dropdown menu (future feature), prevent event bubbling
 
 **Validation Conditions:**
+
 - None (all data should be validated before reaching component)
 
 **Types:**
+
 ```typescript
 interface RecipeCardProps {
   recipe: RecipeCardData;
@@ -203,6 +224,7 @@ interface RecipeCardProps {
 ```
 
 **Props:**
+
 - `recipe`: Recipe data object
 - `isFavorited`: Whether recipe is in user's favorites
 - `onFavoriteToggle`: Callback for favorite toggle
@@ -213,6 +235,7 @@ interface RecipeCardProps {
 ### 5.1 Existing DTOs (from `src/types.ts`)
 
 **ProfileDTO**
+
 ```typescript
 interface ProfileDTO {
   userId: string;
@@ -229,6 +252,7 @@ interface ProfileDTO {
 ```
 
 **RecipeListItemDTO**
+
 ```typescript
 interface RecipeListItemDTO {
   id: string;
@@ -247,6 +271,7 @@ interface RecipeListItemDTO {
 ```
 
 **FavoriteDTO**
+
 ```typescript
 interface FavoriteDTO {
   recipeId: string;
@@ -262,6 +287,7 @@ interface FavoriteDTO {
 ```
 
 **NutritionDTO**
+
 ```typescript
 interface NutritionDTO {
   calories: number;
@@ -274,6 +300,7 @@ interface NutritionDTO {
 ```
 
 **TagDTO**
+
 ```typescript
 interface TagDTO {
   id: string;
@@ -284,6 +311,7 @@ interface TagDTO {
 ```
 
 **PaginationDTO**
+
 ```typescript
 interface PaginationDTO {
   page: number;
@@ -296,6 +324,7 @@ interface PaginationDTO {
 ### 5.2 New ViewModels
 
 **DashboardData** - Server-side data structure
+
 ```typescript
 interface DashboardData {
   userName: string | null;
@@ -310,6 +339,7 @@ interface DashboardData {
   };
 }
 ```
+
 - `userName`: User's display name from profile or auth, null if not available
 - `userRecipes`: Array of user's recently created recipes (max 6)
 - `favoriteRecipes`: Array of user's favorited recipes (max 6)
@@ -317,6 +347,7 @@ interface DashboardData {
 - `errors`: Optional error messages per data source for debugging/logging
 
 **RecipeCardData** - Unified recipe card data
+
 ```typescript
 interface RecipeCardData {
   id: string;
@@ -327,6 +358,7 @@ interface RecipeCardData {
   primaryTag: TagDTO | null;
 }
 ```
+
 - `id`: Recipe UUID
 - `title`: Recipe title (truncated to 2 lines in UI)
 - `description`: Recipe description (not displayed on card, but available)
@@ -344,16 +376,16 @@ The dashboard page fetches all data server-side during page load:
 
 ```typescript
 // Parallel data fetching
-const [profileResult, userRecipesResult, favoritesResult, publicRecipesResult] =
-  await Promise.allSettled([
-    fetch('/api/profile'),
-    fetch('/api/recipes?limit=6&sortBy=createdAt&sortOrder=desc'),
-    fetch('/api/favorites?limit=6'),
-    fetch('/api/recipes/public?limit=20&sortBy=createdAt&sortOrder=desc')
-  ]);
+const [profileResult, userRecipesResult, favoritesResult, publicRecipesResult] = await Promise.allSettled([
+  fetch("/api/profile"),
+  fetch("/api/recipes?limit=6&sortBy=createdAt&sortOrder=desc"),
+  fetch("/api/favorites?limit=6"),
+  fetch("/api/recipes/public?limit=20&sortBy=createdAt&sortOrder=desc"),
+]);
 ```
 
 **Data Transformations:**
+
 1. Extract user name from profile (fallback to null if not available)
 2. Transform RecipeListItemDTO to RecipeCardData (extract primary tag)
 3. Transform FavoriteDTO to RecipeCardData (map nested recipe object)
@@ -377,16 +409,18 @@ interface UseFavoriteToggleReturn {
   isTogglingRecipe: (recipeId: string) => boolean;
 }
 
-function useFavoriteToggle(options: UseFavoriteToggleOptions): UseFavoriteToggleReturn
+function useFavoriteToggle(options: UseFavoriteToggleOptions): UseFavoriteToggleReturn;
 ```
 
 **Purpose:**
+
 - Manages optimistic UI updates for favorite toggle
 - Handles API calls to add/remove favorites
 - Rolls back state on API errors
 - Tracks loading state per recipe
 
 **Implementation:**
+
 1. Initialize state with `initialFavorites` Set
 2. On toggle:
    - Determine action (add or remove based on current state)
@@ -404,21 +438,25 @@ function useFavoriteToggle(options: UseFavoriteToggleOptions): UseFavoriteToggle
 **Purpose:** Fetch user's profile for display name in welcome banner
 
 **Request:**
+
 - Method: GET
 - URL: `/api/profile`
 - Headers: Authentication cookie (handled by Supabase client)
 - Body: None
 
 **Response (200 OK):**
+
 ```typescript
-ProfileDTO
+ProfileDTO;
 ```
 
 **Error Responses:**
+
 - 401 Unauthorized: Not authenticated → Redirect to /login
 - 404 Not Found: Profile not found → Use null for userName
 
 **Frontend Handling:**
+
 - Fetch server-side in Astro page
 - Extract user name (note: ProfileDTO doesn't have name field, will need to check Supabase auth)
 - Fallback to null if profile not found
@@ -429,6 +467,7 @@ ProfileDTO
 **Purpose:** Fetch user's recently created recipes
 
 **Request:**
+
 - Method: GET
 - URL: `/api/recipes?limit=6&sortBy=createdAt&sortOrder=desc`
 - Query Parameters:
@@ -438,6 +477,7 @@ ProfileDTO
 - Headers: Authentication cookie
 
 **Response (200 OK):**
+
 ```typescript
 {
   recipes: RecipeListItemDTO[];
@@ -446,10 +486,12 @@ ProfileDTO
 ```
 
 **Error Responses:**
+
 - 400 Bad Request: Invalid parameters → Show error state
 - 401 Unauthorized: Not authenticated → Redirect to /login
 
 **Frontend Handling:**
+
 - Fetch server-side in Astro page
 - Transform RecipeListItemDTO[] to RecipeCardData[]
 - Extract primary tag (first from tags array)
@@ -461,6 +503,7 @@ ProfileDTO
 **Purpose:** Fetch user's favorited recipes
 
 **Request:**
+
 - Method: GET
 - URL: `/api/favorites?limit=6`
 - Query Parameters:
@@ -468,6 +511,7 @@ ProfileDTO
 - Headers: Authentication cookie
 
 **Response (200 OK):**
+
 ```typescript
 {
   favorites: FavoriteDTO[];
@@ -476,10 +520,12 @@ ProfileDTO
 ```
 
 **Error Responses:**
+
 - 400 Bad Request: Invalid parameters → Show error state
 - 401 Unauthorized: Not authenticated → Redirect to /login
 
 **Frontend Handling:**
+
 - Fetch server-side in Astro page
 - Transform FavoriteDTO[] to RecipeCardData[]
 - Extract recipe data from nested structure
@@ -492,6 +538,7 @@ ProfileDTO
 **Purpose:** Fetch public recipes for inspiration section
 
 **Request:**
+
 - Method: GET
 - URL: `/api/recipes/public?limit=20&sortBy=createdAt&sortOrder=desc`
 - Query Parameters:
@@ -501,6 +548,7 @@ ProfileDTO
 - Headers: Authentication cookie
 
 **Response (200 OK):**
+
 ```typescript
 {
   recipes: RecipeListItemDTO[];
@@ -509,10 +557,12 @@ ProfileDTO
 ```
 
 **Error Responses:**
+
 - 400 Bad Request: Invalid parameters → Show error state
 - 401 Unauthorized: Not authenticated → Redirect to /login
 
 **Frontend Handling:**
+
 - Fetch server-side in Astro page (20 recipes)
 - Shuffle array using Fisher-Yates algorithm
 - Take first 6 recipes
@@ -525,10 +575,12 @@ ProfileDTO
 **Purpose:** Add recipe to user's favorites
 
 **Request:**
+
 - Method: POST
 - URL: `/api/favorites`
 - Headers: Authentication cookie, Content-Type: application/json
 - Body:
+
 ```typescript
 {
   recipeId: string; // UUID
@@ -536,17 +588,19 @@ ProfileDTO
 ```
 
 **Response (201 Created):**
+
 ```typescript
 {
   success: true;
   favorite: {
     recipeId: string;
     createdAt: string;
-  };
+  }
 }
 ```
 
 **Error Responses:**
+
 - 400 Bad Request: Invalid recipeId format
 - 401 Unauthorized: Not authenticated
 - 403 Forbidden: Recipe is private and belongs to another user
@@ -554,6 +608,7 @@ ProfileDTO
 - 409 Conflict: Recipe already in favorites
 
 **Frontend Handling:**
+
 - Call from useFavoriteToggle hook
 - Optimistic update: Add to favorites Set immediately
 - On error: Rollback, show toast with error message
@@ -564,6 +619,7 @@ ProfileDTO
 **Purpose:** Remove recipe from user's favorites
 
 **Request:**
+
 - Method: DELETE
 - URL: `/api/favorites/{recipeId}`
 - Path Parameters:
@@ -571,15 +627,18 @@ ProfileDTO
 - Headers: Authentication cookie
 
 **Response (204 No Content):**
+
 - Empty response body
 
 **Error Responses:**
+
 - 400 Bad Request: Invalid recipeId format
 - 401 Unauthorized: Not authenticated
 - 403 Forbidden: Recipe belongs to another user
 - 404 Not Found: Recipe not found or not in favorites
 
 **Frontend Handling:**
+
 - Call from useFavoriteToggle hook
 - Optimistic update: Remove from favorites Set immediately
 - On error: Rollback, show toast with error message
@@ -590,6 +649,7 @@ ProfileDTO
 ### 8.1 View Dashboard
 
 **Flow:**
+
 1. User navigates to `/dashboard` or is redirected after login
 2. Server checks authentication (redirect to `/login` if not authenticated)
 3. Server fetches all data in parallel:
@@ -602,6 +662,7 @@ ProfileDTO
 6. User sees personalized content
 
 **Expected Outcome:**
+
 - Dashboard loads with all sections populated
 - Empty states shown for sections with no data
 - Page is fully interactive
@@ -609,6 +670,7 @@ ProfileDTO
 ### 8.2 Toggle Favorite (Add)
 
 **Flow:**
+
 1. User clicks heart icon on unfavorited recipe card
 2. useFavoriteToggle hook immediately updates local state (optimistic)
 3. Heart icon fills with color
@@ -617,6 +679,7 @@ ProfileDTO
 6. On error: State rolls back, heart unfills, error toast shows
 
 **Expected Outcome:**
+
 - Immediate visual feedback (filled heart)
 - Recipe added to favorites
 - Or error message if operation fails
@@ -624,6 +687,7 @@ ProfileDTO
 ### 8.3 Toggle Favorite (Remove)
 
 **Flow:**
+
 1. User clicks filled heart icon on favorited recipe card
 2. useFavoriteToggle hook immediately updates local state (optimistic)
 3. Heart icon unfills
@@ -632,6 +696,7 @@ ProfileDTO
 6. On error: State rolls back, heart refills, error toast shows
 
 **Expected Outcome:**
+
 - Immediate visual feedback (unfilled heart)
 - Recipe removed from favorites
 - Or error message if operation fails
@@ -639,26 +704,31 @@ ProfileDTO
 ### 8.4 Navigate to Recipe Detail
 
 **Flow:**
+
 1. User clicks on recipe card (anywhere except heart/menu buttons)
 2. Browser navigates to `/recipes/{recipeId}`
 3. Recipe detail page loads
 
 **Expected Outcome:**
+
 - User views full recipe details
 
 ### 8.5 Add New Recipe
 
 **Flow:**
+
 1. User clicks "+ Dodaj przepis" button in WelcomeBanner
 2. Browser navigates to `/recipes/new`
 3. Recipe creation form loads
 
 **Expected Outcome:**
+
 - User can create a new recipe
 
 ### 8.6 View All Recipes in Section
 
 **Flow:**
+
 1. User clicks "Zobacz wszystkie" link in section header
 2. Browser navigates to appropriate list page:
    - User recipes: `/recipes` (with user filter)
@@ -667,27 +737,32 @@ ProfileDTO
 3. Full list page loads with pagination
 
 **Expected Outcome:**
+
 - User sees complete list of recipes for that category
 
 ### 8.7 Horizontal Scroll on Mobile
 
 **Flow:**
+
 1. User swipes/drags horizontally on recipe section
 2. Container scrolls to reveal more recipe cards
 3. Scroll snaps to card boundaries for clean alignment
 
 **Expected Outcome:**
+
 - Smooth horizontal scrolling
 - Cards align properly after scroll
 
 ### 8.8 Keyboard Navigation
 
 **Flow:**
+
 1. User focuses on recipe section (Tab key)
 2. User presses Left/Right arrow keys
 3. Section scrolls horizontally
 
 **Expected Outcome:**
+
 - Accessible navigation without mouse
 - Smooth scrolling with keyboard
 
@@ -698,14 +773,17 @@ ProfileDTO
 **Condition:** User must be authenticated to view dashboard
 
 **Validation:**
+
 - Server-side: Check Supabase session in Astro page
 - If not authenticated: Redirect to `/login`
 - If authenticated: Proceed with data fetching
 
 **Affected Components:**
+
 - dashboard.astro (page level)
 
 **Interface Impact:**
+
 - Unauthenticated users cannot access dashboard
 - Automatic redirect to login page
 
@@ -714,12 +792,15 @@ ProfileDTO
 **Condition:** User has no created recipes yet
 
 **Validation:**
+
 - Check `userRecipes.length === 0`
 
 **Affected Components:**
+
 - RecipeSectionRow ("Twoje przepisy")
 
 **Interface Impact:**
+
 - Show empty state message: "Nie masz jeszcze przepisów"
 - Show action button: "+ Dodaj pierwszy przepis" (links to `/recipes/new`)
 - Hide "Zobacz wszystkie" link
@@ -729,12 +810,15 @@ ProfileDTO
 **Condition:** User has no favorited recipes
 
 **Validation:**
+
 - Check `favoriteRecipes.length === 0`
 
 **Affected Components:**
+
 - RecipeSectionRow ("Ulubione")
 
 **Interface Impact:**
+
 - Show empty state message: "Nie masz ulubionych przepisów"
 - Show suggestion: "Przeglądaj przepisy, aby dodać ulubione"
 - Hide "Zobacz wszystkie" link
@@ -744,12 +828,15 @@ ProfileDTO
 **Condition:** No public recipes available (unlikely)
 
 **Validation:**
+
 - Check `publicRecipes.length === 0`
 
 **Affected Components:**
+
 - RecipeSectionRow ("Inspiracje")
 
 **Interface Impact:**
+
 - Show empty state message: "Brak dostępnych przepisów publicznych"
 - No action button
 - Hide "Zobacz wszystkie" link
@@ -759,12 +846,15 @@ ProfileDTO
 **Condition:** User profile doesn't exist or doesn't contain name
 
 **Validation:**
+
 - Check `userName === null`
 
 **Affected Components:**
+
 - WelcomeBanner
 
 **Interface Impact:**
+
 - Show generic greeting: "Witaj!" instead of "Witaj, {name}!"
 
 ### 9.6 Calorie Badge Color
@@ -772,14 +862,17 @@ ProfileDTO
 **Condition:** Color-code calorie badge based on value
 
 **Validation:**
+
 - Low (green): calories < 300
 - Medium (yellow): 300 ≤ calories ≤ 600
 - High (red): calories > 600
 
 **Affected Components:**
+
 - RecipeCard
 
 **Interface Impact:**
+
 - Badge background color changes based on calorie range
 - Helps users quickly identify calorie content
 
@@ -788,12 +881,15 @@ ProfileDTO
 **Condition:** Recipe title is too long
 
 **Validation:**
+
 - Apply CSS `line-clamp-2` to title element
 
 **Affected Components:**
+
 - RecipeCard
 
 **Interface Impact:**
+
 - Title truncates to 2 lines with ellipsis
 - Prevents card layout breaking
 
@@ -802,12 +898,15 @@ ProfileDTO
 **Condition:** Recipe has no tags
 
 **Validation:**
+
 - Check `primaryTag === null`
 
 **Affected Components:**
+
 - RecipeCard
 
 **Interface Impact:**
+
 - Tag badge is not displayed
 - No visual gap (conditional rendering)
 
@@ -816,12 +915,15 @@ ProfileDTO
 **Condition:** Favorite API call is in progress
 
 **Validation:**
+
 - Check `isTogglingRecipe(recipeId)` from hook
 
 **Affected Components:**
+
 - RecipeCard
 
 **Interface Impact:**
+
 - Heart button shows loading spinner
 - Button is disabled during operation
 - Prevents double-clicks
@@ -833,15 +935,18 @@ ProfileDTO
 **Scenario:** User session is invalid or expired
 
 **Detection:**
+
 - Server-side: Supabase auth check fails
 - API responses: 401 Unauthorized
 
 **Handling:**
+
 - Redirect to `/login` page
 - Clear any stale session data
 - Show message: "Sesja wygasła. Zaloguj się ponownie."
 
 **User Experience:**
+
 - Seamless redirect to login
 - Preserve intended destination (redirect back to dashboard after login)
 
@@ -850,16 +955,19 @@ ProfileDTO
 **Scenario:** API request fails due to network issues
 
 **Detection:**
+
 - Fetch throws network error
 - Timeout occurs
 
 **Handling:**
+
 - Log error to console
 - Show error toast: "Błąd połączenia. Sprawdź internet."
 - For server-side errors: Show error state in section
 - For client-side errors: Keep existing state, allow retry
 
 **User Experience:**
+
 - Clear error message
 - Retry option when applicable
 - Degraded but functional UI
@@ -869,16 +977,19 @@ ProfileDTO
 **Scenario:** GET /api/profile fails (404 or 500)
 
 **Detection:**
+
 - 404: Profile not found
 - 500: Server error
 
 **Handling:**
+
 - Log error
 - For 404: Use null userName (generic greeting)
 - For 500: Use null userName, log error
 - Don't block page load
 
 **User Experience:**
+
 - Dashboard loads normally
 - Generic greeting instead of personalized
 
@@ -887,16 +998,19 @@ ProfileDTO
 **Scenario:** GET /api/recipes or /api/recipes/public fails
 
 **Detection:**
+
 - 400: Invalid parameters (shouldn't happen with hardcoded params)
 - 500: Server error
 
 **Handling:**
+
 - Log error with context
 - Show empty state in affected section
 - Include error message in empty state
 - Don't affect other sections
 
 **User Experience:**
+
 - Section shows empty state
 - Error message: "Nie udało się załadować przepisów"
 - Other sections load normally
@@ -906,16 +1020,19 @@ ProfileDTO
 **Scenario:** GET /api/favorites fails
 
 **Detection:**
+
 - 400: Invalid parameters
 - 500: Server error
 
 **Handling:**
+
 - Log error
 - Show empty state in favorites section
 - Initialize favoriteRecipeIds as empty Set
 - Heart icons default to unfilled
 
 **User Experience:**
+
 - Favorites section shows empty state
 - Heart icons still functional (can add favorites)
 - Error message in section
@@ -925,6 +1042,7 @@ ProfileDTO
 **Scenario:** POST /api/favorites fails
 
 **Detection:**
+
 - 400: Invalid recipeId
 - 403: Recipe not accessible
 - 404: Recipe not found
@@ -932,6 +1050,7 @@ ProfileDTO
 - 500: Server error
 
 **Handling:**
+
 - Rollback optimistic update (remove from Set)
 - Show error toast with specific message:
   - 403: "Nie można dodać prywatnego przepisu innego użytkownika"
@@ -940,6 +1059,7 @@ ProfileDTO
 - Log error with context
 
 **User Experience:**
+
 - Heart icon reverts to unfilled
 - Clear error message
 - Can retry operation
@@ -949,12 +1069,14 @@ ProfileDTO
 **Scenario:** DELETE /api/favorites/{recipeId} fails
 
 **Detection:**
+
 - 400: Invalid recipeId
 - 403: Recipe not accessible
 - 404: Recipe not found or not in favorites
 - 500: Server error
 
 **Handling:**
+
 - Rollback optimistic update (add back to Set)
 - Show error toast:
   - 404: "Przepis nie jest w ulubionych"
@@ -962,6 +1084,7 @@ ProfileDTO
 - Log error with context
 
 **User Experience:**
+
 - Heart icon reverts to filled
 - Clear error message
 - Can retry operation
@@ -971,14 +1094,17 @@ ProfileDTO
 **Scenario:** Less than 6 public recipes available
 
 **Detection:**
+
 - Check publicRecipes.length after fetch
 
 **Handling:**
+
 - Display all available recipes (no error)
 - Don't attempt to shuffle to 6 if fewer exist
 - Normal rendering
 
 **User Experience:**
+
 - Section shows whatever recipes are available
 - No error message needed
 
@@ -987,14 +1113,17 @@ ProfileDTO
 **Scenario:** Recipe title exceeds card space
 
 **Detection:**
+
 - CSS line-clamp handles automatically
 
 **Handling:**
+
 - Title truncates to 2 lines
 - Ellipsis indicates truncation
 - Full title visible on hover (via title attribute)
 
 **User Experience:**
+
 - Clean card layout
 - No overflow
 - Tooltip shows full title
@@ -1004,14 +1133,17 @@ ProfileDTO
 **Scenario:** Recipe has null or incomplete nutrition data (shouldn't happen with API validation)
 
 **Detection:**
+
 - Check nutritionPerServing fields
 
 **Handling:**
+
 - Display "N/A" or "—" for missing values
 - Don't break layout
 - Log warning if data is missing
 
 **User Experience:**
+
 - Graceful degradation
 - Clear indication of missing data
 
@@ -1022,6 +1154,7 @@ ProfileDTO
 **File:** `src/components/hooks/useFavoriteToggle.ts`
 
 **Tasks:**
+
 1. Create TypeScript file with hook implementation
 2. Define interfaces: `UseFavoriteToggleOptions`, `UseFavoriteToggleReturn`
 3. Implement useState for favorites Set and loading Set
@@ -1035,6 +1168,7 @@ ProfileDTO
 7. Add JSDoc comments
 
 **Dependencies:**
+
 - React (useState)
 - Fetch API
 
@@ -1043,6 +1177,7 @@ ProfileDTO
 **File:** `src/components/RecipeCard.tsx`
 
 **Tasks:**
+
 1. Create React component with TypeScript
 2. Define RecipeCardProps interface
 3. Implement card layout with Tailwind classes
@@ -1065,6 +1200,7 @@ ProfileDTO
 11. Export component
 
 **Dependencies:**
+
 - React
 - Shadcn/ui (Button, Badge)
 - lucide-react (Heart, Clock, icons)
@@ -1076,6 +1212,7 @@ ProfileDTO
 **File:** `src/components/RecipeSectionRow.tsx`
 
 **Tasks:**
+
 1. Create React component with TypeScript
 2. Define RecipeSectionRowProps interface
 3. Implement section header:
@@ -1095,6 +1232,7 @@ ProfileDTO
 9. Export component
 
 **Dependencies:**
+
 - React
 - RecipeCard component
 - RecipeSectionRowProps interface
@@ -1104,6 +1242,7 @@ ProfileDTO
 **File:** `src/components/WelcomeBanner.tsx`
 
 **Tasks:**
+
 1. Create React component with TypeScript
 2. Define WelcomeBannerProps interface
 3. Implement greeting heading:
@@ -1118,6 +1257,7 @@ ProfileDTO
 7. Export component
 
 **Dependencies:**
+
 - React
 - Shadcn/ui (Button)
 - lucide-react (Plus icon)
@@ -1127,6 +1267,7 @@ ProfileDTO
 **File:** `src/lib/utils/dashboard.ts`
 
 **Tasks:**
+
 1. Create utility file
 2. Implement `shuffleArray<T>(array: T[]): T[]`:
    - Fisher-Yates shuffle algorithm
@@ -1148,6 +1289,7 @@ ProfileDTO
 8. Export all functions
 
 **Dependencies:**
+
 - TypeScript
 - RecipeListItemDTO, FavoriteDTO, RecipeCardData types
 
@@ -1156,6 +1298,7 @@ ProfileDTO
 **File:** `src/pages/dashboard.astro`
 
 **Tasks:**
+
 1. Create Astro page file
 2. Add authentication check:
    - Get Supabase client from Astro.locals
@@ -1187,6 +1330,7 @@ ProfileDTO
 10. Add layout wrapper
 
 **Dependencies:**
+
 - Astro
 - Supabase client
 - React components (WelcomeBanner, RecipeSectionRow)
@@ -1196,6 +1340,7 @@ ProfileDTO
 ### Step 7: Style Components with Tailwind
 
 **Tasks:**
+
 1. Review Tailwind configuration (already set up)
 2. Add custom colors if needed for calorie badges
 3. Implement responsive breakpoints:
@@ -1207,6 +1352,7 @@ ProfileDTO
 7. Verify color contrast (WCAG compliance)
 
 **Files Affected:**
+
 - RecipeCard.tsx
 - RecipeSectionRow.tsx
 - WelcomeBanner.tsx
@@ -1215,6 +1361,7 @@ ProfileDTO
 ### Step 8: Add Accessibility Features
 
 **Tasks:**
+
 1. Add ARIA labels to icon-only buttons (favorite, menu)
 2. Add role="region" to recipe sections with aria-label
 3. Implement keyboard navigation for horizontal scroll
@@ -1227,11 +1374,13 @@ ProfileDTO
 8. Test with screen reader (VoiceOver/NVDA)
 
 **Files Affected:**
+
 - All component files
 
 ### Step 9: Implement Error Handling
 
 **Tasks:**
+
 1. Add error boundaries for React components
 2. Implement toast notifications for client-side errors
 3. Add error logging (console.error with context)
@@ -1244,6 +1393,7 @@ ProfileDTO
    - Invalid data
 
 **Files Affected:**
+
 - useFavoriteToggle.ts
 - dashboard.astro
 - All components
@@ -1251,18 +1401,21 @@ ProfileDTO
 ### Step 10: Add Loading States
 
 **Tasks:**
+
 1. Implement skeleton loaders for server-side rendering (optional, SSR is fast)
 2. Add loading indicators for favorite toggle
 3. Add disabled state to buttons during operations
 4. Test loading UX
 
 **Files Affected:**
+
 - RecipeCard.tsx
 - useFavoriteToggle.ts
 
 ### Step 11: Test Dashboard Implementation
 
 **Tasks:**
+
 1. Test authentication flow:
    - Authenticated user can access
    - Unauthenticated user redirected
@@ -1299,6 +1452,7 @@ ProfileDTO
 ### Step 12: Polish and Optimize
 
 **Tasks:**
+
 1. Review code for best practices
 2. Add TypeScript strict mode compliance
 3. Optimize bundle size (code splitting if needed)
@@ -1313,6 +1467,7 @@ ProfileDTO
 ### Step 13: Documentation
 
 **Tasks:**
+
 1. Add JSDoc comments to all exported functions
 2. Document component props with descriptions
 3. Add usage examples in component files
@@ -1321,4 +1476,5 @@ ProfileDTO
 6. Add inline comments for complex logic
 
 **Files Affected:**
+
 - All TypeScript/TSX files

@@ -5,6 +5,7 @@
 The Collections List Page displays the user's recipe collections in a responsive grid layout. Users can view all their collections with recipe counts, create new collections, edit existing collection names, and delete collections. The view provides an intuitive interface for organizing recipes into categories with full CRUD functionality for collections.
 
 **Key Features:**
+
 - Responsive grid layout (1 column mobile, 2 tablet, 3-4 desktop)
 - Collection cards showing name, recipe count, and created date
 - Quick actions (Edit, Delete) with desktop hover overlay and mobile dropdown menu
@@ -61,6 +62,7 @@ collections.astro (Astro Page)
 ## 4. Component Details
 
 ### collections.astro
+
 - **Component description:** Main Astro page component that handles server-side rendering and initial data fetching. Serves as the entry point for the Collections List view and passes data to the React layer.
 - **Main elements:**
   - `<AppLayout>` wrapper with title prop
@@ -72,6 +74,7 @@ collections.astro (Astro Page)
 - **Props:** None (receives data via Astro.locals.supabase)
 
 ### CollectionsLayout
+
 - **Component description:** Main React container managing all state and orchestrating the collections view. Handles dialog states, API mutations, loading states, and user interactions.
 - **Main elements:**
   - Container div with max-width and responsive padding
@@ -99,6 +102,7 @@ collections.astro (Astro Page)
   ```
 
 ### CollectionGrid
+
 - **Component description:** Responsive grid container that displays collection cards in a grid layout adapting from 1 column (mobile) to 4 columns (desktop).
 - **Main elements:**
   - Grid container div with responsive classes: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4`
@@ -118,6 +122,7 @@ collections.astro (Astro Page)
   ```
 
 ### CollectionCard
+
 - **Component description:** Individual card displaying collection information with hover actions (desktop) or dropdown menu (mobile). Clicking the card navigates to collection detail view.
 - **Main elements:**
   - Shadcn/ui Card component
@@ -146,6 +151,7 @@ collections.astro (Astro Page)
   ```
 
 ### CreateCollectionDialog
+
 - **Component description:** Modal dialog for creating a new collection with name input and validation. Handles form submission and API communication.
 - **Main elements:**
   - Shadcn/ui Dialog component
@@ -184,6 +190,7 @@ collections.astro (Astro Page)
   ```
 
 ### EditCollectionDialog
+
 - **Component description:** Modal dialog for editing an existing collection's name. Similar to CreateCollectionDialog but pre-populated with current data.
 - **Main elements:**
   - Shadcn/ui Dialog component
@@ -220,6 +227,7 @@ collections.astro (Astro Page)
   ```
 
 ### DeleteCollectionDialog
+
 - **Component description:** Confirmation dialog using AlertDialog for destructive delete action. Provides context about the collection being deleted.
 - **Main elements:**
   - Shadcn/ui AlertDialog component
@@ -250,6 +258,7 @@ collections.astro (Astro Page)
   ```
 
 ### EmptyState
+
 - **Component description:** Friendly empty state displayed when user has no collections, encouraging them to create their first collection.
 - **Main elements:**
   - Container div with centered flex layout
@@ -269,6 +278,7 @@ collections.astro (Astro Page)
   ```
 
 ### LoadingSkeleton
+
 - **Component description:** Skeleton loading state matching the grid layout, displayed while collections are loading.
 - **Main elements:**
   - Grid container (same classes as CollectionGrid)
@@ -441,34 +451,36 @@ const [isLoading, setIsLoading] = useState<boolean>(false);
 const [dialogState, setDialogState] = useState<DialogState>({
   create: false,
   edit: { open: false, collection: null },
-  delete: { open: false, collection: null }
+  delete: { open: false, collection: null },
 });
 ```
 
 ### State Update Patterns
 
 **Optimistic Updates:**
+
 - Add: Immediately add new collection to state, revert on error
 - Update: Immediately update collection in state, revert on error
 - Delete: Immediately remove collection from state, revert on error
 
 **Dialog State Helpers:**
+
 ```typescript
 const openCreateDialog = () => {
-  setDialogState(prev => ({ ...prev, create: true }));
+  setDialogState((prev) => ({ ...prev, create: true }));
 };
 
 const openEditDialog = (collection: CollectionDTO) => {
-  setDialogState(prev => ({
+  setDialogState((prev) => ({
     ...prev,
-    edit: { open: true, collection }
+    edit: { open: true, collection },
   }));
 };
 
 const openDeleteDialog = (collection: CollectionDTO) => {
-  setDialogState(prev => ({
+  setDialogState((prev) => ({
     ...prev,
-    delete: { open: true, collection }
+    delete: { open: true, collection },
   }));
 };
 
@@ -476,7 +488,7 @@ const closeAllDialogs = () => {
   setDialogState({
     create: false,
     edit: { open: false, collection: null },
-    delete: { open: false, collection: null }
+    delete: { open: false, collection: null },
   });
 };
 ```
@@ -494,15 +506,14 @@ State management is straightforward enough to be handled directly in the `Collec
 **When:** On initial page load (server-side rendering)
 
 **Implementation:**
+
 ```typescript
-const { data, error } = await Astro.locals.supabase
-  .from('collections')
-  .select('*');
+const { data, error } = await Astro.locals.supabase.from("collections").select("*");
 
 const response = await fetch(`${Astro.url.origin}/api/collections`, {
   headers: {
-    'Cookie': Astro.request.headers.get('Cookie') || ''
-  }
+    Cookie: Astro.request.headers.get("Cookie") || "",
+  },
 });
 const { collections } = await response.json();
 ```
@@ -510,6 +521,7 @@ const { collections } = await response.json();
 **Request:** None (uses authentication from cookies)
 
 **Response Type:** `GetCollectionsResponse`
+
 ```typescript
 {
   collections: CollectionDTO[]
@@ -517,6 +529,7 @@ const { collections } = await response.json();
 ```
 
 **Error Handling:**
+
 - 500: Display error page or redirect to error route
 - Pass empty array to CollectionsLayout on error (will show empty state)
 
@@ -529,13 +542,15 @@ const { collections } = await response.json();
 **When:** User submits create collection form
 
 **Request Type:** `CreateCollectionCommand`
+
 ```typescript
 {
-  name: string // 1-100 chars, trimmed, unique per user
+  name: string; // 1-100 chars, trimmed, unique per user
 }
 ```
 
 **Response Type:** `CreateCollectionResponse` (201 Created)
+
 ```typescript
 {
   success: true,
@@ -544,6 +559,7 @@ const { collections } = await response.json();
 ```
 
 **Error Responses:**
+
 - 400 Bad Request: Validation error
   - Display error message in form
 - 409 Conflict: Duplicate collection name
@@ -552,31 +568,32 @@ const { collections } = await response.json();
   - Display toast: "Wystąpił błąd. Spróbuj ponownie."
 
 **Implementation Pattern:**
+
 ```typescript
 const handleSubmit = async () => {
   setIsLoading(true);
   try {
-    const response = await fetch('/api/collections', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: formData.name.trim() })
+    const response = await fetch("/api/collections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: formData.name.trim() }),
     });
 
     if (!response.ok) {
       const error = await response.json();
       if (response.status === 409) {
-        setFormErrors({ name: 'Kolekcja o tej nazwie już istnieje' });
+        setFormErrors({ name: "Kolekcja o tej nazwie już istnieje" });
       } else {
-        toast.error('Wystąpił błąd. Spróbuj ponownie.');
+        toast.error("Wystąpił błąd. Spróbuj ponownie.");
       }
       return;
     }
 
     const { collection } = await response.json();
     onSuccess(collection);
-    toast.success('Kolekcja została utworzona');
+    toast.success("Kolekcja została utworzona");
   } catch (error) {
-    toast.error('Wystąpił błąd. Spróbuj ponownie.');
+    toast.error("Wystąpił błąd. Spróbuj ponownie.");
   } finally {
     setIsLoading(false);
   }
@@ -592,13 +609,15 @@ const handleSubmit = async () => {
 **When:** User submits edit collection form
 
 **Request Type:** `UpdateCollectionCommand`
+
 ```typescript
 {
-  name: string // 1-100 chars, trimmed, unique per user
+  name: string; // 1-100 chars, trimmed, unique per user
 }
 ```
 
 **Response Type:** `UpdateCollectionResponse` (200 OK)
+
 ```typescript
 {
   success: true,
@@ -610,6 +629,7 @@ const handleSubmit = async () => {
 ```
 
 **Error Responses:**
+
 - 400 Bad Request: Validation error
 - 404 Not Found: Collection doesn't exist
   - Toast error, refresh collections list
@@ -619,6 +639,7 @@ const handleSubmit = async () => {
   - Toast error message
 
 **Implementation Pattern:**
+
 ```typescript
 const handleUpdate = async () => {
   if (!collection) return;
@@ -626,29 +647,29 @@ const handleUpdate = async () => {
   setIsLoading(true);
   try {
     const response = await fetch(`/api/collections/${collection.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: formData.name.trim() })
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: formData.name.trim() }),
     });
 
     if (!response.ok) {
       const error = await response.json();
       if (response.status === 409) {
-        setFormErrors({ name: 'Kolekcja o tej nazwie już istnieje' });
+        setFormErrors({ name: "Kolekcja o tej nazwie już istnieje" });
       } else if (response.status === 404) {
-        toast.error('Kolekcja nie została znaleziona');
+        toast.error("Kolekcja nie została znaleziona");
         // Optionally refresh collections list
       } else {
-        toast.error('Wystąpił błąd. Spróbuj ponownie.');
+        toast.error("Wystąpił błąd. Spróbuj ponownie.");
       }
       return;
     }
 
     const { collection: updated } = await response.json();
     onSuccess(updated);
-    toast.success('Kolekcja została zaktualizowana');
+    toast.success("Kolekcja została zaktualizowana");
   } catch (error) {
-    toast.error('Wystąpił błąd. Spróbuj ponownie.');
+    toast.error("Wystąpił błąd. Spróbuj ponownie.");
   } finally {
     setIsLoading(false);
   }
@@ -668,12 +689,14 @@ const handleUpdate = async () => {
 **Response:** 204 No Content (empty response body)
 
 **Error Responses:**
+
 - 404 Not Found: Collection doesn't exist
   - Toast error, refresh collections list
 - 500 Internal Server Error: Generic error
   - Toast error message
 
 **Implementation Pattern:**
+
 ```typescript
 const handleDelete = async () => {
   if (!collection) return;
@@ -681,22 +704,22 @@ const handleDelete = async () => {
   setIsLoading(true);
   try {
     const response = await fetch(`/api/collections/${collection.id}`, {
-      method: 'DELETE'
+      method: "DELETE",
     });
 
     if (!response.ok) {
       if (response.status === 404) {
-        toast.error('Kolekcja nie została znaleziona');
+        toast.error("Kolekcja nie została znaleziona");
       } else {
-        toast.error('Nie udało się usunąć kolekcji');
+        toast.error("Nie udało się usunąć kolekcji");
       }
       return;
     }
 
     onSuccess(collection.id);
-    toast.success('Kolekcja została usunięta');
+    toast.success("Kolekcja została usunięta");
   } catch (error) {
-    toast.error('Wystąpił błąd. Spróbuj ponownie.');
+    toast.error("Wystąpił błąd. Spróbuj ponownie.");
   } finally {
     setIsLoading(false);
   }
@@ -706,12 +729,14 @@ const handleDelete = async () => {
 ## 8. User Interactions
 
 ### 1. Click "+ Nowa kolekcja" Button (Header)
+
 - **Trigger:** User clicks button in page header
 - **Action:** Open CreateCollectionDialog
 - **State Change:** `dialogState.create = true`
 - **Visual Feedback:** Dialog slides in from center
 
 ### 2. Submit Create Collection Form
+
 - **Trigger:** User fills name input and clicks "Utwórz"
 - **Action:**
   1. Client-side validation
@@ -729,6 +754,7 @@ const handleDelete = async () => {
   - Error display below input field or as toast
 
 ### 3. Cancel Create/Edit Dialog
+
 - **Trigger:** User clicks "Anuluj" or X or clicks outside dialog
 - **Action:** Close dialog, reset form data and errors
 - **State Changes:**
@@ -738,6 +764,7 @@ const handleDelete = async () => {
 - **Visual Feedback:** Dialog slides out
 
 ### 4. Click Collection Card
+
 - **Trigger:** User clicks anywhere on collection card (except action buttons/menu)
 - **Action:** Navigate to collection detail page
 - **Navigation:** `window.location.href = /collections/${collectionId}`
@@ -745,6 +772,7 @@ const handleDelete = async () => {
 - **Visual Feedback:** Card hover effect (desktop), card press effect (mobile)
 
 ### 5. Click Edit Icon/Menu Item
+
 - **Trigger:**
   - Desktop: User hovers card and clicks Pencil icon
   - Mobile: User clicks "..." menu and selects "Edytuj"
@@ -758,6 +786,7 @@ const handleDelete = async () => {
   - Dialog opens with current name
 
 ### 6. Submit Edit Collection Form
+
 - **Trigger:** User modifies name and clicks "Zapisz"
 - **Action:**
   1. Check if name changed (if not, just close dialog)
@@ -776,6 +805,7 @@ const handleDelete = async () => {
   - Error display below input or as toast
 
 ### 7. Click Delete Icon/Menu Item
+
 - **Trigger:**
   - Desktop: User hovers card and clicks Trash2 icon
   - Mobile: User clicks "..." menu and selects "Usuń"
@@ -788,6 +818,7 @@ const handleDelete = async () => {
   - AlertDialog opens showing collection name and recipe count
 
 ### 8. Confirm Delete Collection
+
 - **Trigger:** User clicks "Usuń" in delete confirmation dialog
 - **Action:**
   1. DELETE /api/collections/{id}
@@ -803,12 +834,14 @@ const handleDelete = async () => {
   - Error toast on failure
 
 ### 9. Cancel Delete Dialog
+
 - **Trigger:** User clicks "Anuluj" or X or clicks outside dialog
 - **Action:** Close dialog without deleting
 - **State Changes:** `dialogState.delete.open = false`
 - **Visual Feedback:** Dialog closes
 
 ### 10. Empty State CTA Click
+
 - **Trigger:** User clicks "+ Utwórz pierwszą kolekcję" in empty state
 - **Action:** Open CreateCollectionDialog (same as header button)
 - **State Changes:** `dialogState.create = true`
@@ -848,6 +881,7 @@ const handleDelete = async () => {
 ### Server-Side Validation (API)
 
 **Uniqueness Validation:**
+
 - Condition: Collection with same name exists for user
 - Response: 409 Conflict
 - Error Message: "Kolekcja o tej nazwie już istnieje"
@@ -857,36 +891,43 @@ const handleDelete = async () => {
 ### Conditional Rendering
 
 **Loading Skeleton:**
+
 - Condition: Initial page load with no data yet (handled by Astro)
 - Display: Grid of skeleton cards
 - Duration: Until collections data loaded
 
 **Empty State:**
+
 - Condition: `collections.length === 0 && !isLoading`
 - Display: EmptyState component with CTA
 - Hide: Once user creates first collection
 
 **Collection Grid:**
+
 - Condition: `collections.length > 0`
 - Display: Grid of collection cards
 - Hide: When no collections exist
 
 **Desktop Hover Overlay:**
+
 - Condition: Screen width >= 1024px (lg breakpoint)
 - Display: Overlay with Edit/Delete icons on card hover
 - Implementation: CSS `hidden lg:flex` + hover states
 
 **Mobile Dropdown Menu:**
+
 - Condition: Screen width < 1024px
 - Display: "..." button triggering DropdownMenu
 - Implementation: CSS `flex lg:hidden`
 
 **Dialog Open States:**
+
 - CreateCollectionDialog: `dialogState.create === true`
 - EditCollectionDialog: `dialogState.edit.open === true`
 - DeleteCollectionDialog: `dialogState.delete.open === true`
 
 **Button Loading States:**
+
 - Condition: `isLoading === true`
 - Effect:
   - Button disabled
@@ -894,6 +935,7 @@ const handleDelete = async () => {
   - Cursor changed to not-allowed
 
 **Form Error Display:**
+
 - Condition: `formErrors.name` is not undefined
 - Display: Error message in red below input field
 - Clear: On input change or successful submission
@@ -901,6 +943,7 @@ const handleDelete = async () => {
 ### Validation Flow
 
 **Create Collection:**
+
 1. User types name → Character count updates
 2. User clicks "Utwórz" → Client-side validation runs
 3. If invalid → Display error, keep dialog open
@@ -910,6 +953,7 @@ const handleDelete = async () => {
 7. If 201 → Success, add to state, close dialog, toast
 
 **Edit Collection:**
+
 1. Dialog opens → Form pre-filled with current name
 2. User modifies name → Character count updates
 3. User clicks "Zapisz" → Check if name changed
@@ -926,6 +970,7 @@ const handleDelete = async () => {
 ### API Error Scenarios
 
 #### 1. Network Errors (fetch fails)
+
 - **Scenario:** Network timeout, no internet connection, CORS issues
 - **Detection:** `try/catch` around fetch call, `catch` block triggered
 - **Handling:**
@@ -935,6 +980,7 @@ const handleDelete = async () => {
 - **User Action:** Retry after fixing network issue
 
 #### 2. 400 Bad Request (Validation Error)
+
 - **Scenario:** Invalid JSON format or validation failure on API
 - **Detection:** `response.status === 400`
 - **Handling:**
@@ -945,6 +991,7 @@ const handleDelete = async () => {
 - **Note:** Should rarely occur due to client-side validation
 
 #### 3. 404 Not Found (Collection Deleted)
+
 - **Scenario:** Collection was deleted by another session or admin
 - **Detection:** `response.status === 404` (edit/delete operations)
 - **Handling:**
@@ -955,6 +1002,7 @@ const handleDelete = async () => {
 - **User Action:** None needed (state synced)
 
 #### 4. 409 Conflict (Duplicate Name)
+
 - **Scenario:** Collection with same name already exists for user
 - **Detection:** `response.status === 409`
 - **Handling:**
@@ -965,6 +1013,7 @@ const handleDelete = async () => {
 - **User Action:** Choose different name and retry
 
 #### 5. 500 Internal Server Error
+
 - **Scenario:** Database error, server crash, unexpected exception
 - **Detection:** `response.status === 500`
 - **Handling:**
@@ -974,6 +1023,7 @@ const handleDelete = async () => {
 - **User Action:** Retry operation, contact support if persists
 
 #### 6. Initial Load Failure (Astro page)
+
 - **Scenario:** GET /api/collections fails on server-side
 - **Detection:** Error during server-side fetch in collections.astro
 - **Handling:**
@@ -985,6 +1035,7 @@ const handleDelete = async () => {
 ### Error Recovery Patterns
 
 **Optimistic Update Rollback:**
+
 ```typescript
 // Example for delete operation
 const handleDelete = async (collectionId: string) => {
@@ -992,25 +1043,26 @@ const handleDelete = async (collectionId: string) => {
   const originalCollections = [...collections];
 
   // Optimistic update
-  setCollections(collections.filter(c => c.id !== collectionId));
+  setCollections(collections.filter((c) => c.id !== collectionId));
 
   try {
     const response = await fetch(`/api/collections/${collectionId}`, {
-      method: 'DELETE'
+      method: "DELETE",
     });
 
-    if (!response.ok) throw new Error('Delete failed');
+    if (!response.ok) throw new Error("Delete failed");
 
-    toast.success('Kolekcja została usunięta');
+    toast.success("Kolekcja została usunięta");
   } catch (error) {
     // Rollback on error
     setCollections(originalCollections);
-    toast.error('Nie udało się usunąć kolekcji');
+    toast.error("Nie udało się usunąć kolekcji");
   }
 };
 ```
 
 **Form Error State Management:**
+
 ```typescript
 // Clear errors on input change
 const handleNameChange = (value: string) => {
@@ -1022,7 +1074,7 @@ const handleNameChange = (value: string) => {
 
 // Reset on dialog close
 const handleClose = () => {
-  setFormData({ name: '' });
+  setFormData({ name: "" });
   setFormErrors({});
   onOpenChange(false);
 };
@@ -1030,22 +1082,23 @@ const handleClose = () => {
 
 ### Error Messages (Polish)
 
-| Error Type | Polish Message |
-|------------|---------------|
-| Required field | "Nazwa kolekcji jest wymagana" |
-| Empty after trim | "Nazwa kolekcji nie może być pusta" |
-| Too long | "Nazwa kolekcji może mieć maksymalnie 100 znaków" |
-| Duplicate name | "Kolekcja o tej nazwie już istnieje" |
-| Not found | "Kolekcja nie została znaleziona" |
-| Network error | "Błąd połączenia. Sprawdź połączenie internetowe." |
-| Generic error | "Wystąpił błąd. Spróbuj ponownie." |
-| Delete success | "Kolekcja została usunięta" |
-| Create success | "Kolekcja została utworzona" |
-| Update success | "Kolekcja została zaktualizowana" |
+| Error Type       | Polish Message                                     |
+| ---------------- | -------------------------------------------------- |
+| Required field   | "Nazwa kolekcji jest wymagana"                     |
+| Empty after trim | "Nazwa kolekcji nie może być pusta"                |
+| Too long         | "Nazwa kolekcji może mieć maksymalnie 100 znaków"  |
+| Duplicate name   | "Kolekcja o tej nazwie już istnieje"               |
+| Not found        | "Kolekcja nie została znaleziona"                  |
+| Network error    | "Błąd połączenia. Sprawdź połączenie internetowe." |
+| Generic error    | "Wystąpił błąd. Spróbuj ponownie."                 |
+| Delete success   | "Kolekcja została usunięta"                        |
+| Create success   | "Kolekcja została utworzona"                       |
+| Update success   | "Kolekcja została zaktualizowana"                  |
 
 ## 11. Implementation Steps
 
 ### Step 1: Create Type Definitions
+
 **File:** `src/components/collections/types.ts`
 
 1. Define all interfaces listed in Section 5 (Types)
@@ -1057,6 +1110,7 @@ const handleClose = () => {
 ---
 
 ### Step 2: Create Astro Page
+
 **File:** `src/pages/collections.astro`
 
 1. Set up page metadata (title: "Moje Kolekcje - HealthyMeal")
@@ -1071,6 +1125,7 @@ const handleClose = () => {
 ---
 
 ### Step 3: Create Empty State Component
+
 **File:** `src/components/collections/EmptyState.tsx`
 
 1. Import FolderPlus icon from lucide-react
@@ -1085,6 +1140,7 @@ const handleClose = () => {
 ---
 
 ### Step 4: Create Loading Skeleton Component
+
 **File:** `src/components/collections/LoadingSkeleton.tsx`
 
 1. Import Skeleton component from Shadcn/ui
@@ -1098,6 +1154,7 @@ const handleClose = () => {
 ---
 
 ### Step 5: Create Collection Card Component
+
 **File:** `src/components/collections/CollectionCard.tsx`
 
 1. Import Card components from Shadcn/ui
@@ -1116,6 +1173,7 @@ const handleClose = () => {
 ---
 
 ### Step 6: Create Collection Grid Component
+
 **File:** `src/components/collections/CollectionGrid.tsx`
 
 1. Create grid container with responsive classes
@@ -1129,6 +1187,7 @@ const handleClose = () => {
 ---
 
 ### Step 7: Create Create Collection Dialog
+
 **File:** `src/components/collections/dialogs/CreateCollectionDialog.tsx`
 
 1. Import Dialog components from Shadcn/ui
@@ -1149,6 +1208,7 @@ const handleClose = () => {
 ---
 
 ### Step 8: Create Edit Collection Dialog
+
 **File:** `src/components/collections/dialogs/EditCollectionDialog.tsx`
 
 1. Copy structure from CreateCollectionDialog
@@ -1167,6 +1227,7 @@ const handleClose = () => {
 ---
 
 ### Step 9: Create Delete Collection Dialog
+
 **File:** `src/components/collections/dialogs/DeleteCollectionDialog.tsx`
 
 1. Import AlertDialog components from Shadcn/ui
@@ -1185,6 +1246,7 @@ const handleClose = () => {
 ---
 
 ### Step 10: Create Collections Layout Component
+
 **File:** `src/components/collections/CollectionsLayout.tsx`
 
 1. Set up component with initialCollections prop
@@ -1323,6 +1385,7 @@ const handleClose = () => {
 **Total Estimated Time:** 8-12 hours for a single developer
 
 **Recommended Approach:**
+
 - Implement bottom-up (smallest components first)
 - Test each component in isolation before integration
 - Use Storybook or similar tool for component development (optional)

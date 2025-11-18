@@ -3,6 +3,7 @@
 ## 1. Endpoint Overview
 
 This endpoint retrieves a paginated list of all modifications created for a specific recipe. The endpoint enforces proper authorization by ensuring that modifications can only be accessed if:
+
 1. The recipe is public (any authenticated user can view modifications), OR
 2. The authenticated user is the recipe owner
 
@@ -46,6 +47,7 @@ interface PaginationDTO {
 ```
 
 **Response Structure:**
+
 ```typescript
 {
   modifications: ModificationDTO[];
@@ -54,22 +56,24 @@ interface PaginationDTO {
 ```
 
 **Validation Schemas (to be created):**
+
 ```typescript
 // Zod schema for path parameter
 const RecipeIdParamSchema = z.object({
-  recipeId: z.string().uuid("Recipe ID must be a valid UUID")
+  recipeId: z.string().uuid("Recipe ID must be a valid UUID"),
 });
 
 // Zod schema for query parameters
 const PaginationQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional().default(1),
-  limit: z.coerce.number().int().min(1).max(100).optional().default(20)
+  limit: z.coerce.number().int().min(1).max(100).optional().default(20),
 });
 ```
 
 ## 4. Response Details
 
 **Success Response (200 OK):**
+
 ```json
 {
   "modifications": [
@@ -98,6 +102,7 @@ const PaginationQuerySchema = z.object({
 ```
 
 **Error Responses:**
+
 - **400 Bad Request**: `{ "error": "Bad Request", "message": "Recipe ID must be a valid UUID" }`
 - **401 Unauthorized**: `{ "error": "Unauthorized", "message": "Authentication required" }`
 - **403 Forbidden**: `{ "error": "Forbidden", "message": "You don't have permission to view modifications for this recipe" }`
@@ -142,10 +147,12 @@ const PaginationQuerySchema = z.object({
 ## 6. Security Considerations
 
 ### Authentication
+
 - Development: Uses mocked user ID `a85d6d6c-b7d4-4605-9cc4-3743401b67a0`
 - Production: Uncomment Supabase auth check to verify user session
 
 ### Authorization (IDOR Protection)
+
 - **Critical**: Must verify recipe access before returning modifications
 - Users can access modifications if:
   - Recipe is public (isPublic = true), OR
@@ -153,39 +160,47 @@ const PaginationQuerySchema = z.object({
 - This prevents unauthorized access to private recipe modifications
 
 ### Data Validation
+
 - All path and query parameters validated with Zod schemas
 - UUID format enforced for recipeId
 - Pagination parameters bounded (page >= 1, 1 <= limit <= 100)
 
 ### SQL Injection Prevention
+
 - Supabase client uses parameterized queries
 - No raw SQL construction with user input
 
 ### Rate Limiting
+
 - Consider implementing rate limiting for production (placeholder in code)
 - Suggested: 100 requests per 5 minutes per user
 
 ## 7. Error Handling
 
 ### Input Validation Errors (400)
+
 - Invalid UUID format for recipeId
 - Invalid pagination parameters (negative page, limit > 100)
 - Non-numeric values for page/limit
 
 ### Authentication Errors (401)
+
 - Missing or invalid authentication token (production only)
 - Expired session
 
 ### Authorization Errors (403)
+
 - Recipe exists but is private
 - User is not the recipe owner
 - Message: "You don't have permission to view modifications for this recipe"
 
 ### Not Found Errors (404)
+
 - Recipe with specified recipeId doesn't exist
 - Message: "Recipe not found"
 
 ### Server Errors (500)
+
 - Database connection failures
 - Unexpected Supabase errors
 - Service layer exceptions
@@ -194,21 +209,25 @@ const PaginationQuerySchema = z.object({
 ## 8. Performance Considerations
 
 ### Database Query Optimization
+
 - Use parallel queries for count and data (Promise.all)
 - Apply pagination at database level using .range() to limit data transfer
 - Index on `original_recipe_id` column in `recipe_modifications` table recommended
 
 ### Pagination Strategy
+
 - Default limit of 20 balances performance and user experience
 - Maximum limit of 100 prevents excessive data transfer
 - Offset-based pagination using Supabase .range() method
 
 ### Caching Opportunities (Future)
+
 - Consider caching recipe authorization checks (public/private status)
 - Cache total modification count for frequently accessed recipes
 - Use Redis or similar for session-level caching
 
 ### Potential Bottlenecks
+
 - Large JSONB modified_data fields in response
 - Consider adding a "light" mode that excludes full modified_data if needed
 - Monitor query performance for recipes with >1000 modifications
@@ -216,6 +235,7 @@ const PaginationQuerySchema = z.object({
 ## 9. Implementation Steps
 
 ### Step 1: Add service function to modification.service.ts
+
 1. Create `getModificationsByRecipeId()` function
 2. Accept parameters: `supabase: SupabaseClient`, `recipeId: string`, `page: number`, `limit: number`
 3. Build count query: `select('*', { count: 'exact', head: true }).eq('original_recipe_id', recipeId)`
@@ -226,17 +246,20 @@ const PaginationQuerySchema = z.object({
 8. Return `{ modifications: ModificationDTO[], pagination: PaginationDTO }`
 
 ### Step 2: Update modifications.ts endpoint file
+
 1. Add GET handler function to existing POST handler
 2. Import validation dependencies (z from 'zod')
 3. Import `getRecipeById` from recipe.service.ts
 4. Import new `getModificationsByRecipeId` function from modification.service.ts
 
 ### Step 3: Implement validation schemas
+
 1. Create `RecipeIdParamSchema` for path parameter validation
 2. Create `PaginationQuerySchema` for query parameter validation with coercion and defaults
 3. Define TypeScript types for validated schemas
 
 ### Step 4: Implement GET route handler
+
 1. Extract and validate path parameter (recipeId)
 2. Extract and validate query parameters (page, limit) from context.url.searchParams
 3. Implement authentication check (mocked for development)
@@ -248,6 +271,7 @@ const PaginationQuerySchema = z.object({
 9. Return 200 with modifications and pagination
 
 ### Step 5: Implement error handling
+
 1. Wrap entire handler in try-catch block
 2. Handle Zod validation errors (400)
 3. Handle recipe not found (404)
@@ -256,6 +280,7 @@ const PaginationQuerySchema = z.object({
 6. Return generic 500 error for unexpected failures
 
 ### Step 6: Test the endpoint
+
 1. Test with valid recipeId and default pagination
 2. Test with custom page and limit parameters
 3. Test with invalid recipeId format (expect 400)
@@ -267,17 +292,20 @@ const PaginationQuerySchema = z.object({
 9. Test edge cases (page=0, limit=101, negative values)
 
 ### Step 7: Documentation
+
 1. Add JSDoc comments to service function
 2. Add JSDoc comments to GET handler
 3. Document authorization logic clearly
 4. Add inline comments for complex validation logic
 
 ### Step 8: Save implementation plan
+
 1. Save this plan as `.ai/claude_prompts/endpoints/2_5_get_api_recipes_recipeId_modifications_view_implementation_plan.md`
 
 ---
 
 **Implementation Notes:**
+
 - Follow existing patterns from `GET /api/recipes/[recipeId]` endpoint
 - Reuse validation patterns from `POST /api/recipes/[recipeId]/modifications` endpoint
 - Use same authentication mock pattern as other endpoints
@@ -285,6 +313,7 @@ const PaginationQuerySchema = z.object({
 - Ensure proper TypeScript typing throughout
 
 **Testing Checklist:**
+
 - [ ] Valid requests return 200 with modifications array
 - [ ] Empty result sets return empty array with pagination
 - [ ] Invalid UUIDs return 400

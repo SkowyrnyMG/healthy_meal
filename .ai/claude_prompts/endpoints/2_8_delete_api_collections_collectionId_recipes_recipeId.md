@@ -4,6 +4,7 @@ Before we begin, review the following information:
 
 1. Route API specification:
    <route_api_specification>
+
 #### DELETE /api/collections/{collectionId}/recipes/{recipeId}
 
 **Description**: Remove recipe from collection
@@ -17,7 +18,7 @@ Before we begin, review the following information:
 - 401 Unauthorized: Not authenticated
 - 403 Forbidden: Collection belongs to another user
 - 404 Not Found: Recipe not in collection
-</route_api_specification>
+  </route_api_specification>
 
 2. Related database resources:
    <related_db_resources>
@@ -27,6 +28,7 @@ Before we begin, review the following information:
 ### User → Profile (1:1)
 
 - `profiles.user_id` → `auth.users.id` (CASCADE on delete)
+
 ### User ↔ Allergens (M:M via user_allergens)
 
 - `user_allergens.user_id` → `profiles.user_id` (CASCADE on delete)
