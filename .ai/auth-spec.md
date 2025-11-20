@@ -4,6 +4,8 @@
 
 This document provides a comprehensive technical specification for implementing user authentication (registration, login, password recovery, logout) in the HealthyMeal application. The specification covers frontend UI architecture, backend API design, Supabase Auth integration, and migration strategy from mocked authentication to production-ready authentication system.
 
+**⚠️ SCOPE NOTE:** This specification ONLY covers authentication functionality (US-001 to US-004). Other features including profile management (US-005 to US-008), recipe management (US-009 to US-021), meal planning (US-022 to US-024), admin panel (US-025 to US-027), and dashboard (US-028) require separate technical specifications.
+
 **Target User Stories:**
 - US-001: User Registration
 - US-002: User Login
@@ -153,9 +155,9 @@ The authentication flow consists of four main pages, all server-side rendered by
    - Validation: Must match password field
    - Autocomplete: "new-password"
 
-4. Terms acceptance checkbox (optional for MVP)
-   - Label: "Akceptuję regulamin i politykę prywatności"
-   - Required: Yes (if implemented)
+4. Terms acceptance checkbox
+   - **NOT INCLUDED IN MVP** (explicitly excluded per PRD scope)
+   - Future enhancement: "Akceptuję regulamin i politykę prywatności"
 
 5. Submit button
    - Text: "Zarejestruj się"
@@ -173,6 +175,7 @@ The authentication flow consists of four main pages, all server-side rendered by
 - **Password:**
   - Min length: 8 characters
   - Complexity: At least one letter AND one number
+  - **Note:** These requirements exceed PRD minimum (which only specifies 8 chars). The additional complexity requirement enhances security and follows industry best practices.
   - Error messages:
     - Length: "Hasło musi mieć co najmniej 8 znaków"
     - Complexity: "Hasło musi zawierać co najmniej jedną literę i jedną cyfrę"
@@ -215,18 +218,21 @@ The authentication flow consists of four main pages, all server-side rendered by
 1. Form submission triggers loading state
 2. API call to `/api/auth/register`
 3. On success (201):
-   - If email verification required:
+   - **MVP Flow (email verification DISABLED):**
+     - Session cookies set automatically
+     - User is immediately logged in (auto-login)
+     - Redirect to `/dashboard`
+     - Success toast: "Witaj w HealthyMeal!"
+     - No email verification required
+   - **Future Enhancement (email verification enabled):**
      - Redirect to `/auth/verify-email` with success message
      - Message: "Konto utworzone! Sprawdź swoją skrzynkę e-mail, aby zweryfikować adres."
-   - If auto-login enabled (recommended for MVP):
-     - Session cookies set automatically
-     - Redirect to `/dashboard` or `/profile` (onboarding)
-     - Success toast: "Witaj w HealthyMeal!"
 
 **Post-Registration Flow (US-001 Acceptance Criteria):**
-- User is automatically logged in after successful registration
-- User receives account creation confirmation (via email if verification enabled, or UI message)
-- User is redirected to dashboard or profile completion page
+- User is automatically logged in after successful registration (MVP requirement)
+- User receives UI confirmation message "Witaj w HealthyMeal!" via toast notification
+- User is redirected to dashboard
+- **Note:** Email verification is DISABLED in MVP for faster onboarding per PRD requirements
 
 **Accessibility:**
 - Proper form labels and ARIA attributes
@@ -672,7 +678,8 @@ const userId = user.id;
 **Public API Endpoints (No Auth Required):**
 - `src/pages/api/tags.ts` - Public tag list
 - `src/pages/api/allergens.ts` - Public allergen list
-- `src/pages/api/recipes/public.ts` - Public recipes (anonymous access)
+
+**Note:** Public recipe sharing is NOT in MVP scope per PRD Section 4.1. All recipe endpoints require authentication.
 
 These endpoints should NOT have authentication checks.
 
@@ -1520,8 +1527,8 @@ export const createSupabaseServerInstance = (context: {
   cookies: AstroCookies;
 }) => {
   const supabase = createServerClient<Database>(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_KEY,
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
     {
       cookieOptions,
       cookies: {
@@ -1554,8 +1561,8 @@ export const createSupabaseServerInstance = (context: {
 import { createClient } from '@supabase/supabase-js';
 
 export const supabaseClient = createClient<Database>(
-  import.meta.env.SUPABASE_URL,
-  import.meta.env.SUPABASE_KEY
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 );
 
 /**
@@ -1586,9 +1593,11 @@ export type SupabaseClient = ReturnType<typeof createSupabaseServerInstance>;
 **File:** `.env` (add if not present)
 
 ```env
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-anon-key
+PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+**Note:** The `PUBLIC_` prefix is required by Astro for environment variables that need to be accessible in both server and client code. The `ANON_KEY` is safe to expose publicly as it's designed for client-side use.
 
 **File:** `src/env.d.ts` (update)
 
@@ -1596,8 +1605,8 @@ SUPABASE_KEY=your-anon-key
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly SUPABASE_URL: string;
-  readonly SUPABASE_KEY: string;
+  readonly PUBLIC_SUPABASE_URL: string;
+  readonly PUBLIC_SUPABASE_ANON_KEY: string;
   readonly OPENROUTER_API_KEY: string;
 }
 
@@ -2031,11 +2040,12 @@ const securityHeaders = {
    - **Magic link:** Not used in MVP
    - Ensure all templates use Polish language
 
-3. **Email Confirmation** (Optional for MVP):
-   - Can be enabled or disabled
-   - If enabled: Users must verify email before first login
-   - If disabled: Users can log in immediately after registration
-   - **Recommendation for MVP:** Disable for faster onboarding, enable in production
+3. **Email Confirmation** (DISABLED for MVP):
+   - **MUST BE DISABLED in MVP** per PRD requirement (US-001: user is automatically logged in after registration)
+   - Users can log in immediately after registration without email verification
+   - No email confirmation step required
+   - **Future Enhancement:** Can be enabled in production for additional security
+   - **Configuration:** In Supabase Dashboard → Authentication → Settings, set "Enable email confirmations" to OFF
 
 4. **Password Requirements** (Supabase Dashboard → Authentication → Settings):
    - Min password length: 8 characters (default: 6, should be increased)
@@ -2163,8 +2173,8 @@ export const createSupabaseServerInstance = (context: {
   cookies: AstroCookies;
 }) => {
   const supabase = createServerClient<Database>(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_KEY,
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
     {
       cookieOptions: {
         path: '/',
@@ -2650,8 +2660,8 @@ If database migrations applied:
 **Production Environment:**
 ```env
 # Supabase Production Project
-SUPABASE_URL=https://your-prod-project.supabase.co
-SUPABASE_KEY=your-prod-anon-key
+PUBLIC_SUPABASE_URL=https://your-prod-project.supabase.co
+PUBLIC_SUPABASE_ANON_KEY=your-prod-anon-key
 
 # OpenRouter (existing)
 OPENROUTER_API_KEY=your-openrouter-key
@@ -2660,8 +2670,8 @@ OPENROUTER_API_KEY=your-openrouter-key
 **Staging Environment:**
 ```env
 # Supabase Staging Project (recommended: separate project)
-SUPABASE_URL=https://your-staging-project.supabase.co
-SUPABASE_KEY=your-staging-anon-key
+PUBLIC_SUPABASE_URL=https://your-staging-project.supabase.co
+PUBLIC_SUPABASE_ANON_KEY=your-staging-anon-key
 
 # OpenRouter
 OPENROUTER_API_KEY=your-openrouter-key
@@ -2670,12 +2680,12 @@ OPENROUTER_API_KEY=your-openrouter-key
 **Local Development:**
 ```env
 # Supabase Local/Development Project
-SUPABASE_URL=https://your-dev-project.supabase.co
-SUPABASE_KEY=your-dev-anon-key
+PUBLIC_SUPABASE_URL=https://your-dev-project.supabase.co
+PUBLIC_SUPABASE_ANON_KEY=your-dev-anon-key
 
 # Or use Supabase local development setup
-# SUPABASE_URL=http://localhost:54321
-# SUPABASE_KEY=your-local-anon-key
+# PUBLIC_SUPABASE_URL=http://localhost:54321
+# PUBLIC_SUPABASE_ANON_KEY=your-local-anon-key
 
 # OpenRouter
 OPENROUTER_API_KEY=your-openrouter-key
@@ -2917,13 +2927,13 @@ npm install @supabase/ssr @supabase/supabase-js
 ### 7.3 Supabase Configuration Checklist
 
 - [ ] Supabase project created
-- [ ] Environment variables set (SUPABASE_URL, SUPABASE_KEY)
+- [ ] Environment variables set (PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY)
 - [ ] Email provider enabled in Supabase
 - [ ] Site URL configured
 - [ ] Redirect URLs configured
 - [ ] Email templates customized (Polish language)
 - [ ] Password requirements set (min 8 chars)
-- [ ] Email confirmation enabled/disabled (choose based on MVP needs)
+- [ ] **Email confirmation DISABLED for MVP** (per PRD requirement)
 - [ ] Database trigger `handle_new_user()` exists
 - [ ] RLS policies enabled on profiles table
 - [ ] Test user created for development
@@ -2982,7 +2992,22 @@ This specification provides a complete blueprint for implementing authentication
 
 ---
 
-**Document Version:** 1.0
+## Document Revision History
+
+### Version 1.1 (2025-11-20)
+**Changes Made:**
+- ✅ Added scope limitation note clarifying this specification only covers US-001 to US-004
+- ✅ Clarified email verification flow: DISABLED in MVP per PRD requirement
+- ✅ Fixed environment variable naming: Changed to `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY` to match Astro conventions and PRD
+- ✅ Added note explaining password requirements exceed PRD minimum for security best practices
+- ✅ Removed public recipes endpoint reference (public recipe sharing not in MVP scope)
+- ✅ Clarified terms/privacy checkbox explicitly NOT included in MVP
+
+**Alignment Status:** ✅ Now fully aligned with PRD requirements and assumptions
+
+---
+
+**Document Version:** 1.1
 **Last Updated:** 2025-11-20
 **Author:** Claude Code (AI Assistant)
-**Status:** Ready for Implementation
+**Status:** Ready for Implementation - Aligned with PRD
