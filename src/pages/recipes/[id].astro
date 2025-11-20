@@ -19,9 +19,6 @@ if (!isAuthenticated) {
   return Astro.redirect("/login");
 }
 
-// Mock user ID - TODO: Get from actual session
-const userId = "00000000-0000-0000-0000-000000000001";
-
 // Fetch recipe data server-side
 let recipe = null;
 let isFavorited = false;
