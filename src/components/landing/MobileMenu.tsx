@@ -65,7 +65,10 @@ const MobileMenu = () => {
             >
               Zaloguj się
             </Button>
-            <Button onClick={() => handleAuthClick("/auth/register")} className="w-full bg-green-600 hover:bg-green-700">
+            <Button
+              onClick={() => handleAuthClick("/auth/register")}
+              className="w-full bg-green-600 hover:bg-green-700"
+            >
               Zarejestruj się
             </Button>
           </div>

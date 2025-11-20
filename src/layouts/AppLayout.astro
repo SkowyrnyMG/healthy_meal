@@ -15,39 +15,21 @@ const { title = "HealthyMeal", showNewRecipeButton = true } = Astro.props;
 // AUTHENTICATION CHECK
 // ============================================================================
 
-// Fetch current user from Supabase
-const {
-  data: { user },
-} = await Astro.locals.supabase.auth.getUser();
+// Get user from locals (set by middleware)
+const user = Astro.locals.user;
 
-// TODO: Production - Uncomment this redirect for protected routes
-// if (authError || !user) {
-//   return Astro.redirect("/login");
-// }
-
-// Transform Supabase user to UserInfo for AppHeader
-let userInfo: UserInfo | null = null;
-
-if (user) {
-  // Extract display name from user metadata or use email
-  const displayName = user.user_metadata?.full_name || user.user_metadata?.name || null;
-
-  userInfo = {
-    userId: user.id,
-    email: user.email || "",
-    displayName,
-  };
+// Redirect to login if not authenticated
+// Note: This is a fallback check - middleware should already handle this
+if (!user) {
+  return Astro.redirect("/auth/login");
 }
 
-// MOCK: For development when auth is not fully implemented
-// Remove this when authentication is ready
-if (!userInfo) {
-  userInfo = {
-    userId: "a85d6d6c-b7d4-4605-9cc4-3743401b67a0",
-    email: "test@example.com",
-    displayName: "Test User",
-  };
-}
+// Transform user to UserInfo for AppHeader
+const userInfo: UserInfo = {
+  userId: user.id,
+  email: user.email || "",
+  displayName: null, // Will be populated from profile when that feature is implemented
+};
 ---
 
 <!doctype html>

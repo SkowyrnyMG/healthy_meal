@@ -97,8 +97,8 @@ const ForgotPasswordForm = () => {
         <CardContent className="space-y-6">
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
-              Jeśli konto z adresem <strong>{formData.email}</strong> istnieje, otrzymasz wiadomość e-mail z linkiem
-              do resetowania hasła w ciągu kilku minut.
+              Jeśli konto z adresem <strong>{formData.email}</strong> istnieje, otrzymasz wiadomość e-mail z linkiem do
+              resetowania hasła w ciągu kilku minut.
             </p>
           </div>
 

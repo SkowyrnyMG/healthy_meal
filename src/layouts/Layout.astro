@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { Toaster } from "sonner";
 
 interface Props {
   title?: string;
@@ -19,6 +20,9 @@ const { title = "Healthy Meal" } = Astro.props;
   </head>
   <body class="gradient-bg">
     <slot />
+
+    <!-- Toast Notifications -->
+    <Toaster richColors position="bottom-right" client:load />
   </body>
 </html>
 

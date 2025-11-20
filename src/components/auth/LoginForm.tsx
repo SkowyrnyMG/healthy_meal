@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,16 +77,75 @@ const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log("[LoginForm] Form submitted");
+
     // Clear general error
     setErrors((prev) => ({ ...prev, general: undefined }));
 
     // Validate form
     if (!validateForm()) {
+      console.log("[LoginForm] Validation failed");
       return;
     }
 
-    // Form submission logic will be implemented in the next phase
-    console.log("Login form submitted:", formData);
+    console.log("[LoginForm] Validation passed, starting login...");
+
+    // Set loading state
+    setIsLoading(true);
+
+    try {
+      // Call login API endpoint
+      console.log("[LoginForm] Calling API...");
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      console.log("[LoginForm] API response status:", response.status);
+
+      const data = await response.json();
+      console.log("[LoginForm] API response data:", data);
+
+      if (!response.ok) {
+        // Handle error responses
+        console.log("[LoginForm] Login failed:", data.error);
+        setErrors((prev) => ({
+          ...prev,
+          general: data.error || "Wystąpił błąd podczas logowania. Spróbuj ponownie.",
+        }));
+        setIsLoading(false);
+        return;
+      }
+
+      // Success - show toast and redirect
+      console.log("[LoginForm] Login successful, showing toast...");
+      toast.success("Zalogowano pomyślnie!");
+
+      // Small delay to allow toast to show before redirect
+      setTimeout(() => {
+        console.log("[LoginForm] Redirecting to:", data.redirect || "/dashboard");
+        // Redirect to dashboard (server-controlled redirect)
+        if (data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          // Fallback redirect
+          window.location.href = "/dashboard";
+        }
+      }, 500);
+    } catch (error) {
+      console.error("[LoginForm] Network error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        general: "Wystąpił błąd sieciowy. Sprawdź połączenie z internetem i spróbuj ponownie.",
+      }));
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (field: keyof LoginFormData, value: string) => {
@@ -170,10 +230,7 @@ const LoginForm = () => {
 
           {/* Forgot Password Link */}
           <div className="flex justify-end">
-            <a
-              href="/auth/forgot-password"
-              className="text-sm text-green-600 hover:text-green-700 hover:underline"
-            >
+            <a href="/auth/forgot-password" className="text-sm text-green-600 hover:text-green-700 hover:underline">
               Zapomniałeś hasła?
             </a>
           </div>
