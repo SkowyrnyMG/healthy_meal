@@ -23,9 +23,9 @@ const MobileMenu = () => {
     }
   };
 
-  const handleAuthClick = () => {
+  const handleAuthClick = (href: string) => {
     setIsOpen(false);
-    alert("Ta funkcja będzie wkrótce dostępna");
+    window.location.href = href;
   };
 
   return (
@@ -60,12 +60,12 @@ const MobileMenu = () => {
           <div className="flex flex-col gap-3">
             <Button
               variant="outline"
-              onClick={handleAuthClick}
+              onClick={() => handleAuthClick("/auth/login")}
               className="w-full border-gray-300 hover:border-green-600 hover:text-green-600"
             >
               Zaloguj się
             </Button>
-            <Button onClick={handleAuthClick} className="w-full bg-green-600 hover:bg-green-700">
+            <Button onClick={() => handleAuthClick("/auth/register")} className="w-full bg-green-600 hover:bg-green-700">
               Zarejestruj się
             </Button>
           </div>

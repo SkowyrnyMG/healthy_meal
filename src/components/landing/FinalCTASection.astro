@@ -31,12 +31,12 @@ import { Sparkles } from "lucide-react";
 
       <!-- CTA Button -->
       <div class="mt-8 flex justify-center">
-        <button
-          data-final-cta="register"
+        <a
+          href="/auth/register"
           class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-white text-green-600 shadow hover:bg-gray-100 px-8 py-6"
         >
           Zacznij za darmo
-        </button>
+        </a>
       </div>
 
       <!-- Trust indicators -->
@@ -73,16 +73,3 @@ import { Sparkles } from "lucide-react";
   </div>
 </section>
 
-<script>
-  /* eslint-disable prettier/prettier */
-  // Handle final CTA button click
-  document.addEventListener("DOMContentLoaded", () => {
-    const finalCtaBtn = document.querySelector('[data-final-cta="register"]');
-
-    if (finalCtaBtn) {
-      finalCtaBtn.addEventListener("click", () => {
-        alert("Ta funkcja będzie wkrótce dostępna");
-      });
-    }
-  });
-</script>

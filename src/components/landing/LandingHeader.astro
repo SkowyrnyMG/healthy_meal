@@ -30,18 +30,18 @@ const navLinks: NavLink[] = [
 
     <!-- Auth Buttons -->
     <div class="hidden md:flex items-center gap-3">
-      <button
-        data-auth-action="login"
+      <a
+        href="/auth/login"
         class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-gray-300 bg-white shadow-sm hover:border-green-600 hover:text-green-600 h-9 px-4 py-2"
       >
         Zaloguj się
-      </button>
-      <button
-        data-auth-action="register"
+      </a>
+      <a
+        href="/auth/register"
         class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white shadow hover:bg-green-700 h-9 px-4 py-2"
       >
         Zarejestruj się
-      </button>
+      </a>
     </div>
 
     <!-- Mobile Menu -->
@@ -51,19 +51,6 @@ const navLinks: NavLink[] = [
   </div>
 </header>
 
-<script>
-  /* eslint-disable prettier/prettier */
-  // Handle auth button clicks
-  document.addEventListener("DOMContentLoaded", () => {
-    const authButtons = document.querySelectorAll("[data-auth-action]");
-
-    authButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        alert("Ta funkcja będzie wkrótce dostępna");
-      });
-    });
-  });
-</script>
 
 <style>
   /* Smooth scroll behavior */

@@ -13,12 +13,12 @@
 
         <!-- CTA Buttons -->
         <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:gap-4 md:justify-start">
-          <button
-            data-cta-action="register"
+          <a
+            href="/auth/register"
             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white shadow hover:bg-green-700 px-8 py-6"
           >
             Zacznij za darmo
-          </button>
+          </a>
           <button
             data-cta-action="learn-more"
             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-green-600 bg-white shadow-sm text-green-600 hover:bg-green-50 px-8 py-6"
@@ -64,14 +64,7 @@
   /* eslint-disable prettier/prettier */
   // Handle CTA button clicks
   document.addEventListener("DOMContentLoaded", () => {
-    const registerBtn = document.querySelector('[data-cta-action="register"]');
     const learnMoreBtn = document.querySelector('[data-cta-action="learn-more"]');
-
-    if (registerBtn) {
-      registerBtn.addEventListener("click", () => {
-        alert("Ta funkcja będzie wkrótce dostępna");
-      });
-    }
 
     if (learnMoreBtn) {
       learnMoreBtn.addEventListener("click", () => {
