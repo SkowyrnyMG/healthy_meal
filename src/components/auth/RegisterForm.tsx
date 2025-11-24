@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -138,6 +139,7 @@ const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const passwordStrength = useMemo(() => getPasswordStrength(formData.password), [formData.password]);
 
@@ -160,16 +162,66 @@ const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log("[RegisterForm] Form submitted");
+
     // Clear general error
     setErrors((prev) => ({ ...prev, general: undefined }));
 
     // Validate form
     if (!validateForm()) {
+      console.log("[RegisterForm] Validation failed");
       return;
     }
 
-    // Form submission logic will be implemented in the next phase
-    console.log("Register form submitted:", formData);
+    console.log("[RegisterForm] Validation passed, starting registration...");
+
+    // Set loading state
+    setIsLoading(true);
+
+    try {
+      // Call register API endpoint
+      console.log("[RegisterForm] Calling API...");
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+        }),
+      });
+
+      console.log("[RegisterForm] API response status:", response.status);
+
+      const data = await response.json();
+      console.log("[RegisterForm] API response data:", data);
+
+      if (!response.ok) {
+        // Handle error responses
+        console.log("[RegisterForm] Registration failed:", data.error);
+        setErrors((prev) => ({
+          ...prev,
+          general: data.error || "Wystąpił błąd podczas rejestracji. Spróbuj ponownie.",
+        }));
+        setIsLoading(false);
+        return;
+      }
+
+      // Success - show success state and toast
+      console.log("[RegisterForm] Registration successful");
+      setIsSuccess(true);
+      toast.success("Konto zostało utworzone!");
+      setIsLoading(false);
+    } catch (error) {
+      console.error("[RegisterForm] Network error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        general: "Wystąpił błąd sieciowy. Sprawdź połączenie z internetem i spróbuj ponownie.",
+      }));
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (field: keyof RegisterFormData, value: string) => {
@@ -179,6 +231,51 @@ const RegisterForm = () => {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
+
+  // If registration was successful, show success message
+  if (isSuccess) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-2xl">Rejestracja zakończona!</CardTitle>
+          <CardDescription>Sprawdź swoją skrzynkę e-mail, aby potwierdzić konto</CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+          {/* Success Icon and Message */}
+          <div className="flex flex-col items-center justify-center py-8 space-y-4">
+            <div className="rounded-full bg-green-100 p-3">
+              <CheckCircle2 className="h-12 w-12 text-green-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-semibold text-gray-900">Konto zostało utworzone!</h3>
+              <p className="text-sm text-gray-600 max-w-md">
+                Wysłaliśmy wiadomość z linkiem aktywacyjnym na adres <strong>{formData.email}</strong>
+              </p>
+            </div>
+          </div>
+
+          {/* Instructions Alert */}
+          <Alert className="bg-blue-50 border-blue-200">
+            <AlertDescription className="text-sm text-gray-700">
+              <strong>Ważne:</strong> Aby ukończyć rejestrację, kliknij link potwierdzający w wiadomości e-mail.
+              Jeśli nie widzisz wiadomości, sprawdź folder SPAM.
+            </AlertDescription>
+          </Alert>
+
+          {/* Login Link */}
+          <div className="text-center pt-4">
+            <p className="text-sm text-gray-600">
+              Potwierdziłeś już swoje konto?{" "}
+              <a href="/auth/login" className="text-green-600 hover:text-green-700 hover:underline font-medium">
+                Zaloguj się
+              </a>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full">
