@@ -10,19 +10,10 @@ export const prerender = false;
 // AUTHENTICATION CHECK
 // ============================================================================
 
-// TODO: Production - Replace with actual authentication
-// const { data: { user }, error: authError } = await Astro.locals.supabase.auth.getUser();
-// if (authError || !user) {
-//   return Astro.redirect("/login");
-// }
-// const userId = user.id;
+const userId = Astro.locals.user?.id;
 
-// MOCK: Remove this in production
-const isAuthenticated = true;
-const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
-
-if (!isAuthenticated) {
-  return Astro.redirect("/login");
+if (!userId) {
+  return Astro.redirect("/auth/login");
 }
 
 // ============================================================================

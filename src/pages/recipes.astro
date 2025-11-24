@@ -9,9 +9,12 @@ import type { FavoriteDTO, PaginationDTO } from "@/types";
 
 // Note: Authentication check is now performed in AppLayout
 // AppLayout handles user session and passes it to AppHeader
-// For now, using mock userId for data fetching until full auth is implemented
 
-const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
+const userId = Astro.locals.user?.id;
+
+if (!userId) {
+  return Astro.redirect("/auth/login");
+}
 
 // ============================================================================
 // DATA FETCHING

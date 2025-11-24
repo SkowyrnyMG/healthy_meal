@@ -101,20 +101,17 @@ export const POST: APIRoute = async (context) => {
     // AUTHENTICATION
     // ========================================
 
-    // TODO: Production - Uncomment for real authentication
-    // const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
-    // if (authError || !user) {
-    //   return new Response(
-    //     JSON.stringify({
-    //       error: "Unauthorized",
-    //       message: "Authentication required"
-    //     }),
-    //     { status: 401, headers: { "Content-Type": "application/json" } }
-    //   );
-    // }
+    const user = context.locals.user;
 
-    // MOCK: Remove this in production
-    const user = { id: "a85d6d6c-b7d4-4605-9cc4-3743401b67a0" };
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Authentication required",
+        }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // ========================================
     // PARSE AND VALIDATE REQUEST BODY

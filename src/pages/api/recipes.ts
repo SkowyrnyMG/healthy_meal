@@ -141,21 +141,17 @@ export const GET: APIRoute = async (context) => {
     // AUTHENTICATION
     // ========================================
 
-    // TODO: Production - Uncomment this block for real authentication
-    // const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
-    // if (authError || !user) {
-    //   return new Response(
-    //     JSON.stringify({
-    //       error: "Unauthorized",
-    //       message: "Authentication required"
-    //     }),
-    //     { status: 401, headers: { "Content-Type": "application/json" } }
-    //   );
-    // }
-    // const userId = user.id;
+    const userId = context.locals.user?.id;
 
-    // MOCK: Remove this in production
-    const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
+    if (!userId) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Authentication required",
+        }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // ========================================
     // EXTRACT AND VALIDATE QUERY PARAMETERS
@@ -240,21 +236,17 @@ export const POST: APIRoute = async (context) => {
     // AUTHENTICATION
     // ========================================
 
-    // TODO: Production - Uncomment for real authentication
-    // const { data: { user }, error: authError } = await context.locals.supabase.auth.getUser();
-    // if (authError || !user) {
-    //   return new Response(
-    //     JSON.stringify({
-    //       error: "Unauthorized",
-    //       message: "Authentication required"
-    //     }),
-    //     { status: 401, headers: { "Content-Type": "application/json" } }
-    //   );
-    // }
-    // const userId = user.id;
+    const userId = context.locals.user?.id;
 
-    // MOCK: Remove this in production
-    const userId = "a85d6d6c-b7d4-4605-9cc4-3743401b67a0";
+    if (!userId) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Authentication required",
+        }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // ========================================
     // PARSE AND VALIDATE REQUEST BODY
