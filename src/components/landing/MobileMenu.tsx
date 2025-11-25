@@ -9,7 +9,11 @@ const navLinks: NavLink[] = [
   { href: "#how-it-works", label: "Jak to działa" },
 ];
 
-const MobileMenu = () => {
+interface MobileMenuProps {
+  isAuthenticated?: boolean;
+}
+
+const MobileMenu = ({ isAuthenticated = false }: MobileMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleNavClick = (href: string) => {
@@ -56,21 +60,32 @@ const MobileMenu = () => {
           {/* Divider */}
           <div className="border-t border-gray-200" />
 
-          {/* Auth Buttons */}
+          {/* Auth Buttons / Dashboard Button */}
           <div className="flex flex-col gap-3">
-            <Button
-              variant="outline"
-              onClick={() => handleAuthClick("/auth/login")}
-              className="w-full border-gray-300 hover:border-green-600 hover:text-green-600"
-            >
-              Zaloguj się
-            </Button>
-            <Button
-              onClick={() => handleAuthClick("/auth/register")}
-              className="w-full bg-green-600 hover:bg-green-700"
-            >
-              Zarejestruj się
-            </Button>
+            {isAuthenticated ? (
+              <Button
+                onClick={() => handleAuthClick("/dashboard")}
+                className="w-full bg-green-600 hover:bg-green-700"
+              >
+                Przejdź do panelu
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => handleAuthClick("/auth/login")}
+                  className="w-full border-gray-300 hover:border-green-600 hover:text-green-600"
+                >
+                  Zaloguj się
+                </Button>
+                <Button
+                  onClick={() => handleAuthClick("/auth/register")}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  Zarejestruj się
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </SheetContent>

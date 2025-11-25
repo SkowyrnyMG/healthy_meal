@@ -3,6 +3,12 @@ import { ChefHat } from "lucide-react";
 import MobileMenu from "./MobileMenu";
 import type { NavLink } from "./types";
 
+interface Props {
+  isAuthenticated?: boolean;
+}
+
+const { isAuthenticated = false } = Astro.props;
+
 const navLinks: NavLink[] = [
   { href: "#features", label: "Funkcje" },
   { href: "#how-it-works", label: "Jak to działa" },
@@ -28,25 +34,38 @@ const navLinks: NavLink[] = [
       }
     </nav>
 
-    <!-- Auth Buttons -->
+    <!-- Auth Buttons / Dashboard Button -->
     <div class="hidden md:flex items-center gap-3">
-      <a
-        href="/auth/login"
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-gray-300 bg-white shadow-sm hover:border-green-600 hover:text-green-600 h-9 px-4 py-2"
-      >
-        Zaloguj się
-      </a>
-      <a
-        href="/auth/register"
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white shadow hover:bg-green-700 h-9 px-4 py-2"
-      >
-        Zarejestruj się
-      </a>
+      {
+        isAuthenticated ? (
+          <a
+            href="/dashboard"
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white shadow hover:bg-green-700 h-9 px-4 py-2"
+          >
+            Przejdź do panelu
+          </a>
+        ) : (
+          <>
+            <a
+              href="/auth/login"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-gray-300 bg-white shadow-sm hover:border-green-600 hover:text-green-600 h-9 px-4 py-2"
+            >
+              Zaloguj się
+            </a>
+            <a
+              href="/auth/register"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white shadow hover:bg-green-700 h-9 px-4 py-2"
+            >
+              Zarejestruj się
+            </a>
+          </>
+        )
+      }
     </div>
 
     <!-- Mobile Menu -->
     <div class="md:hidden">
-      <MobileMenu client:load />
+      <MobileMenu client:load isAuthenticated={isAuthenticated} />
     </div>
   </div>
 </header>

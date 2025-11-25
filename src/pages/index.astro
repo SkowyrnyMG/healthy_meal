@@ -7,12 +7,16 @@ import HowItWorksSection from "../components/landing/HowItWorksSection.astro";
 import SocialProofSection from "../components/landing/SocialProofSection.astro";
 import FinalCTASection from "../components/landing/FinalCTASection.astro";
 import Footer from "../components/landing/Footer.astro";
+
+// Check if user is authenticated
+const { data: { user } } = await Astro.locals.supabase.auth.getUser();
+const isAuthenticated = !!user;
 ---
 
 <Layout title="HealthyMeal - Dopasuj przepisy do swojej diety z pomocą AI">
-  <LandingHeader />
+  <LandingHeader isAuthenticated={isAuthenticated} />
   <main>
-    <HeroSection />
+    <HeroSection isAuthenticated={isAuthenticated} />
     <FeaturesSection />
     <HowItWorksSection />
     <SocialProofSection />
