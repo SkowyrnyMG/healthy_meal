@@ -41,7 +41,19 @@ export const createSupabaseServerInstance = (context: { headers: Headers; cookie
         return parseCookieHeader(context.headers.get("Cookie") ?? "");
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => context.cookies.set(name, value, options));
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => context.cookies.set(name, value, options));
+        } catch (error) {
+          // Response already sent - cookies cannot be set
+          // This can happen when auth tokens are refreshed after response is sent
+          // Safe to ignore as the client will handle token refresh on next request
+          if (error instanceof Error && error.message.includes("already been sent")) {
+            // Silently ignore - this is expected behavior
+            return;
+          }
+          // Re-throw unexpected errors
+          throw error;
+        }
       },
     },
   });
