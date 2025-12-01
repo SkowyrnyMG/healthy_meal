@@ -51,6 +51,15 @@ HealthyMeal is a web application that leverages artificial intelligence to modif
 
 - **OpenRouter.ai** - For access to various AI models (OpenAI, Anthropic, Google, etc.)
 
+### Testing
+
+- **Vitest** - Fast unit testing framework powered by Vite
+  - React Testing Library for testing React components
+  - Integration with TypeScript and Astro
+- **Playwright** - Modern end-to-end testing
+  - Cross-browser testing support
+  - TypeScript integration
+
 ### CI/CD & Hosting
 
 - **GitHub Actions** - For CI/CD pipelines
@@ -101,13 +110,118 @@ HealthyMeal is a web application that leverages artificial intelligence to modif
 
 ## Available Scripts
 
+### Development
+
 - `npm run dev` - Start the development server
 - `npm run build` - Build the application for production
 - `npm run preview` - Preview the production build locally
 - `npm run astro` - Run Astro CLI commands
+
+### Code Quality
+
 - `npm run lint` - Run ESLint to check for code issues
 - `npm run lint:fix` - Fix linting issues automatically
 - `npm run format` - Format code with Prettier
+
+### Testing
+
+#### Unit Tests (Vitest)
+
+- `npm test` - Run unit tests once
+- `npm run test:watch` - Run unit tests in watch mode (re-runs on file changes)
+- `npm run test:ui` - Open Vitest UI for visual test exploration
+- `npm run test:coverage` - Run tests with coverage report
+
+#### E2E Tests (Playwright)
+
+- `npm run test:e2e` - Run end-to-end tests
+- `npm run test:e2e:ui` - Run E2E tests in UI mode for debugging
+- `npm run test:e2e:codegen` - Open Playwright Codegen tool for recording tests
+
+## Testing
+
+This project uses a comprehensive testing strategy with both unit and end-to-end tests.
+
+### Unit Testing with Vitest
+
+Unit tests are located alongside the source files with `.test.ts` or `.test.tsx` extensions. The project uses:
+
+- **Vitest** - Fast unit testing framework built on Vite
+- **React Testing Library** - For testing React components
+- **jsdom** - DOM environment for testing
+
+Example test location: `src/lib/utils/dashboard.test.ts`
+
+#### Running Unit Tests
+
+```bash
+# Run tests once
+npm test
+
+# Run in watch mode (recommended during development)
+npm run test:watch
+
+# View tests in UI mode
+npm run test:ui
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### E2E Testing with Playwright
+
+End-to-end tests are located in the `e2e/` directory and use the Page Object Model pattern for maintainability.
+
+Example test files:
+- `e2e/landing.spec.ts` - Landing page tests
+- `e2e/authentication.spec.ts` - Authentication flow tests
+- `e2e/pages/` - Page Object Models
+
+#### Running E2E Tests
+
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Run with UI mode for debugging
+npm run test:e2e:ui
+
+# Record new tests with Codegen
+npm run test:e2e:codegen
+```
+
+#### Writing E2E Tests
+
+E2E tests use the Page Object Model pattern. Create page objects in `e2e/pages/` and test files in `e2e/`:
+
+```typescript
+// e2e/pages/example.page.ts
+import { type Page, type Locator } from '@playwright/test';
+
+export class ExamplePage {
+  readonly page: Page;
+  readonly heading: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.heading = page.getByRole('heading', { level: 1 });
+  }
+
+  async goto() {
+    await this.page.goto('/example');
+  }
+}
+
+// e2e/example.spec.ts
+import { test, expect } from '@playwright/test';
+import { ExamplePage } from './pages/example.page';
+
+test('example test', async ({ page }) => {
+  const examplePage = new ExamplePage(page);
+  await examplePage.goto();
+  await expect(examplePage.heading).toBeVisible();
+});
+```
 
 ## Project Scope
 

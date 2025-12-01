@@ -18,6 +18,13 @@ AI - Komunikacja z modelami przez usługę Openrouter.ai:
 - Dostęp do szerokiej gamy modeli (OpenAI, Anthropic, Google i wiele innych), które pozwolą nam znaleźć rozwiązanie zapewniające wysoką efektywność i niskie koszta
 - Pozwala na ustawianie limitów finansowych na klucze API
 
+Testowanie - Narzędzia do testów jednostkowych i end-to-end:
+
+- Vitest do testów jednostkowych - szybki framework testowy oparty na Vite, idealny dla projektów Astro
+- React Testing Library do testowania komponentów React - sprawdzone narzędzie do testowania interfejsu użytkownika
+- Playwright do testów end-to-end - nowoczesne narzędzie do testowania E2E z wsparciem dla wielu przeglądarek
+- Pełne wsparcie dla TypeScript we wszystkich narzędziach testowych
+
 CI/CD i Hosting:
 
 - Github Actions do tworzenia pipeline’ów CI/CD

@@ -22,3 +22,12 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# testing
+coverage/
+.vitest/
+test-results/
+playwright-report/
+playwright/.cache/
+*.spec.ts-snapshots/
+e2e-results/
