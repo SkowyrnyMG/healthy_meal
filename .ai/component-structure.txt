@@ -1,0 +1,208 @@
+================================================================================
+COMPONENT STRUCTURE AND DEPENDENCIES
+Starting from: src/pages/index.astro
+Generated: 2025-12-02
+================================================================================
+
+src/pages/index.astro (Main Landing Page)
+│
+├─── AUTHENTICATION
+│    └── Astro.locals.supabase.auth.getUser() → isAuthenticated prop
+│
+├─── src/layouts/Layout.astro (Base HTML layout)
+│    ├── src/styles/global.css (Global Tailwind styles)
+│    └── sonner → Toaster (Toast notifications, client:load)
+│
+├─── src/components/landing/LandingHeader.astro (Navigation header, sticky)
+│    │   Props: isAuthenticated
+│    │
+│    ├── lucide-react → ChefHat (Logo icon)
+│    │
+│    ├── src/components/landing/types.ts
+│    │   └── NavLink interface { href, label }
+│    │
+│    └── src/components/landing/MobileMenu.tsx [REACT, client:load]
+│        │   Props: isAuthenticated
+│        │
+│        ├── react → useState (Menu open/close state)
+│        │
+│        ├── lucide-react → Menu (Hamburger icon)
+│        │
+│        ├── src/components/ui/button.tsx [REACT]
+│        │   ├── @radix-ui/react-slot → Slot
+│        │   ├── class-variance-authority → cva, VariantProps
+│        │   └── src/lib/utils.ts → cn()
+│        │       ├── clsx
+│        │       └── tailwind-merge → twMerge
+│        │
+│        ├── src/components/ui/sheet.tsx [REACT]
+│        │   │   Exports: Sheet, SheetTrigger, SheetContent, SheetHeader,
+│        │   │            SheetTitle, SheetClose, SheetPortal, SheetOverlay,
+│        │   │            SheetFooter, SheetDescription
+│        │   │
+│        │   ├── @radix-ui/react-dialog → SheetPrimitive.*
+│        │   ├── lucide-react → XIcon (Close button)
+│        │   └── src/lib/utils.ts → cn()
+│        │
+│        └── src/components/landing/types.ts → NavLink interface
+│
+├─── <main>
+│    │
+│    ├─── src/components/landing/HeroSection.astro (Hero with gradient bg)
+│    │    │   Props: isAuthenticated
+│    │    │   Features: CTA buttons, smooth scroll script
+│    │    │
+│    │    └── Inline SVG (Book illustration)
+│    │
+│    ├─── src/components/landing/FeaturesSection.astro (3-column grid)
+│    │    │   ID: #features
+│    │    │
+│    │    ├── src/components/ui/card.tsx [REACT]
+│    │    │   │   Exports: Card, CardHeader, CardTitle, CardDescription,
+│    │    │   │            CardContent, CardFooter, CardAction
+│    │    │   │
+│    │    │   └── src/lib/utils.ts → cn()
+│    │    │
+│    │    ├── lucide-react
+│    │    │   ├── Flame (Calories icon)
+│    │    │   ├── Beef (Protein icon)
+│    │    │   └── RefreshCw (Replace ingredients icon)
+│    │    │
+│    │    └── src/components/landing/types.ts
+│    │        └── Feature interface { icon: LucideIcon, title, description }
+│    │
+│    ├─── src/components/landing/HowItWorksSection.astro (3-step process)
+│    │    │   ID: #how-it-works
+│    │    │   Features: Numbered badges, connecting arrows
+│    │    │
+│    │    ├── src/components/ui/card.tsx [REACT]
+│    │    │
+│    │    ├── lucide-react
+│    │    │   ├── FileText (Add recipe icon)
+│    │    │   ├── Sparkles (AI modification icon)
+│    │    │   └── ChefHat (Cook icon)
+│    │    │
+│    │    └── src/components/landing/types.ts
+│    │        └── Step interface { number, title, description, icon: LucideIcon }
+│    │
+│    ├─── src/components/landing/SocialProofSection.astro (Testimonials placeholder)
+│    │    │   Features: Placeholder cards, stats section
+│    │    │
+│    │    ├── src/components/ui/card.tsx [REACT]
+│    │    │
+│    │    └── Inline SVG (Message icon for placeholders)
+│    │
+│    └─── src/components/landing/FinalCTASection.astro (Call to action banner)
+│         │   Features: Gradient background, trust indicators
+│         │
+│         └── lucide-react → Sparkles (Hero icon)
+│
+└─── src/components/landing/Footer.astro (Site footer)
+     │
+     ├── src/components/ui/separator.tsx [REACT]
+     │   │   Wraps: @radix-ui/react-separator
+     │   │
+     │   ├── @radix-ui/react-separator → SeparatorPrimitive.Root
+     │   └── src/lib/utils.ts → cn()
+     │
+     ├── lucide-react
+     │   ├── ChefHat (Brand logo)
+     │   ├── Mail (Social link)
+     │   ├── Github (Social link)
+     │   └── Linkedin (Social link)
+     │
+     └── src/components/landing/types.ts
+         ├── FooterLink interface { label, href }
+         └── FooterLinkGroup interface { title, links: FooterLink[] }
+
+
+================================================================================
+COMPONENT CLASSIFICATION
+================================================================================
+
+ASTRO COMPONENTS (Static, server-rendered):
+  - src/layouts/Layout.astro
+  - src/pages/index.astro
+  - src/components/landing/LandingHeader.astro
+  - src/components/landing/HeroSection.astro
+  - src/components/landing/FeaturesSection.astro
+  - src/components/landing/HowItWorksSection.astro
+  - src/components/landing/SocialProofSection.astro
+  - src/components/landing/FinalCTASection.astro
+  - src/components/landing/Footer.astro
+
+REACT COMPONENTS (Interactive, marked with client:load when used):
+  - src/components/landing/MobileMenu.tsx
+  - src/components/ui/button.tsx (shadcn/ui)
+  - src/components/ui/sheet.tsx (shadcn/ui)
+  - src/components/ui/card.tsx (shadcn/ui)
+  - src/components/ui/separator.tsx (shadcn/ui)
+  - Toaster (from sonner library)
+
+TYPE DEFINITIONS:
+  - src/components/landing/types.ts
+    * NavLink
+    * Feature
+    * Step
+    * FooterLink
+    * FooterLinkGroup
+
+UTILITIES:
+  - src/lib/utils.ts
+    * cn() - Utility for merging Tailwind classes
+
+
+================================================================================
+EXTERNAL DEPENDENCIES
+================================================================================
+
+UI & STYLING:
+  - @radix-ui/react-slot
+  - @radix-ui/react-dialog (used by sheet component)
+  - @radix-ui/react-separator
+  - class-variance-authority
+  - clsx
+  - tailwind-merge
+  - lucide-react (icon library)
+  - sonner (toast notifications)
+
+AUTHENTICATION:
+  - Supabase (via Astro.locals.supabase)
+
+
+================================================================================
+INTERACTIVE FEATURES
+================================================================================
+
+1. AUTHENTICATION STATE:
+   - Checked server-side via Supabase
+   - Passed as props to Header and Hero sections
+   - Determines CTA button visibility (Login/Register vs Dashboard)
+
+2. MOBILE MENU (MobileMenu.tsx):
+   - React component with useState for open/close
+   - Sheet component from shadcn/ui
+   - Smooth scroll navigation
+   - Conditional auth buttons
+
+3. SMOOTH SCROLLING:
+   - Hero section: "Learn more" button scrolls to #features
+   - Mobile menu: Navigation links scroll to sections
+   - CSS: scroll-behavior: smooth
+
+4. CLIENT-SIDE HYDRATION:
+   - MobileMenu: client:load
+   - Toaster: client:load
+
+
+================================================================================
+NOTES
+================================================================================
+
+- All landing components follow consistent prop patterns
+- Authentication state flows from index.astro down to child components
+- React components only used where interactivity is needed (mobile menu, UI primitives)
+- Icon components from lucide-react passed as props to maintain type safety
+- Shadcn/ui components use Radix UI primitives with Tailwind styling
+- Global styles loaded once in Layout.astro
+- All sections have semantic IDs for anchor navigation (#features, #how-it-works)
