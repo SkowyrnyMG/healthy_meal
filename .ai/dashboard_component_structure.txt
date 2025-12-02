@@ -1,0 +1,471 @@
+================================================================================
+DASHBOARD COMPONENT STRUCTURE & DEPENDENCY TREE
+================================================================================
+File: src/pages/dashboard.astro
+Last Updated: 2025-12-02
+================================================================================
+
+LEGEND:
+  [P] = Page (Astro)
+  [L] = Layout Component (Astro)
+  [C] = Component (Astro static)
+  [R] = React Component (client-side)
+  [H] = Custom Hook
+  [U] = Utility Module
+  [T] = Type Definitions
+  [E] = External Library
+  [A] = API Endpoint (internal fetch)
+
+================================================================================
+COMPONENT TREE
+================================================================================
+
+[P] src/pages/dashboard.astro
+│
+├─── IMPORTS (Types & Utils)
+│    ├── [T] @/types
+│    │    ├── RecipeListItemDTO
+│    │    ├── FavoriteDTO
+│    │    └── PaginationDTO
+│    │
+│    └── [U] @/lib/utils/dashboard
+│         ├── shuffleArray<T>()
+│         ├── transformRecipeToCardData()
+│         ├── transformFavoriteToCardData()
+│         ├── RecipeCardData (interface)
+│         └── [USES] @/types (RecipeListItemDTO, FavoriteDTO, NutritionDTO, TagDTO)
+│
+├─── DATA FETCHING (Server-side)
+│    ├── [A] GET /api/profile
+│    ├── [A] GET /api/recipes?limit=6&sortBy=createdAt&sortOrder=desc
+│    ├── [A] GET /api/favorites?limit=6
+│    └── [A] GET /api/recipes/public?limit=20&sortBy=createdAt&sortOrder=desc
+│
+├─── [L] AppLayout (src/layouts/AppLayout.astro)
+│    │    Props: { title: string, showNewRecipeButton: boolean }
+│    │
+│    ├── Global Styles
+│    │    └── @/styles/global.css
+│    │
+│    ├── Authentication Check
+│    │    └── Astro.locals.user (from middleware)
+│    │
+│    ├── [C] AppHeader (src/components/app/AppHeader.astro)
+│    │    │    Props: { user: UserInfo, showNewRecipeButton: boolean }
+│    │    │
+│    │    ├── [T] @/components/app/types
+│    │    │    ├── UserInfo (interface)
+│    │    │    ├── NavLink (interface)
+│    │    │    ├── getUserDisplayName()
+│    │    │    └── getUserInitials()
+│    │    │
+│    │    ├── [E] lucide-react
+│    │    │    ├── ChefHat
+│    │    │    └── Plus
+│    │    │
+│    │    ├── Navigation (Desktop)
+│    │    │    └── NavLink[] (Dashboard, Moje Przepisy, Publiczne, Ulubione, Kolekcje)
+│    │    │
+│    │    ├── [R] UserMenu (src/components/app/UserMenu.tsx) [client:load]
+│    │    │    │    Props: { user: UserInfo }
+│    │    │    │
+│    │    │    ├── [E] lucide-react (LogOut, User)
+│    │    │    │
+│    │    │    ├── [R] @/components/ui/avatar
+│    │    │    │    ├── Avatar
+│    │    │    │    └── AvatarFallback
+│    │    │    │         └── [E] @radix-ui/react-avatar
+│    │    │    │
+│    │    │    ├── [R] @/components/ui/dropdown-menu
+│    │    │    │    ├── DropdownMenu
+│    │    │    │    ├── DropdownMenuTrigger
+│    │    │    │    ├── DropdownMenuContent
+│    │    │    │    ├── DropdownMenuItem
+│    │    │    │    ├── DropdownMenuLabel
+│    │    │    │    └── DropdownMenuSeparator
+│    │    │    │         └── [E] @radix-ui/react-dropdown-menu
+│    │    │    │
+│    │    │    ├── [R] @/components/ui/button
+│    │    │    │    └── Button
+│    │    │    │
+│    │    │    ├── [T] @/components/app/types
+│    │    │    │
+│    │    │    └── Actions
+│    │    │         ├── handleLogout() → [A] POST /api/auth/logout
+│    │    │         └── handleProfileClick() → /profile
+│    │    │
+│    │    └── [R] MobileNav (src/components/app/MobileNav.tsx) [client:load]
+│    │         │    Props: { user: UserInfo | null, navLinks: NavLink[],
+│    │         │            currentPath: string, showNewRecipeButton: boolean }
+│    │         │
+│    │         ├── [E] lucide-react (Menu, LogOut, User, Plus)
+│    │         │
+│    │         ├── [R] @/components/ui/button
+│    │         │    └── Button
+│    │         │
+│    │         ├── [R] @/components/ui/sheet
+│    │         │    ├── Sheet
+│    │         │    ├── SheetContent
+│    │         │    ├── SheetHeader
+│    │         │    ├── SheetTitle
+│    │         │    └── SheetTrigger
+│    │         │         └── [E] @radix-ui/react-dialog
+│    │         │
+│    │         ├── [R] @/components/ui/avatar
+│    │         │    ├── Avatar
+│    │         │    └── AvatarFallback
+│    │         │
+│    │         ├── [R] @/components/ui/separator
+│    │         │    └── Separator
+│    │         │         └── [E] @radix-ui/react-separator
+│    │         │
+│    │         ├── [T] @/components/app/types
+│    │         │
+│    │         └── Actions
+│    │              ├── handleLogout() → [A] POST /api/auth/logout
+│    │              ├── handleProfileClick() → /profile
+│    │              └── handleNewRecipeClick() → /recipes/new
+│    │
+│    ├── Main Content Slot
+│    │    └── <slot /> (dashboard content rendered here)
+│    │
+│    └── [R] Toaster (from sonner) [client:load]
+│         └── [E] sonner (Toast notifications)
+│
+├─── [R] WelcomeBanner (src/components/WelcomeBanner.tsx) [client:load]
+│    │    Props: { userName: string | null }
+│    │
+│    ├── [E] lucide-react
+│    │    └── Plus
+│    │
+│    ├── [R] @/components/ui/button
+│    │    └── Button
+│    │
+│    └── Action
+│         └── handleAddRecipe() → /recipes/new
+│
+└─── [R] DashboardContent (src/components/DashboardContent.tsx) [client:load]
+     │    Props: { userRecipes: RecipeCardData[], favoriteRecipes: RecipeCardData[],
+     │            publicRecipes: RecipeCardData[], initialFavoriteIds: string[] }
+     │
+     ├── [H] useFavoriteToggle (src/components/hooks/useFavoriteToggle.ts)
+     │    │    Params: { initialFavorites: Set<string> }
+     │    │    Returns: { favorites: Set<string>, toggleFavorite: (id) => Promise<void>,
+     │    │              isTogglingRecipe: (id) => boolean }
+     │    │
+     │    ├── [E] react (useState, useCallback)
+     │    │
+     │    ├── [E] sonner
+     │    │    └── toast()
+     │    │
+     │    └── Actions
+     │         ├── toggleFavorite()
+     │         │    ├── [A] POST /api/favorites (add)
+     │         │    └── [A] DELETE /api/favorites (remove)
+     │         └── handleUndo() → [A] POST /api/favorites
+     │
+     ├── [E] react
+     │    └── useMemo (for recipe map and favorites computation)
+     │
+     └── [R] RecipeSectionRow (src/components/RecipeSectionRow.tsx) [×3 instances]
+          │    Props: { title: string, recipes: RecipeCardData[], viewAllLink?: string,
+          │            emptyMessage: string, emptyActionButton?: { text, href },
+          │            onFavoriteToggle: (id) => Promise<void>, favoriteRecipeIds: Set<string>,
+          │            isTogglingRecipe: (id) => boolean }
+          │
+          │    INSTANCES:
+          │    1. "Twoje przepisy" → userRecipes → /recipes
+          │    2. "Ulubione" → currentFavoriteRecipes → /favorites
+          │    3. "Inspiracje" → publicRecipes → /recipes/public
+          │
+          ├── [E] react
+          │    ├── useRef (scroll container)
+          │    └── useEffect (keyboard navigation)
+          │
+          ├── [E] lucide-react
+          │    └── ChevronRight
+          │
+          ├── [R] @/components/ui/button
+          │    └── Button
+          │
+          ├── [T] @/lib/utils/dashboard
+          │    └── RecipeCardData
+          │
+          └── [R] RecipeCard (src/components/RecipeCard.tsx) [×6 cards per section]
+               │    Props: { recipe: RecipeCardData, isFavorited: boolean,
+               │            onFavoriteToggle: (id) => Promise<void>, isLoading?: boolean,
+               │            showAuthorBadge?: boolean, isPublicView?: boolean,
+               │            isCollectionView?: boolean, collectionId?: string,
+               │            collectionName?: string, onRemoveFromCollection?: () => void }
+               │
+               ├── [E] lucide-react
+               │    ├── Heart
+               │    ├── Clock
+               │    └── Utensils
+               │
+               ├── [R] @/components/ui/button
+               │    └── Button
+               │
+               ├── [R] @/components/ui/badge
+               │    │    └── Badge (with variants: default, secondary, destructive, outline)
+               │    │         └── [E] class-variance-authority
+               │    │
+               │    └── [U] @/lib/utils
+               │         └── cn() (className utility)
+               │
+               ├── [T] @/lib/utils/dashboard
+               │    ├── RecipeCardData
+               │    ├── getCalorieBadgeColor(calories)
+               │    ├── getRecipeInitial(title)
+               │    ├── getRecipePlaceholderColor(title)
+               │    └── getRecipePlaceholderIconColor(bg)
+               │
+               └── Actions
+                    ├── handleCardClick() → /recipes/{id}
+                    ├── handleFavoriteClick() → onFavoriteToggle(id)
+                    └── handleRemoveClick() → onRemoveFromCollection()
+
+================================================================================
+SHARED UI COMPONENTS (used throughout)
+================================================================================
+
+[R] @/components/ui/button
+├── [E] react
+├── [E] @radix-ui/react-slot (Slot)
+├── [E] class-variance-authority (cva, VariantProps)
+└── [U] @/lib/utils (cn)
+
+[R] @/components/ui/badge
+├── [E] react
+├── [E] class-variance-authority (cva, VariantProps)
+└── [U] @/lib/utils (cn)
+
+[R] @/components/ui/avatar
+├── [E] react
+├── [E] @radix-ui/react-avatar
+└── [U] @/lib/utils (cn)
+
+[R] @/components/ui/dropdown-menu
+├── [E] react
+├── [E] @radix-ui/react-dropdown-menu
+└── [U] @/lib/utils (cn)
+
+[R] @/components/ui/sheet
+├── [E] react
+├── [E] @radix-ui/react-dialog
+└── [U] @/lib/utils (cn)
+
+[R] @/components/ui/separator
+├── [E] react
+├── [E] @radix-ui/react-separator
+└── [U] @/lib/utils (cn)
+
+================================================================================
+DATA FLOW
+================================================================================
+
+1. SERVER-SIDE DATA FETCHING (dashboard.astro)
+   ─────────────────────────────────────────────
+   dashboard.astro (SSR)
+      │
+      ├─→ fetch /api/profile → ProfileDTO
+      ├─→ fetch /api/recipes?limit=6 → RecipeListItemDTO[]
+      ├─→ fetch /api/favorites?limit=6 → FavoriteDTO[]
+      └─→ fetch /api/recipes/public?limit=20 → RecipeListItemDTO[]
+           │
+           ├─→ Transform to RecipeCardData[] via utils/dashboard
+           └─→ Pass as props to client components
+
+2. CLIENT-SIDE INTERACTIVITY (React Hydration)
+   ────────────────────────────────────────────
+   WelcomeBanner [client:load]
+      └─→ Navigation to /recipes/new
+
+   DashboardContent [client:load]
+      │
+      ├─→ useFavoriteToggle hook
+      │    ├─→ Manages favorite state (Set<string>)
+      │    ├─→ Optimistic UI updates
+      │    └─→ API calls to /api/favorites (POST/DELETE)
+      │
+      └─→ RecipeSectionRow (×3)
+           │
+           └─→ RecipeCard (×6 per section)
+                ├─→ Click → /recipes/{id}
+                └─→ Favorite → useFavoriteToggle.toggleFavorite()
+
+   AppHeader components [client:load]
+      ├─→ UserMenu → Logout, Profile navigation
+      └─→ MobileNav → Mobile navigation drawer
+
+3. AUTHENTICATION FLOW
+   ────────────────────
+   Astro.locals.user (from middleware)
+      │
+      ├─→ AppLayout → Authentication check
+      │    └─→ Redirect to /auth/login if not authenticated
+      │
+      └─→ AppHeader → UserInfo display
+           ├─→ UserMenu (desktop)
+           └─→ MobileNav (mobile)
+
+4. FAVORITE TOGGLE FLOW
+   ─────────────────────
+   RecipeCard
+      │
+      └─→ handleFavoriteClick()
+           │
+           └─→ DashboardContent.toggleFavorite()
+                │
+                └─→ useFavoriteToggle.toggleFavorite()
+                     │
+                     ├─→ Optimistic UI update (add/remove from Set)
+                     │
+                     ├─→ API call (POST or DELETE /api/favorites)
+                     │
+                     ├─→ On success: toast notification (if remove: with undo)
+                     │
+                     └─→ On error: rollback optimistic update + error toast
+
+================================================================================
+KEY DESIGN PATTERNS
+================================================================================
+
+1. ASTRO ISLANDS ARCHITECTURE
+   - Static Astro layout/components for SEO and performance
+   - React components hydrated only where interactivity needed
+   - client:load directive for interactive components
+
+2. OPTIMISTIC UI UPDATES
+   - useFavoriteToggle implements optimistic updates
+   - Immediate visual feedback before API response
+   - Automatic rollback on error
+
+3. RESPONSIVE DESIGN
+   - Desktop: Grid layout, dropdown menus
+   - Mobile: Horizontal scroll with snap, sheet drawer
+   - Shared components with responsive variants
+
+4. SERVER-SIDE RENDERING
+   - Data fetched at build/request time on server
+   - Transformed to RecipeCardData for consistency
+   - Passed as props to hydrated React components
+
+5. ACCESSIBILITY
+   - ARIA labels and roles
+   - Keyboard navigation (arrow keys in scroll containers)
+   - Screen reader announcements
+   - Focus management
+
+6. ERROR HANDLING
+   - Promise.allSettled for parallel fetches
+   - Graceful fallbacks for failed requests
+   - User-friendly error messages via toast
+
+================================================================================
+FILE LOCATIONS
+================================================================================
+
+Pages:
+  src/pages/dashboard.astro
+
+Layouts:
+  src/layouts/AppLayout.astro
+
+Components (Astro):
+  src/components/app/AppHeader.astro
+
+Components (React):
+  src/components/WelcomeBanner.tsx
+  src/components/DashboardContent.tsx
+  src/components/RecipeSectionRow.tsx
+  src/components/RecipeCard.tsx
+  src/components/app/UserMenu.tsx
+  src/components/app/MobileNav.tsx
+
+UI Components (Shadcn):
+  src/components/ui/button.tsx
+  src/components/ui/badge.tsx
+  src/components/ui/avatar.tsx
+  src/components/ui/dropdown-menu.tsx
+  src/components/ui/sheet.tsx
+  src/components/ui/separator.tsx
+
+Hooks:
+  src/components/hooks/useFavoriteToggle.ts
+
+Utilities:
+  src/lib/utils/dashboard.ts
+  src/lib/utils.ts (cn utility)
+
+Types:
+  src/types.ts
+  src/components/app/types.ts
+
+Styles:
+  src/styles/global.css
+
+API Endpoints (referenced):
+  /api/profile
+  /api/recipes
+  /api/favorites
+  /api/recipes/public
+  /api/auth/logout
+
+================================================================================
+EXTERNAL DEPENDENCIES
+================================================================================
+
+React Ecosystem:
+  - react (v19)
+  - react-dom
+
+UI Framework:
+  - @radix-ui/react-avatar
+  - @radix-ui/react-dialog (for Sheet)
+  - @radix-ui/react-dropdown-menu
+  - @radix-ui/react-separator
+  - @radix-ui/react-slot
+
+Styling:
+  - tailwindcss (v4)
+  - class-variance-authority (CVA for variants)
+
+Icons:
+  - lucide-react
+
+Notifications:
+  - sonner (toast library)
+
+Utilities:
+  - clsx / tailwind-merge (via cn utility)
+
+================================================================================
+COMPONENT SUMMARY
+================================================================================
+
+Total Components: 18
+  - Astro Components: 2 (AppLayout, AppHeader)
+  - React Components: 16 (including UI components)
+
+Total Files Referenced: 25+
+  - Pages: 1
+  - Layouts: 1
+  - Feature Components: 6
+  - UI Components: 6
+  - Hooks: 1
+  - Utils: 2
+  - Types: 2
+  - Styles: 1
+  - API Endpoints: 5
+
+Hydration Points: 5
+  - WelcomeBanner [client:load]
+  - DashboardContent [client:load]
+  - UserMenu [client:load]
+  - MobileNav [client:load]
+  - Toaster [client:load]
+
+================================================================================
+END OF DOCUMENT
+================================================================================

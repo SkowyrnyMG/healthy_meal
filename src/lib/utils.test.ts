@@ -50,13 +50,16 @@ describe("cn - Class Name Utility", () => {
 
   describe("Conditional Classes", () => {
     it("should filter out falsy values", () => {
+      // eslint-disable-next-line no-constant-binary-expression
       expect(cn("base", false && "hidden", "visible")).toBe("base visible");
       expect(cn("base", undefined, null, "text-sm")).toBe("base text-sm");
       expect(cn("base", "", "text-sm")).toBe("base text-sm");
     });
 
     it("should include truthy conditional classes", () => {
+      // eslint-disable-next-line no-constant-binary-expression
       expect(cn("base", true && "active")).toBe("base active");
+      // eslint-disable-next-line no-constant-binary-expression
       expect(cn("base", 1 && "active")).toBe("base active");
     });
 
@@ -81,12 +84,7 @@ describe("cn - Class Name Utility", () => {
     });
 
     it("should handle mixed inputs (strings, arrays, objects)", () => {
-      const result = cn(
-        "base",
-        ["px-4", "py-2"],
-        { active: true, hidden: false },
-        "text-sm"
-      );
+      const result = cn("base", ["px-4", "py-2"], { active: true, hidden: false }, "text-sm");
       expect(result).toBe("base px-4 py-2 active text-sm");
     });
 
@@ -132,11 +130,7 @@ describe("cn - Class Name Utility", () => {
 
     it("should handle conditional active state", () => {
       const isActive = true;
-      const result = cn(
-        "base-class",
-        isActive && "active-class",
-        !isActive && "inactive-class"
-      );
+      const result = cn("base-class", isActive && "active-class", !isActive && "inactive-class");
       expect(result).toBe("base-class active-class");
     });
 
@@ -156,12 +150,7 @@ describe("cn - Class Name Utility", () => {
     });
 
     it("should handle state variants (hover, focus, etc.)", () => {
-      const result = cn(
-        "bg-blue-500",
-        "hover:bg-blue-600",
-        "focus:ring-2",
-        "focus:ring-blue-300"
-      );
+      const result = cn("bg-blue-500", "hover:bg-blue-600", "focus:ring-2", "focus:ring-blue-300");
       expect(result).toContain("bg-blue-500");
       expect(result).toContain("hover:bg-blue-600");
       expect(result).toContain("focus:ring-2");
