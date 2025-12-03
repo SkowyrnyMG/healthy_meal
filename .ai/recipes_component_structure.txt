@@ -1,0 +1,1005 @@
+================================================================================
+RECIPES PAGE - COMPONENT STRUCTURE AND DEPENDENCIES
+================================================================================
+Starting from: src/pages/recipes.astro
+Generated: 2025-12-03
+================================================================================
+
+OVERVIEW
+--------
+The recipes page is a server-rendered Astro page that displays a list of user's
+recipes with filtering, searching, and pagination capabilities. It uses a mix
+of Astro components (static) and React components (interactive) following the
+islands architecture pattern.
+
+================================================================================
+COMPONENT TREE
+================================================================================
+
+src/pages/recipes.astro
+│
+├── SERVER-SIDE DEPENDENCIES
+│   ├── @/layouts/AppLayout.astro
+│   ├── @/components/recipes/RecipeListLayout (React, client:load)
+│   ├── @/types (FavoriteDTO, PaginationDTO)
+│   └── /api/favorites (HTTP fetch for initial data)
+│
+├── SERVER-SIDE LOGIC
+│   ├── Authentication check (userId from Astro.locals.user)
+│   ├── Redirect to /auth/login if not authenticated
+│   └── Fetch initial favorite recipe IDs for optimistic UI
+│
+└── RENDERED OUTPUT
+    │
+    ├─── AppLayout (title="Moje przepisy - HealthyMeal")
+    │    │
+    │    └─── RecipeListLayout (initialFavoriteIds, client:load)
+    │
+    └─── [Data passed down]
+         └── initialFavoriteIds: string[]
+
+
+================================================================================
+LAYOUT HIERARCHY
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ AppLayout.astro                                                             │
+│ src/layouts/AppLayout.astro                                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│ IMPORTS:                                                                    │
+│   • ../styles/global.css (Tailwind 4 styles)                               │
+│   • @/components/app/AppHeader.astro                                        │
+│   • sonner (Toaster component)                                              │
+│   • @/components/app/types (UserInfo)                                       │
+│                                                                             │
+│ AUTHENTICATION:                                                             │
+│   • Gets user from Astro.locals.user (set by middleware)                   │
+│   • Redirects to /auth/login if not authenticated                          │
+│   • Transforms user to UserInfo format                                     │
+│                                                                             │
+│ STRUCTURE:                                                                  │
+│   ┌─────────────────────────────────────────────────────────────────────┐  │
+│   │ <html>                                                              │  │
+│   │   <head> (meta tags, title, favicon)                               │  │
+│   │   <body class="gradient-bg">                                       │  │
+│   │     ├── AppHeader (user, showNewRecipeButton)                      │  │
+│   │     ├── <main> <slot /> </main>                                    │  │
+│   │     └── Toaster (richColors, position="bottom-right", client:load)│  │
+│   │   </body>                                                          │  │
+│   │ </html>                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│ SLOT CONTENT (from recipes.astro):                                         │
+│   └── RecipeListLayout component                                           │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ AppHeader.astro                                                             │
+│ src/components/app/AppHeader.astro                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│ IMPORTS:                                                                    │
+│   • lucide-react (ChefHat, Plus icons)                                      │
+│   • @/components/app/UserMenu (React, client:load)                          │
+│   • @/components/app/MobileNav (React, client:load)                         │
+│   • @/components/app/types (NavLink, UserInfo)                              │
+│                                                                             │
+│ NAVIGATION LINKS:                                                           │
+│   • /dashboard - Dashboard                                                  │
+│   • /recipes - Moje Przepisy                                                │
+│   • /recipes/public - Publiczne Przepisy                                    │
+│   • /favorites - Ulubione                                                   │
+│   • /collections - Kolekcje                                                 │
+│                                                                             │
+│ DESKTOP LAYOUT:                                                             │
+│   ┌───────────────────────────────────────────────────────────────┐        │
+│   │ [Logo]  [Nav Links]  [New Recipe Button]  [UserMenu]         │        │
+│   └───────────────────────────────────────────────────────────────┘        │
+│                                                                             │
+│ MOBILE LAYOUT:                                                              │
+│   ┌───────────────────────────────────────────────────────────────┐        │
+│   │ [Logo]                                       [MobileNav]      │        │
+│   └───────────────────────────────────────────────────────────────┘        │
+│                                                                             │
+│ CHILD COMPONENTS:                                                           │
+│   ├── UserMenu (React)                                                      │
+│   │   ├── Avatar/AvatarFallback (shadcn/ui)                                │
+│   │   ├── DropdownMenu* (shadcn/ui)                                        │
+│   │   ├── Button (shadcn/ui)                                               │
+│   │   └── Icons: LogOut, User (lucide-react)                               │
+│   │   └── Logout handler → /api/auth/logout                                │
+│   │                                                                         │
+│   └── MobileNav (React)                                                     │
+│       ├── Sheet/SheetContent/SheetTrigger (shadcn/ui)                      │
+│       ├── Button (shadcn/ui)                                               │
+│       ├── Separator (shadcn/ui)                                            │
+│       └── Icons: Menu, X, Plus, LogOut (lucide-react)                     │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+MAIN CONTENT - RECIPE LIST LAYOUT
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ RecipeListLayout                                                            │
+│ src/components/recipes/RecipeListLayout.tsx (React Component)               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│ PROPS:                                                                      │
+│   • initialFavoriteIds: string[]                                            │
+│   • isPublicView?: boolean (default: false)                                 │
+│                                                                             │
+│ CUSTOM HOOKS:                                                               │
+│   ├── useRecipeFilters()                                                    │
+│   │   └── Returns: filters, setSearch, setTagIds, setMaxCalories,         │
+│   │       setMaxPrepTime, setSortBy, setPage, clearFilters,               │
+│   │       removeFilter, activeFilterCount, isFilterPanelOpen,             │
+│   │       toggleFilterPanel                                               │
+│   │                                                                         │
+│   ├── useRecipeList(filters, { endpoint })                                 │
+│   │   └── Returns: recipes, pagination, isLoading, error, refetch         │
+│   │   └── Endpoint: /api/recipes (user) or /api/recipes/public            │
+│   │                                                                         │
+│   ├── useTags()                                                             │
+│   │   └── Returns: tags, isLoading, error                                  │
+│   │   └── Fetches from: /api/tags                                          │
+│   │                                                                         │
+│   └── useFavoriteToggle({ initialFavorites })                              │
+│       └── Returns: favorites (Set), toggleFavorite, isTogglingRecipe       │
+│       └── API: POST /api/favorites, DELETE /api/favorites/:id              │
+│                                                                             │
+│ LAYOUT STRUCTURE:                                                           │
+│   ┌─────────────────────────────────────────────────────────────────────┐  │
+│   │ DESKTOP (lg+):                                                      │  │
+│   │ ┌─────────────┬──────────────────────────────────────────────────┐ │  │
+│   │ │ FilterPanel │ Main Content                                     │ │  │
+│   │ │  (sidebar)  │ • SearchBar                                      │ │  │
+│   │ │             │ • ActiveFilterChips                              │ │  │
+│   │ │             │ • RecipeGrid / EmptyState / LoadingSkeletons     │ │  │
+│   │ │             │ • Pagination                                     │ │  │
+│   │ └─────────────┴──────────────────────────────────────────────────┘ │  │
+│   │                                                                     │  │
+│   │ MOBILE:                                                             │  │
+│   │ ┌──────────────────────────────────────────────────────────────┐  │  │
+│   │ │ [Filter Button] (opens Sheet)                                │  │  │
+│   │ │ SearchBar                                                    │  │  │
+│   │ │ ActiveFilterChips                                            │  │  │
+│   │ │ RecipeGrid / EmptyState / LoadingSkeletons                   │  │  │
+│   │ │ Pagination                                                   │  │  │
+│   │ └──────────────────────────────────────────────────────────────┘  │  │
+│   └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│ CHILD COMPONENTS:                                                           │
+│   ├── SearchBar                                                             │
+│   ├── FilterPanel                                                           │
+│   ├── ActiveFilterChips                                                     │
+│   ├── RecipeGrid                                                            │
+│   ├── LoadingSkeletons                                                      │
+│   ├── EmptyState                                                            │
+│   └── Pagination                                                            │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+FILTER PANEL COMPONENT TREE
+================================================================================
+
+FilterPanel
+src/components/recipes/FilterPanel.tsx
+│
+├── IMPORTS
+│   ├── lucide-react (Filter icon)
+│   ├── @/components/ui/button (Button)
+│   ├── @/components/ui/sheet (Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger)
+│   ├── @/components/ui/separator (Separator)
+│   ├── @/components/ui/badge (Badge)
+│   ├── ./TagFilterSection
+│   ├── ./CaloriesSlider
+│   ├── ./PrepTimeSlider
+│   ├── ./SortDropdown
+│   └── @/types (RecipeFilters, TagDTO)
+│
+├── PROPS
+│   ├── filters: RecipeFilters
+│   ├── tags: TagDTO[]
+│   ├── isLoadingTags?: boolean
+│   ├── onFiltersChange: (filters: Partial<RecipeFilters>) => void
+│   ├── onApply: () => void
+│   ├── onClear: () => void
+│   ├── isOpen: boolean
+│   ├── onOpenChange: (open: boolean) => void
+│   └── activeFilterCount: number
+│
+├── DESKTOP LAYOUT (hidden on mobile)
+│   └── <aside> (sidebar, sticky)
+│       ├── SortDropdown
+│       ├── Separator
+│       ├── TagFilterSection
+│       ├── Separator
+│       ├── CaloriesSlider
+│       ├── Separator
+│       ├── PrepTimeSlider
+│       ├── Separator
+│       └── Button ("Wyczyść filtry")
+│
+└── MOBILE LAYOUT (hidden on desktop)
+    └── Sheet (bottom drawer)
+        ├── SheetTrigger (Button with Filter icon + Badge)
+        └── SheetContent
+            ├── SheetHeader ("Filtry i sortowanie")
+            ├── [Same filter controls as desktop]
+            └── Button ("Zastosuj" - closes sheet)
+
+
+TagFilterSection
+src/components/recipes/TagFilterSection.tsx
+│
+├── IMPORTS
+│   ├── @/components/ui/checkbox (Checkbox)
+│   ├── @/components/ui/label (Label)
+│   └── @/types (TagDTO)
+│
+├── PROPS
+│   ├── tags: TagDTO[]
+│   ├── selectedTagIds: string[]
+│   ├── onChange: (tagIds: string[]) => void
+│   └── isLoading?: boolean
+│
+└── FUNCTIONALITY
+    ├── Displays checkboxes for each tag
+    ├── Multi-select capability
+    └── Shows loading state
+
+
+CaloriesSlider
+src/components/recipes/CaloriesSlider.tsx
+│
+├── IMPORTS
+│   ├── @/components/ui/slider (Slider)
+│   └── @/components/ui/label (Label)
+│
+├── PROPS
+│   ├── value?: number
+│   └── onChange: (value?: number) => void
+│
+└── FUNCTIONALITY
+    ├── Range: 1-2000 kcal
+    ├── Step: 50 kcal
+    ├── Checkbox to enable/disable filter
+    └── Live value display
+
+
+PrepTimeSlider
+src/components/recipes/PrepTimeSlider.tsx
+│
+├── IMPORTS
+│   ├── @/components/ui/slider (Slider)
+│   └── @/components/ui/label (Label)
+│
+├── PROPS
+│   ├── value?: number
+│   └── onChange: (value?: number) => void
+│
+└── FUNCTIONALITY
+    ├── Range: 5-180 minutes
+    ├── Step: 5 minutes
+    ├── Checkbox to enable/disable filter
+    └── Live value display
+
+
+SortDropdown
+src/components/recipes/SortDropdown.tsx
+│
+├── IMPORTS
+│   ├── @/components/ui/select (Select, SelectContent, SelectItem, SelectTrigger, SelectValue)
+│   └── @/types (RecipeFilters, SortOption)
+│
+├── PROPS
+│   ├── sortBy: RecipeFilters["sortBy"]
+│   ├── sortOrder: RecipeFilters["sortOrder"]
+│   └── onChange: (sortBy, sortOrder) => void
+│
+└── SORT OPTIONS
+    ├── "Najnowsze" (createdAt desc)
+    ├── "Najstarsze" (createdAt asc)
+    ├── "Nazwa A-Z" (title asc)
+    ├── "Nazwa Z-A" (title desc)
+    ├── "Najkrótszy czas" (prepTime asc)
+    └── "Najdłuższy czas" (prepTime desc)
+
+
+================================================================================
+RECIPE GRID COMPONENT TREE
+================================================================================
+
+RecipeGrid
+src/components/recipes/RecipeGrid.tsx
+│
+├── IMPORTS
+│   ├── @/components/RecipeCard
+│   ├── @/lib/utils/dashboard (transformRecipeToCardData)
+│   └── @/types (RecipeListItemDTO)
+│
+├── PROPS
+│   ├── recipes: RecipeListItemDTO[]
+│   ├── favoriteRecipeIds: Set<string>
+│   ├── onFavoriteToggle: (recipeId: string) => Promise<void>
+│   ├── isTogglingRecipe: (recipeId: string) => boolean
+│   ├── showAuthorBadge?: boolean
+│   └── isPublicView?: boolean
+│
+├── LAYOUT
+│   └── CSS Grid
+│       ├── Mobile: 1 column
+│       ├── SM (640px+): 2 columns
+│       ├── LG (1024px+): 3 columns
+│       └── XL (1280px+): 4 columns
+│
+└── CHILD COMPONENT
+    └── RecipeCard (for each recipe)
+
+
+RecipeCard
+src/components/RecipeCard.tsx
+│
+├── IMPORTS
+│   ├── lucide-react (Heart, Clock, Utensils icons)
+│   ├── @/components/ui/button (Button)
+│   ├── @/components/ui/badge (Badge)
+│   └── @/lib/utils/dashboard (utility functions)
+│       ├── getCalorieBadgeColor
+│       ├── getRecipeInitial
+│       ├── getRecipePlaceholderColor
+│       ├── getRecipePlaceholderIconColor
+│       └── RecipeCardData type
+│
+├── PROPS
+│   ├── recipe: RecipeCardData
+│   ├── isFavorited: boolean
+│   ├── onFavoriteToggle: (recipeId: string) => Promise<void>
+│   ├── isLoading?: boolean
+│   ├── showAuthorBadge?: boolean
+│   ├── isPublicView?: boolean
+│   └── isCollectionView?: boolean
+│
+├── CARD STRUCTURE
+│   ├── Recipe Image Placeholder (with initial letter)
+│   ├── Content Section
+│   │   ├── Title + Author Badge (if public)
+│   │   ├── Description (truncated)
+│   │   ├── Tags (badges)
+│   │   └── Metadata Row
+│   │       ├── Calories badge
+│   │       ├── Prep time (Clock icon)
+│   │       └── Servings (Utensils icon)
+│   ├── Favorite Button (Heart icon)
+│   └── Action Buttons
+│       ├── View Recipe
+│       ├── Edit (if not public view)
+│       └── Delete (if not public view)
+│
+└── UI COMPONENTS USED
+    ├── Button (shadcn/ui)
+    └── Badge (shadcn/ui)
+
+
+================================================================================
+SUPPORTING COMPONENTS
+================================================================================
+
+SearchBar
+src/components/recipes/SearchBar.tsx
+│
+├── IMPORTS
+│   ├── lucide-react (Search icon)
+│   └── @/components/ui/input (Input)
+│
+├── PROPS
+│   ├── value?: string
+│   └── onChange: (value: string) => void
+│
+└── FUNCTIONALITY
+    └── Debounced search input (300ms delay)
+
+
+ActiveFilterChips
+src/components/recipes/ActiveFilterChips.tsx
+│
+├── IMPORTS
+│   ├── @/components/ui/badge (Badge)
+│   ├── lucide-react (X icon)
+│   └── @/types (RecipeFilters, TagDTO, FilterChip)
+│
+├── PROPS
+│   ├── filters: RecipeFilters
+│   ├── tags: TagDTO[]
+│   ├── onRemoveFilter: (key: string, value?: string) => void
+│   └── onClearAll: () => void
+│
+└── DISPLAYS ACTIVE FILTERS AS CHIPS
+    ├── Search query chip
+    ├── Tag chips (one per selected tag)
+    ├── Max calories chip
+    ├── Max prep time chip
+    └── "Clear all" button
+
+
+LoadingSkeletons
+src/components/recipes/LoadingSkeletons.tsx
+│
+├── IMPORTS
+│   └── @/components/ui/skeleton (Skeleton)
+│
+├── PROPS
+│   └── count?: number (default: 12)
+│
+└── DISPLAYS
+    └── Grid of skeleton cards matching RecipeCard layout
+
+
+EmptyState
+src/components/recipes/EmptyState.tsx
+│
+├── IMPORTS
+│   ├── lucide-react (ChefHat, Search icons)
+│   └── @/components/ui/button (Button)
+│
+├── PROPS
+│   ├── type: EmptyStateType ("no-recipes" | "no-results")
+│   ├── onAddRecipe?: () => void
+│   ├── onClearFilters?: () => void
+│   └── isPublicView?: boolean
+│
+└── TWO STATES
+    ├── "no-recipes": No recipes exist yet
+    │   └── Shows "Add Recipe" button (if not public view)
+    └── "no-results": No recipes match current filters
+        └── Shows "Clear Filters" button
+
+
+Pagination
+src/components/recipes/Pagination.tsx
+│
+├── IMPORTS
+│   ├── lucide-react (ChevronLeft, ChevronRight icons)
+│   └── @/components/ui/button (Button)
+│
+├── PROPS
+│   ├── pagination: PaginationDTO
+│   │   ├── page: number
+│   │   ├── limit: number
+│   │   ├── total: number
+│   │   └── totalPages: number
+│   └── onPageChange: (page: number) => void
+│
+└── FUNCTIONALITY
+    ├── Previous/Next buttons
+    ├── Page number buttons (with ellipsis for many pages)
+    └── Current page highlighting
+
+
+================================================================================
+CUSTOM HOOKS DETAILS
+================================================================================
+
+useRecipeFilters
+src/components/hooks/useRecipeFilters.ts
+│
+├── PURPOSE
+│   └── Manages recipe filter state synchronized with URL query parameters
+│
+├── FEATURES
+│   ├── URL-based state management for shareability
+│   ├── Browser back/forward navigation support
+│   ├── Active filter counting
+│   └── Mobile filter panel state management
+│
+├── STATE MANAGEMENT
+│   ├── Reads initial state from URL query params
+│   ├── Updates URL when filters change (pushState)
+│   ├── Listens to popstate for back/forward navigation
+│   └── Validates and sanitizes all parameter values
+│
+├── FILTER OPERATIONS
+│   ├── setSearch(value)
+│   ├── setTagIds(ids)
+│   ├── setMaxCalories(value)
+│   ├── setMaxPrepTime(value)
+│   ├── setSortBy(field, order)
+│   ├── setPage(page)
+│   ├── clearFilters()
+│   └── removeFilter(key, value?)
+│
+└── RETURNS
+    ├── filters: RecipeFilters
+    ├── Filter setters (listed above)
+    ├── activeFilterCount: number
+    ├── isFilterPanelOpen: boolean
+    └── toggleFilterPanel: () => void
+
+
+useRecipeList
+src/components/hooks/useRecipeList.ts
+│
+├── PURPOSE
+│   └── Fetches and manages recipe list data with automatic refetching
+│
+├── PARAMETERS
+│   ├── filters: RecipeFilters
+│   └── options: UseRecipeListOptions
+│       └── endpoint: "/api/recipes" | "/api/recipes/public"
+│
+├── FUNCTIONALITY
+│   ├── Fetches recipes when filters change
+│   ├── Builds query string from filters
+│   ├── Handles loading and error states
+│   ├── Provides manual refetch function
+│   └── Debounces search queries (500ms)
+│
+├── API REQUEST
+│   ├── Method: GET
+│   ├── Endpoint: /api/recipes or /api/recipes/public
+│   └── Query params: search, tags, maxCalories, maxPrepTime, sortBy, sortOrder, page, limit
+│
+└── RETURNS
+    ├── recipes: RecipeListItemDTO[]
+    ├── pagination: PaginationDTO | null
+    ├── isLoading: boolean
+    ├── error: string | null
+    └── refetch: () => void
+
+
+useTags
+src/components/hooks/useTags.ts
+│
+├── PURPOSE
+│   └── Fetches available recipe tags for filtering
+│
+├── FUNCTIONALITY
+│   ├── Fetches tags on mount
+│   ├── Handles loading and error states
+│   └── Caches results (no refetch on re-render)
+│
+├── API REQUEST
+│   ├── Method: GET
+│   └── Endpoint: /api/tags
+│
+└── RETURNS
+    ├── tags: TagDTO[]
+    ├── isLoading: boolean
+    └── error: string | null
+
+
+useFavoriteToggle
+src/components/hooks/useFavoriteToggle.ts
+│
+├── PURPOSE
+│   └── Manages favorite recipe state with optimistic updates
+│
+├── PARAMETERS
+│   └── initialFavorites: Set<string>
+│
+├── FUNCTIONALITY
+│   ├── Maintains local Set of favorite recipe IDs
+│   ├── Optimistic updates (instant UI feedback)
+│   ├── Rollback on API error
+│   ├── Per-recipe loading states
+│   └── Toast notifications
+│
+├── API REQUESTS
+│   ├── Add favorite: POST /api/favorites { recipeId }
+│   └── Remove favorite: DELETE /api/favorites/:id
+│
+└── RETURNS
+    ├── favorites: Set<string>
+    ├── toggleFavorite: (recipeId: string) => Promise<void>
+    └── isTogglingRecipe: (recipeId: string) => boolean
+
+
+================================================================================
+API ENDPOINTS USED
+================================================================================
+
+GET /api/favorites
+├── Called by: src/pages/recipes.astro (server-side)
+├── Purpose: Fetch initial favorite recipe IDs
+├── Returns: { favorites: FavoriteDTO[], pagination: PaginationDTO }
+└── Used for: Populating initialFavoriteIds prop
+
+GET /api/recipes
+├── Called by: useRecipeList hook
+├── Purpose: Fetch user's own recipes
+├── Query params: search, tags, maxCalories, maxPrepTime, sortBy, sortOrder, page, limit
+└── Returns: { recipes: RecipeListItemDTO[], pagination: PaginationDTO }
+
+GET /api/recipes/public
+├── Called by: useRecipeList hook (when isPublicView=true)
+├── Purpose: Fetch public recipes from all users
+├── Query params: (same as /api/recipes)
+└── Returns: { recipes: RecipeListItemDTO[], pagination: PaginationDTO }
+
+GET /api/tags
+├── Called by: useTags hook
+├── Purpose: Fetch all available recipe tags
+└── Returns: { tags: TagDTO[] }
+
+POST /api/favorites
+├── Called by: useFavoriteToggle hook
+├── Purpose: Add recipe to favorites
+├── Body: { recipeId: string }
+└── Returns: { success: boolean, favorite: FavoriteDTO }
+
+DELETE /api/favorites/:id
+├── Called by: useFavoriteToggle hook
+├── Purpose: Remove recipe from favorites
+├── Params: recipeId (in URL)
+└── Returns: { success: boolean }
+
+POST /api/auth/logout
+├── Called by: UserMenu component
+├── Purpose: Log out current user
+└── Returns: Redirects to /auth/login
+
+
+================================================================================
+TYPE DEFINITIONS USED
+================================================================================
+
+From src/types.ts:
+
+RecipeListItemDTO
+├── id: string
+├── userId: string
+├── title: string
+├── description: string | null
+├── servings: number
+├── prepTimeMinutes: number | null
+├── isPublic: boolean
+├── featured: boolean
+├── nutritionPerServing: NutritionDTO
+├── tags: TagDTO[]
+├── createdAt: string
+└── updatedAt: string
+
+FavoriteDTO
+├── recipeId: string
+├── recipe: { id, title, description, nutritionPerServing, prepTimeMinutes }
+└── createdAt: string
+
+TagDTO
+├── id: string
+├── name: string
+├── slug: string
+└── createdAt: string
+
+PaginationDTO
+├── page: number
+├── limit: number
+├── total: number
+└── totalPages: number
+
+RecipeFilters
+├── search?: string
+├── tagIds?: string[]
+├── maxCalories?: number
+├── maxPrepTime?: number
+├── sortBy: "createdAt" | "updatedAt" | "title" | "prepTime"
+├── sortOrder: "asc" | "desc"
+└── page: number
+
+NutritionDTO
+├── calories: number
+├── protein: number
+├── fat: number
+├── carbs: number
+├── fiber: number
+└── salt: number
+
+UserInfo (from src/components/app/types.ts)
+├── userId: string
+├── email: string
+└── displayName: string | null
+
+
+================================================================================
+UTILITY FUNCTIONS
+================================================================================
+
+From src/lib/utils/dashboard.ts:
+
+transformRecipeToCardData(recipe: RecipeListItemDTO): RecipeCardData
+├── Purpose: Transform API DTO to RecipeCard component format
+└── Used by: RecipeGrid component
+
+getCalorieBadgeColor(calories: number): string
+├── Purpose: Get color class for calorie badge
+├── Ranges: low (<300), medium (300-600), high (>600)
+└── Used by: RecipeCard component
+
+getRecipeInitial(title: string): string
+├── Purpose: Get first letter for recipe placeholder
+└── Used by: RecipeCard component
+
+getRecipePlaceholderColor(id: string): string
+├── Purpose: Get consistent background color for recipe placeholder
+└── Used by: RecipeCard component
+
+getRecipePlaceholderIconColor(id: string): string
+├── Purpose: Get consistent icon color for recipe placeholder
+└── Used by: RecipeCard component
+
+
+================================================================================
+SHADCN/UI COMPONENTS USED
+================================================================================
+
+From src/components/ui/:
+
+Button (button.tsx)
+├── Used by: FilterPanel, SearchBar, EmptyState, Pagination, RecipeCard,
+│            AppHeader, UserMenu, MobileNav
+└── Variants: default, outline, ghost, link
+
+Badge (badge.tsx)
+├── Used by: FilterPanel, ActiveFilterChips, RecipeCard
+└── Variants: default, secondary, outline, destructive
+
+Input (input.tsx)
+└── Used by: SearchBar
+
+Checkbox (checkbox.tsx)
+└── Used by: TagFilterSection, CaloriesSlider, PrepTimeSlider
+
+Label (label.tsx)
+└── Used by: TagFilterSection, CaloriesSlider, PrepTimeSlider, SortDropdown
+
+Slider (slider.tsx)
+└── Used by: CaloriesSlider, PrepTimeSlider
+
+Select (select.tsx)
+├── Components: Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+└── Used by: SortDropdown
+
+Sheet (sheet.tsx)
+├── Components: Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger
+└── Used by: FilterPanel (mobile), MobileNav
+
+Separator (separator.tsx)
+└── Used by: FilterPanel, MobileNav
+
+Skeleton (skeleton.tsx)
+└── Used by: LoadingSkeletons
+
+Avatar (avatar.tsx)
+├── Components: Avatar, AvatarFallback
+└── Used by: UserMenu
+
+DropdownMenu (dropdown-menu.tsx)
+├── Components: DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+│               DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
+└── Used by: UserMenu
+
+
+================================================================================
+EXTERNAL LIBRARIES
+================================================================================
+
+lucide-react
+├── Icons used: Heart, Clock, Utensils, Filter, Search, ChefHat, X,
+│               ChevronLeft, ChevronRight, Plus, LogOut, User, Menu
+└── Used throughout components for iconography
+
+sonner
+├── Component: Toaster
+├── Used by: AppLayout
+└── Purpose: Toast notifications for user feedback
+
+React 19
+├── Hooks: useState, useEffect, useCallback
+└── Used by: All React components and custom hooks
+
+
+================================================================================
+STYLING
+================================================================================
+
+Tailwind CSS 4
+├── Source: src/styles/global.css
+├── Imported by: AppLayout.astro
+└── Features:
+    ├── Responsive utilities (sm:, md:, lg:, xl:)
+    ├── Flexbox and Grid layouts
+    ├── Custom gradient background (.gradient-bg)
+    └── Shadcn/ui theme variables
+
+CSS Modules
+└── Component-specific styles in <style> blocks (Astro components)
+
+
+================================================================================
+STATE MANAGEMENT FLOW
+================================================================================
+
+URL Query Parameters (Source of Truth)
+        │
+        ├─→ parseUrlParams() ────→ useRecipeFilters hook
+        │                              │
+        │                              ├─→ filters state
+        │                              ├─→ Filter setters
+        │                              └─→ updateUrlParams()
+        │                                      │
+        │                                      └─→ window.history.pushState
+        │
+        └─→ popstate event ───→ Update filters from URL
+
+Filters State
+        │
+        └─→ useRecipeList(filters) ──→ Fetch recipes from API
+                │
+                ├─→ Build query string
+                ├─→ GET /api/recipes or /api/recipes/public
+                └─→ Update recipes, pagination, loading, error
+
+User Interactions
+        │
+        ├─→ SearchBar onChange ────→ setSearch() ─────→ Update filters
+        ├─→ TagFilterSection ──────→ setTagIds() ─────→ Update filters
+        ├─→ CaloriesSlider ────────→ setMaxCalories() →  Update filters
+        ├─→ PrepTimeSlider ────────→ setMaxPrepTime() →  Update filters
+        ├─→ SortDropdown ──────────→ setSortBy() ─────→ Update filters
+        ├─→ Pagination ────────────→ setPage() ───────→ Update filters
+        ├─→ ActiveFilterChips ─────→ removeFilter() ──→ Update filters
+        └─→ Clear Filters button ──→ clearFilters() ──→ Reset filters
+
+Favorite Toggle Flow (Optimistic Updates)
+        │
+        User clicks Heart ─→ toggleFavorite(recipeId)
+        │                           │
+        │                           ├─→ Update local Set immediately
+        │                           ├─→ Re-render with new state
+        │                           ├─→ POST/DELETE /api/favorites
+        │                           │        │
+        │                           │        ├─→ Success: Keep change
+        │                           │        └─→ Error: Rollback + toast
+        │                           │
+        │                           └─→ isTogglingRecipe(id) = false
+
+
+================================================================================
+RESPONSIVE BEHAVIOR
+================================================================================
+
+Mobile (< 640px)
+├── FilterPanel: Sheet (bottom drawer)
+├── RecipeGrid: 1 column
+├── AppHeader: MobileNav (hamburger menu)
+└── Pagination: Compact with fewer page numbers
+
+Tablet (640px - 1023px)
+├── FilterPanel: Still using Sheet
+├── RecipeGrid: 2 columns
+└── AppHeader: Still using MobileNav
+
+Desktop (≥ 1024px)
+├── FilterPanel: Sidebar (sticky, always visible)
+├── RecipeGrid: 3 columns (4 at ≥1280px)
+└── AppHeader: Full navigation bar with inline links
+
+
+================================================================================
+PERFORMANCE OPTIMIZATIONS
+================================================================================
+
+1. Debouncing
+   ├── Search input: 300ms delay in SearchBar
+   └── API calls: 500ms delay in useRecipeList
+
+2. Optimistic Updates
+   └── Favorite toggle: Instant UI update before API call
+
+3. Code Splitting
+   ├── React components loaded with client:load directive
+   └── Astro islands architecture (only hydrate interactive parts)
+
+4. URL State Management
+   ├── Shareable URLs (copy & paste filter state)
+   └── Browser back/forward support
+
+5. Conditional Rendering
+   ├── Show only one of: LoadingSkeletons, EmptyState, or RecipeGrid
+   └── Lazy loading of filter panel on mobile (Sheet)
+
+
+================================================================================
+DATA FLOW SUMMARY
+================================================================================
+
+Server-Side (recipes.astro)
+    ↓
+1. Check authentication (Astro.locals.user)
+    ↓
+2. Fetch initial favorites from /api/favorites
+    ↓
+3. Pass to AppLayout with RecipeListLayout
+    ↓
+Client-Side Hydration (RecipeListLayout)
+    ↓
+4. Initialize hooks:
+   ├── useRecipeFilters (read URL params)
+   ├── useRecipeList (fetch recipes with filters)
+   ├── useTags (fetch available tags)
+   └── useFavoriteToggle (manage favorite state)
+    ↓
+5. Render UI with current state
+    ↓
+6. User interactions update filters
+    ↓
+7. Filters update URL params
+    ↓
+8. URL change triggers recipe refetch
+    ↓
+9. New data renders in RecipeGrid
+    ↓
+10. User toggles favorites (optimistic updates)
+
+
+================================================================================
+ACCESSIBILITY FEATURES
+================================================================================
+
+1. Semantic HTML
+   ├── <header>, <main>, <nav>, <aside> landmarks
+   └── Proper heading hierarchy
+
+2. ARIA Attributes
+   ├── aria-label for icon-only buttons
+   ├── aria-expanded for dropdowns
+   └── aria-live regions for toast notifications
+
+3. Keyboard Navigation
+   ├── All interactive elements focusable
+   ├── Tab order follows visual layout
+   └── Enter/Space activate buttons
+
+4. Focus Management
+   ├── Visible focus indicators
+   └── Focus trap in Sheet/Dialog components
+
+5. Screen Reader Support
+   ├── Descriptive labels for form controls
+   ├── Status announcements for loading/error states
+   └── Alternative text for icons
+
+
+================================================================================
+ERROR HANDLING
+================================================================================
+
+1. API Errors
+   ├── Display user-friendly error messages
+   ├── Provide "Retry" button
+   └── Log detailed errors to console
+
+2. Loading States
+   ├── Skeleton screens during fetch
+   └── Disabled buttons during actions
+
+3. Empty States
+   ├── "No recipes" state with "Add Recipe" CTA
+   └── "No results" state with "Clear Filters" CTA
+
+4. Validation
+   ├── URL param validation and sanitization
+   ├── Filter value constraints (min/max)
+   └── Graceful fallback to defaults
+
+
+================================================================================
+END OF DOCUMENT
+================================================================================
