@@ -1,0 +1,414 @@
+================================================================================
+FAVORITES PAGE - COMPONENT STRUCTURE AND DEPENDENCIES
+================================================================================
+
+Generated: 2025-12-02
+Entry Point: src/pages/favorites.astro
+
+This document presents the complete hierarchical structure of components and
+dependencies for the Favorites page, starting from the main page component.
+
+================================================================================
+
+src/pages/favorites.astro
+│
+├─── AppLayout (src/layouts/AppLayout.astro)
+│    │
+│    ├─── STYLES
+│    │    └─── src/styles/global.css
+│    │
+│    ├─── AppHeader (src/components/app/AppHeader.astro)
+│    │    │
+│    │    ├─── EXTERNAL LIBRARIES
+│    │    │    └─── lucide-react
+│    │    │         ├─── ChefHat
+│    │    │         └─── Plus
+│    │    │
+│    │    ├─── UserMenu (src/components/app/UserMenu.tsx)
+│    │    │    │
+│    │    │    ├─── EXTERNAL LIBRARIES
+│    │    │    │    └─── lucide-react
+│    │    │    │         ├─── LogOut
+│    │    │    │         └─── User
+│    │    │    │
+│    │    │    ├─── UI COMPONENTS
+│    │    │    │    ├─── src/components/ui/avatar
+│    │    │    │    │    └─── @radix-ui/react-avatar
+│    │    │    │    │
+│    │    │    │    ├─── src/components/ui/dropdown-menu
+│    │    │    │    │    └─── @radix-ui/react-dropdown-menu
+│    │    │    │    │
+│    │    │    │    └─── src/components/ui/button
+│    │    │    │         ├─── @radix-ui/react-slot
+│    │    │    │         ├─── class-variance-authority
+│    │    │    │         └─── src/lib/utils (cn)
+│    │    │    │
+│    │    │    └─── TYPES & UTILITIES
+│    │    │         └─── src/components/app/types
+│    │    │              ├─── UserInfo
+│    │    │              ├─── getUserDisplayName()
+│    │    │              └─── getUserInitials()
+│    │    │
+│    │    ├─── MobileNav (src/components/app/MobileNav.tsx)
+│    │    │    │
+│    │    │    ├─── EXTERNAL LIBRARIES
+│    │    │    │    ├─── react (useState)
+│    │    │    │    └─── lucide-react
+│    │    │    │         ├─── Menu
+│    │    │    │         ├─── LogOut
+│    │    │    │         ├─── User
+│    │    │    │         └─── Plus
+│    │    │    │
+│    │    │    ├─── UI COMPONENTS
+│    │    │    │    ├─── src/components/ui/button
+│    │    │    │    │    (same as above)
+│    │    │    │    │
+│    │    │    │    ├─── src/components/ui/sheet
+│    │    │    │    │    └─── @radix-ui/react-dialog
+│    │    │    │    │
+│    │    │    │    ├─── src/components/ui/avatar
+│    │    │    │    │    (same as above)
+│    │    │    │    │
+│    │    │    │    └─── src/components/ui/separator
+│    │    │    │         └─── @radix-ui/react-separator
+│    │    │    │
+│    │    │    └─── TYPES & UTILITIES
+│    │    │         └─── src/components/app/types
+│    │    │              ├─── NavLink
+│    │    │              ├─── UserInfo
+│    │    │              ├─── getUserDisplayName()
+│    │    │              └─── getUserInitials()
+│    │    │
+│    │    └─── TYPES
+│    │         └─── src/components/app/types
+│    │              ├─── NavLink
+│    │              └─── UserInfo
+│    │
+│    ├─── EXTERNAL LIBRARIES
+│    │    └─── sonner
+│    │         └─── Toaster
+│    │
+│    └─── TYPES
+│         └─── src/components/app/types
+│              └─── UserInfo
+│
+└─── FavoritesLayout (src/components/favorites/FavoritesLayout.tsx)
+     │
+     ├─── EXTERNAL LIBRARIES
+     │    ├─── react (useMemo, useState)
+     │    ├─── lucide-react
+     │    │    └─── AlertCircle
+     │    └─── sonner
+     │         └─── toast
+     │
+     ├─── UI COMPONENTS
+     │    └─── src/components/ui/button
+     │         (same as above)
+     │
+     ├─── FAVORITES-SPECIFIC COMPONENTS
+     │    │
+     │    ├─── PageHeader (src/components/favorites/PageHeader.tsx)
+     │    │    │
+     │    │    └─── UI COMPONENTS
+     │    │         └─── src/components/ui/badge
+     │    │              ├─── class-variance-authority
+     │    │              └─── src/lib/utils (cn)
+     │    │
+     │    └─── EmptyFavoritesState (src/components/favorites/EmptyFavoritesState.tsx)
+     │         │
+     │         ├─── EXTERNAL LIBRARIES
+     │         │    └─── lucide-react
+     │         │         └─── Heart
+     │         │
+     │         └─── UI COMPONENTS
+     │              └─── src/components/ui/button
+     │                   (same as above)
+     │
+     ├─── SHARED RECIPE COMPONENTS
+     │    │
+     │    ├─── RecipeCard (src/components/RecipeCard.tsx)
+     │    │    │
+     │    │    ├─── EXTERNAL LIBRARIES
+     │    │    │    └─── lucide-react
+     │    │    │         ├─── Heart
+     │    │    │         ├─── Clock
+     │    │    │         └─── Utensils
+     │    │    │
+     │    │    ├─── UI COMPONENTS
+     │    │    │    ├─── src/components/ui/button
+     │    │    │    │    (same as above)
+     │    │    │    │
+     │    │    │    └─── src/components/ui/badge
+     │    │    │         (same as above)
+     │    │    │
+     │    │    └─── UTILITIES
+     │    │         └─── src/lib/utils/dashboard
+     │    │              ├─── getCalorieBadgeColor()
+     │    │              ├─── getRecipeInitial()
+     │    │              ├─── getRecipePlaceholderColor()
+     │    │              ├─── getRecipePlaceholderIconColor()
+     │    │              └─── RecipeCardData (type)
+     │    │
+     │    ├─── Pagination (src/components/recipes/Pagination.tsx)
+     │    │    │
+     │    │    ├─── EXTERNAL LIBRARIES
+     │    │    │    └─── lucide-react
+     │    │    │         ├─── ChevronLeft
+     │    │    │         └─── ChevronRight
+     │    │    │
+     │    │    ├─── UI COMPONENTS
+     │    │    │    └─── src/components/ui/button
+     │    │    │         (same as above)
+     │    │    │
+     │    │    └─── TYPES
+     │    │         └─── src/types
+     │    │              └─── PaginationDTO
+     │    │
+     │    └─── LoadingSkeletons (src/components/recipes/LoadingSkeletons.tsx)
+     │         │
+     │         └─── UI COMPONENTS
+     │              └─── src/components/ui/skeleton
+     │                   └─── src/lib/utils (cn)
+     │
+     ├─── CUSTOM HOOKS
+     │    │
+     │    └─── useFavorites (src/components/hooks/useFavorites.ts)
+     │         │
+     │         ├─── EXTERNAL LIBRARIES
+     │         │    └─── react
+     │         │         ├─── useState
+     │         │         ├─── useEffect
+     │         │         └─── useCallback
+     │         │
+     │         └─── TYPES
+     │              └─── src/types
+     │                   ├─── FavoriteDTO
+     │                   └─── PaginationDTO
+     │
+     ├─── UTILITIES
+     │    └─── src/lib/utils/dashboard
+     │         └─── transformFavoriteToCardData()
+     │
+     └─── TYPES
+          └─── src/types
+               ├─── FavoriteDTO
+               └─── PaginationDTO
+
+================================================================================
+KEY DEPENDENCIES SUMMARY
+================================================================================
+
+EXTERNAL NPM PACKAGES:
+  - react                          (UI state management)
+  - lucide-react                   (Icon library)
+  - sonner                         (Toast notifications)
+  - @radix-ui/react-avatar         (Avatar component primitives)
+  - @radix-ui/react-dialog         (Sheet/Dialog primitives)
+  - @radix-ui/react-dropdown-menu  (Dropdown menu primitives)
+  - @radix-ui/react-separator      (Separator primitives)
+  - @radix-ui/react-slot           (Slot component for composition)
+  - class-variance-authority       (CSS variant management)
+
+INTERNAL LIBRARIES:
+  - src/lib/utils                  (Utility functions - cn for classnames)
+  - src/lib/utils/dashboard        (Dashboard-specific utilities)
+
+UI COMPONENT LIBRARY (Shadcn/ui):
+  - src/components/ui/avatar
+  - src/components/ui/badge
+  - src/components/ui/button
+  - src/components/ui/dropdown-menu
+  - src/components/ui/separator
+  - src/components/ui/sheet
+  - src/components/ui/skeleton
+
+TYPE DEFINITIONS:
+  - src/types                      (Global types - DTOs)
+  - src/components/app/types       (App-specific types)
+
+STYLES:
+  - src/styles/global.css          (Global CSS styles)
+
+================================================================================
+DATA FLOW
+================================================================================
+
+1. AUTHENTICATION
+   favorites.astro
+   └─> AppLayout.astro (checks Astro.locals.user from middleware)
+       └─> AppHeader.astro (receives UserInfo)
+           ├─> UserMenu.tsx (displays user info, handles logout)
+           └─> MobileNav.tsx (mobile menu with user info)
+
+2. FAVORITES DATA FETCHING
+   FavoritesLayout.tsx
+   └─> useFavorites() hook
+       └─> Fetches from /api/favorites endpoint
+           ├─> Returns: FavoriteDTO[]
+           └─> Returns: PaginationDTO
+
+3. FAVORITES DISPLAY
+   FavoritesLayout.tsx
+   ├─> PageHeader (displays count)
+   ├─> LoadingSkeletons (loading state)
+   ├─> EmptyFavoritesState (empty state)
+   └─> RecipeCard[] (recipe grid)
+       └─> Pagination (page navigation)
+
+4. FAVORITE TOGGLE
+   RecipeCard.tsx
+   └─> onFavoriteToggle callback
+       └─> FavoritesLayout.handleUnfavorite()
+           ├─> DELETE /api/favorites
+           ├─> Shows toast with undo
+           └─> Refetches data via useFavorites.refetch()
+
+================================================================================
+API ENDPOINTS USED
+================================================================================
+
+GET  /api/favorites?page={page}&limit={limit}
+     - Fetches paginated favorites list
+     - Returns: { favorites: FavoriteDTO[], pagination: PaginationDTO }
+
+POST /api/favorites
+     - Adds recipe to favorites (used for undo)
+     - Body: { recipeId: string }
+
+DELETE /api/favorites
+       - Removes recipe from favorites
+       - Body: { recipeId: string }
+
+POST /api/auth/logout
+     - Logs out current user
+     - Clears session and redirects to home
+
+================================================================================
+STATE MANAGEMENT
+================================================================================
+
+COMPONENT-LEVEL STATE (React useState):
+  - useFavorites hook:
+    * favorites: FavoriteDTO[]
+    * pagination: PaginationDTO | null
+    * isLoading: boolean
+    * error: string | null
+    * currentPage: number
+
+  - FavoritesLayout:
+    * togglingRecipes: Set<string> (tracks recipes being favorited/unfavorited)
+
+URL STATE:
+  - ?page={number} (synced with useFavorites hook)
+  - Updated via window.history.replaceState()
+  - Supports browser back/forward navigation
+
+SESSION STATE (Server-side):
+  - Astro.locals.user (set by middleware)
+  - Authenticated user information
+
+================================================================================
+USER INTERACTIONS
+================================================================================
+
+1. PAGE NAVIGATION
+   - User clicks page number in Pagination component
+   - Pagination calls onPageChange(page)
+   - FavoritesLayout.goToPage() updates URL and fetches new page
+   - useFavorites hook fetches data from /api/favorites
+
+2. UNFAVORITE RECIPE
+   - User clicks heart icon on RecipeCard
+   - RecipeCard calls onFavoriteToggle(recipeId)
+   - FavoritesLayout.handleUnfavorite() sends DELETE request
+   - Toast notification shown with "Undo" button
+   - useFavorites.refetch() updates the list
+
+3. UNDO UNFAVORITE
+   - User clicks "Undo" in toast notification
+   - FavoritesLayout.handleUndo() sends POST request
+   - useFavorites.refetch() updates the list
+   - Success toast shown
+
+4. VIEW RECIPE DETAILS
+   - User clicks anywhere on RecipeCard (except heart button)
+   - Browser navigates to /recipes/{recipeId}
+
+5. BROWSE PUBLIC RECIPES (from empty state)
+   - User clicks "Browse Recipes" button in EmptyFavoritesState
+   - Browser navigates to /recipes/public
+
+6. USER MENU INTERACTIONS
+   - Desktop: Click avatar/name in AppHeader > UserMenu dropdown
+   - Mobile: Click hamburger menu > MobileNav sheet
+   - Options: Profile/Settings, Logout
+
+================================================================================
+ACCESSIBILITY FEATURES
+================================================================================
+
+- ARIA labels on interactive elements
+- Keyboard navigation support
+  * Arrow keys for pagination (left/right)
+  * Enter/Space for card navigation
+- Proper heading structure (h1, h2, h3)
+- Focus visible states on buttons
+- Screen reader friendly
+  * aria-label for icon-only buttons
+  * aria-current for current page indicator
+  * role="navigation" for pagination
+- Toast notifications with actionable undo
+- Loading states with skeleton screens
+- Error states with retry actions
+
+================================================================================
+RESPONSIVE DESIGN
+================================================================================
+
+BREAKPOINTS:
+  - Mobile:  < 640px  (sm)  - 1 column grid
+  - Tablet:  640px+   (sm)  - 2 column grid
+  - Desktop: 1024px+  (lg)  - 3 column grid
+  - Wide:    1280px+  (xl)  - 4 column grid
+
+LAYOUT ADAPTATIONS:
+  - AppHeader: Desktop nav visible on md+, mobile menu on < md
+  - PageHeader: Column layout on mobile, row on sm+
+  - RecipeCard: Min-width constraints (280px mobile, 320px tablet+)
+  - Pagination: Column layout on mobile, row on sm+
+
+================================================================================
+PERFORMANCE OPTIMIZATIONS
+================================================================================
+
+1. useMemo for transformed data (recipeCards in FavoritesLayout)
+2. Pagination reduces data fetching (20 items per page)
+3. Skeleton screens for perceived performance
+4. Debounced favorite toggle (prevents double-clicking)
+5. URL-based pagination (shareable links, browser history support)
+6. React.lazy loading via Astro's client:load directive
+
+================================================================================
+ERROR HANDLING
+================================================================================
+
+1. API ERRORS
+   - Caught in useFavorites hook
+   - Displayed via error state in FavoritesLayout
+   - Retry button provided to refetch data
+
+2. NETWORK ERRORS
+   - Caught in fetch calls
+   - Toast error notifications shown
+   - Graceful degradation (no infinite loading states)
+
+3. AUTHENTICATION ERRORS
+   - Handled by AppLayout (redirects to /auth/login)
+   - Middleware sets Astro.locals.user
+
+4. VALIDATION ERRORS
+   - Server-side validation in API endpoints
+   - Error messages returned in JSON response
+   - Displayed in toast notifications
+
+================================================================================
