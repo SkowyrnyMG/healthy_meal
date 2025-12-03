@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import UserMenu from "./UserMenu";
-import type { UserInfo } from "./types";
+import UserMenu from "../UserMenu";
+import type { UserInfo } from "../types";
 
 // ============================================================================
 // MOCKS

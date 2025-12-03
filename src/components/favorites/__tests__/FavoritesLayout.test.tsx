@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import FavoritesLayout from "./FavoritesLayout";
+import FavoritesLayout from "../FavoritesLayout";
 import type { FavoriteDTO, PaginationDTO } from "@/types";
 import * as useFavoritesModule from "@/components/hooks/useFavorites";
 import { toast } from "sonner";

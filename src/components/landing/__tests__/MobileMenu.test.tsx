@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import MobileMenu from "./MobileMenu";
+import MobileMenu from "../MobileMenu";
 
 // Mock Shadcn/UI components
 vi.mock("@/components/ui/button", () => ({
