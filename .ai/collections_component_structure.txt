@@ -1,0 +1,392 @@
+================================================================================
+COMPONENT STRUCTURE AND DEPENDENCIES
+Collections Page (src/pages/collections.astro)
+================================================================================
+
+Generated: 2025-12-03
+Root Component: src/pages/collections.astro
+
+================================================================================
+DEPENDENCY TREE
+================================================================================
+
+src/pages/collections.astro
+│
+├── [Data Fetching]
+│   ├── API Endpoint: GET ${origin}/api/collections
+│   └── Response Type: CollectionDTO[] from @/types
+│
+├── [Layout Layer]
+│   └── AppLayout (@/layouts/AppLayout.astro)
+│       │
+│       ├── [Global Styles]
+│       │   └── ../styles/global.css
+│       │
+│       ├── [Authentication]
+│       │   └── Checks: Astro.locals.user (set by middleware)
+│       │   └── Redirects to: /auth/login (if not authenticated)
+│       │
+│       ├── [Header Component]
+│       │   └── AppHeader (@/components/app/AppHeader.astro)
+│       │       │
+│       │       ├── [Icons - lucide-react]
+│       │       │   ├── ChefHat
+│       │       │   └── Plus
+│       │       │
+│       │       ├── [Desktop Navigation]
+│       │       │   └── Links: /dashboard, /recipes, /recipes/public, /favorites, /collections
+│       │       │
+│       │       ├── [User Menu - Desktop] [client:load]
+│       │       │   └── UserMenu (@/components/app/UserMenu.tsx)
+│       │       │       │
+│       │       │       ├── [UI Components - shadcn/ui]
+│       │       │       │   ├── Avatar, AvatarFallback (@/components/ui/avatar)
+│       │       │       │   ├── Button (@/components/ui/button)
+│       │       │       │   └── DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+│       │       │       │       DropdownMenuLabel, DropdownMenuSeparator,
+│       │       │       │       DropdownMenuTrigger (@/components/ui/dropdown-menu)
+│       │       │       │
+│       │       │       ├── [Icons - lucide-react]
+│       │       │       │   ├── LogOut
+│       │       │       │   └── User
+│       │       │       │
+│       │       │       ├── [Utilities]
+│       │       │       │   ├── getUserDisplayName (./types)
+│       │       │       │   └── getUserInitials (./types)
+│       │       │       │
+│       │       │       ├── [Navigation]
+│       │       │       │   └── Profile: /profile
+│       │       │       │
+│       │       │       └── [API Calls]
+│       │       │           └── POST /api/auth/logout
+│       │       │
+│       │       └── [Mobile Navigation] [client:load]
+│       │           └── MobileNav (@/components/app/MobileNav.tsx)
+│       │               │
+│       │               ├── [UI Components - shadcn/ui]
+│       │               │   ├── Button (@/components/ui/button)
+│       │               │   ├── Sheet, SheetContent, SheetHeader, SheetTitle,
+│       │               │   │   SheetTrigger (@/components/ui/sheet)
+│       │               │   ├── Avatar, AvatarFallback (@/components/ui/avatar)
+│       │               │   └── Separator (@/components/ui/separator)
+│       │               │
+│       │               ├── [Icons - lucide-react]
+│       │               │   ├── Menu
+│       │               │   ├── LogOut
+│       │               │   ├── User
+│       │               │   └── Plus
+│       │               │
+│       │               ├── [Utilities]
+│       │               │   ├── getUserDisplayName (./types)
+│       │               │   └── getUserInitials (./types)
+│       │               │
+│       │               ├── [State Management]
+│       │               │   └── isOpen (Sheet open/close state)
+│       │               │
+│       │               ├── [Navigation]
+│       │               │   ├── Profile: /profile
+│       │               │   └── New Recipe: /recipes/new
+│       │               │
+│       │               └── [API Calls]
+│       │                   └── POST /api/auth/logout
+│       │
+│       └── [Toast Notifications] [client:load]
+│           └── Toaster (sonner library)
+│               └── Configuration: richColors, position="bottom-right"
+│
+└── [Content Layer]
+    └── CollectionsLayout (@/components/collections/CollectionsLayout.tsx) [client:load]
+        │
+        ├── [State Management]
+        │   ├── collections: CollectionDTO[] (optimistic updates)
+        │   └── dialogState: DialogState (create/edit/delete)
+        │
+        ├── [UI Components - shadcn/ui]
+        │   └── Button (@/components/ui/button)
+        │
+        ├── [Empty State Component]
+        │   └── EmptyState (@/components/collections/EmptyState.tsx)
+        │       │
+        │       ├── [UI Components - shadcn/ui]
+        │       │   └── Button (@/components/ui/button)
+        │       │
+        │       ├── [Icons - lucide-react]
+        │       │   └── FolderPlus
+        │       │
+        │       └── [Actions]
+        │           └── onCreateClick → Opens CreateCollectionDialog
+        │
+        ├── [Collection Grid Component]
+        │   └── CollectionGrid (@/components/collections/CollectionGrid.tsx)
+        │       │
+        │       ├── [Layout]
+        │       │   └── Responsive Grid: 1→2→3→4 columns (mobile→tablet→desktop→xl)
+        │       │
+        │       └── CollectionCard (@/components/collections/CollectionCard.tsx)
+        │           │
+        │           ├── [UI Components - shadcn/ui]
+        │           │   ├── Card, CardContent, CardHeader, CardTitle
+        │           │   │   (@/components/ui/card)
+        │           │   ├── Badge (@/components/ui/badge)
+        │           │   ├── Button (@/components/ui/button)
+        │           │   └── DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+        │           │       DropdownMenuTrigger (@/components/ui/dropdown-menu)
+        │           │
+        │           ├── [Icons - lucide-react]
+        │           │   ├── Pencil
+        │           │   ├── Trash2
+        │           │   └── MoreVertical
+        │           │
+        │           ├── [Visual Elements]
+        │           │   ├── Collection name and metadata
+        │           │   ├── Recipe count badge
+        │           │   ├── 2×2 placeholder thumbnail grid
+        │           │   └── Relative creation date
+        │           │
+        │           ├── [Desktop Actions]
+        │           │   └── Hover Overlay: Edit/Delete buttons
+        │           │
+        │           ├── [Mobile Actions]
+        │           │   └── Dropdown Menu: Edit/Delete options
+        │           │
+        │           ├── [Utilities]
+        │           │   ├── formatRelativeTime (dateString → "2 dni temu")
+        │           │   ├── formatRecipeCount (count → "5 przepisów")
+        │           │   └── getThumbnailColors (→ ["bg-green-200", ...])
+        │           │
+        │           └── [Actions]
+        │               ├── onClick → Navigate to /collections/:id
+        │               ├── onEdit → Opens EditCollectionDialog
+        │               └── onDelete → Opens DeleteCollectionDialog
+        │
+        ├── [Create Dialog Component]
+        │   └── CreateCollectionDialog (@/components/collections/dialogs/CreateCollectionDialog.tsx)
+        │       │
+        │       ├── [UI Components - shadcn/ui]
+        │       │   ├── Dialog, DialogContent, DialogDescription, DialogFooter,
+        │       │   │   DialogHeader, DialogTitle (@/components/ui/dialog)
+        │       │   ├── Button (@/components/ui/button)
+        │       │   ├── Input (@/components/ui/input)
+        │       │   └── Label (@/components/ui/label)
+        │       │
+        │       ├── [Icons - lucide-react]
+        │       │   └── Loader2 (loading spinner)
+        │       │
+        │       ├── [External Libraries]
+        │       │   └── toast (sonner)
+        │       │
+        │       ├── [State Management]
+        │       │   ├── formData: { name: string }
+        │       │   ├── formErrors: { name?: string }
+        │       │   └── isLoading: boolean
+        │       │
+        │       ├── [Validation]
+        │       │   └── validateName (client-side)
+        │       │       ├── Required field
+        │       │       ├── Min length: 1 (after trim)
+        │       │       ├── Max length: 100
+        │       │       └── Server-side uniqueness check (409 conflict)
+        │       │
+        │       ├── [Features]
+        │       │   ├── Character counter (0/100)
+        │       │   ├── Real-time validation
+        │       │   ├── Loading states
+        │       │   └── Error handling
+        │       │
+        │       ├── [API Calls]
+        │       │   └── POST /api/collections
+        │       │       ├── Body: { name: string }
+        │       │       └── Response: { collection: CollectionDTO }
+        │       │
+        │       └── [Success Flow]
+        │           ├── Show success toast
+        │           ├── Call onSuccess callback (add to state)
+        │           └── Close dialog
+        │
+        ├── [Edit Dialog Component]
+        │   └── EditCollectionDialog (@/components/collections/dialogs/EditCollectionDialog.tsx)
+        │       │
+        │       ├── [UI Components - shadcn/ui]
+        │       │   ├── Dialog, DialogContent, DialogDescription, DialogFooter,
+        │       │   │   DialogHeader, DialogTitle (@/components/ui/dialog)
+        │       │   ├── Button (@/components/ui/button)
+        │       │   ├── Input (@/components/ui/input)
+        │       │   └── Label (@/components/ui/label)
+        │       │
+        │       ├── [Icons - lucide-react]
+        │       │   └── Loader2 (loading spinner)
+        │       │
+        │       ├── [External Libraries]
+        │       │   └── toast (sonner)
+        │       │
+        │       ├── [State Management]
+        │       │   ├── formData: { name: string } (pre-populated)
+        │       │   ├── formErrors: { name?: string }
+        │       │   └── isLoading: boolean
+        │       │
+        │       ├── [Validation]
+        │       │   └── validateName (client-side)
+        │       │       ├── Required field
+        │       │       ├── Min length: 1 (after trim)
+        │       │       ├── Max length: 100
+        │       │       └── Server-side uniqueness check (409 conflict)
+        │       │
+        │       ├── [Features]
+        │       │   ├── Pre-populated with current name
+        │       │   ├── Character counter (0/100)
+        │       │   ├── Skip API call if name unchanged
+        │       │   ├── Real-time validation
+        │       │   ├── Loading states
+        │       │   └── Error handling (404, 409, 500)
+        │       │
+        │       ├── [API Calls]
+        │       │   └── PUT /api/collections/:id
+        │       │       ├── Body: { name: string }
+        │       │       └── Response: { collection: { id, name } }
+        │       │
+        │       └── [Success Flow]
+        │           ├── Show success toast
+        │           ├── Call onSuccess callback (update in state)
+        │           └── Close dialog
+        │
+        └── [Delete Dialog Component]
+            └── DeleteCollectionDialog (@/components/collections/dialogs/DeleteCollectionDialog.tsx)
+                │
+                ├── [UI Components - shadcn/ui]
+                │   ├── AlertDialog, AlertDialogContent, AlertDialogDescription,
+                │   │   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
+                │   │   (@/components/ui/alert-dialog)
+                │   └── Button (@/components/ui/button)
+                │
+                ├── [Icons - lucide-react]
+                │   └── Loader2 (loading spinner)
+                │
+                ├── [External Libraries]
+                │   └── toast (sonner)
+                │
+                ├── [State Management]
+                │   └── isLoading: boolean
+                │
+                ├── [Features]
+                │   ├── Destructive action confirmation
+                │   ├── Shows collection name and recipe count
+                │   ├── Clarifies recipes remain available
+                │   ├── Loading states
+                │   └── Error handling (404, 500)
+                │
+                ├── [Utilities]
+                │   └── formatRecipeCount (count → "5 przepisów")
+                │
+                ├── [API Calls]
+                │   └── DELETE /api/collections/:id
+                │       └── Response: 204 No Content
+                │
+                └── [Success Flow]
+                    ├── Show success toast
+                    ├── Call onSuccess callback (remove from state)
+                    └── Close dialog
+
+================================================================================
+TYPE DEFINITIONS
+================================================================================
+
+CollectionDTO (from @/types)
+├── id: string
+├── name: string
+├── recipeCount: number
+└── createdAt: string (ISO date)
+
+UserInfo (from @/components/app/types)
+├── userId: string
+├── email: string
+└── displayName: string | null
+
+DialogState (from @/components/collections/types)
+├── create: boolean
+├── edit: { open: boolean, collection: CollectionDTO | null }
+└── delete: { open: boolean, collection: CollectionDTO | null }
+
+================================================================================
+API ENDPOINTS
+================================================================================
+
+Collections API:
+├── GET    /api/collections          → Fetch all user collections
+├── POST   /api/collections          → Create new collection
+├── PUT    /api/collections/:id      → Update collection name
+└── DELETE /api/collections/:id      → Delete collection
+
+Authentication API:
+└── POST   /api/auth/logout          → Logout user
+
+================================================================================
+EXTERNAL DEPENDENCIES
+================================================================================
+
+UI Library:
+└── shadcn/ui (React components)
+    ├── Alert Dialog
+    ├── Avatar
+    ├── Badge
+    ├── Button
+    ├── Card
+    ├── Dialog
+    ├── Dropdown Menu
+    ├── Input
+    ├── Label
+    ├── Separator
+    └── Sheet
+
+Icon Library:
+└── lucide-react
+    ├── ChefHat
+    ├── FolderPlus
+    ├── Loader2
+    ├── LogOut
+    ├── Menu
+    ├── MoreVertical
+    ├── Pencil
+    ├── Plus
+    ├── Trash2
+    └── User
+
+Toast Notifications:
+└── sonner
+    ├── toast.success()
+    ├── toast.error()
+    └── Toaster component
+
+================================================================================
+KEY FEATURES & PATTERNS
+================================================================================
+
+State Management:
+├── Optimistic UI updates (collections array)
+├── Dialog state management (create/edit/delete)
+└── Form state with validation
+
+Error Handling:
+├── Client-side validation (before API calls)
+├── Server-side validation (API responses)
+├── Toast notifications for user feedback
+└── Graceful degradation (empty arrays on error)
+
+Responsive Design:
+├── Desktop: Hover overlays for actions
+├── Mobile: Dropdown menus for actions
+├── Grid: 1→2→3→4 columns (breakpoints)
+└── Navigation: Desktop nav bar, mobile sheet
+
+Authentication Flow:
+├── Middleware sets Astro.locals.user
+├── AppLayout checks authentication
+├── Redirect to /auth/login if not authenticated
+└── Pass cookies in API requests
+
+Performance Optimizations:
+├── Server-side data fetching (Astro)
+├── Client-side hydration only for interactive components
+├── Skip unnecessary API calls (edit with unchanged name)
+└── Optimistic UI updates (immediate feedback)
+
+================================================================================
