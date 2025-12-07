@@ -2,18 +2,36 @@
 
 This document provides a comprehensive list of all components, hooks, utilities, and features that have been tested in this project. Use this as a reference to avoid duplicating test efforts.
 
-**Last Updated:** 2025-12-03
+**Last Updated:** 2025-12-07
 
 ---
 
 ## Summary
 
-**Total Test Files:** 27 passing
-**Total Tests:** 828 passing (3 skipped)
+**Total Test Files:** 37 passing
+**Total Tests:** 1217 passing (3 skipped)
 
-### Latest Addition (2025-12-05): Collections Page Tests - COMPLETE! 🎉
-**New Test Files:** 5 (Phase 2: 3, Phase 3: 2)
-**New Tests:** 210 (Phase 2: 142, Phase 3: 68)
+### Latest Addition (2025-12-07): Profile Page Tests - COMPLETE! 🎉
+**New Test Files:** 10
+**New Tests:** 389 (82 + 41 + 43 + 37 + 33 + 35 + 27 + 36 + 23 + 32)
+**Components Tested:** ALL P0/P1/P2 components - Core hook, main layout, all four form sections, sub-components, and navigation for Profile Settings
+
+**What Was Tested:**
+- ✅ useProfileSettings hook (82 tests) - Complete state management for profile, allergens, and disliked ingredients with optimistic updates, diff-based syncing, error handling, and rollback mechanisms
+- ✅ ProfileSettingsLayout (41 tests) - Main orchestrator component with responsive navigation, section switching, data propagation, error handling, and accessibility
+- ✅ BasicInfoSection (43 tests) - Form validation, user interactions, Polish error messages, input constraints, and submission flow for basic user data
+- ✅ DietaryPreferencesSection (37 tests) - Diet type and target goal selection, optional target value field, validation, and form submission with Polish labels
+- ✅ AllergensSection (33 tests) - Multi-select checkbox grid, responsive layout, loading skeleton, selected count display, form submission with Set, accessibility, and state synchronization
+- ✅ DislikedIngredientsSection (35 tests) - Add/remove ingredient flows, optimistic updates, empty state, ingredient count, integration with AddIngredientForm and IngredientItem, per-ingredient loading states
+- ✅ IngredientItem (27 tests) - Individual ingredient display with remove button, loading states, keyboard interaction, accessibility, edge cases with special characters
+- ✅ AddIngredientForm (36 tests) - Form validation via button disable, maxLength enforcement (100 chars), input/button states, onAdd callback, Polish character support, accessibility
+- ✅ SettingsSidebar (23 tests) - Desktop navigation sidebar, active state highlighting, keyboard navigation, accessibility, edge cases
+- ✅ SettingsTabs (32 tests) - **NEW!** Mobile horizontal tabs with Shadcn, responsive labels, keyboard navigation, ScrollArea integration, accessibility
+- ⏭️ AccountSection - **SKIPPED** (P3 placeholder component with no functionality)
+
+### Previous Addition (2025-12-05): Collections Page Tests - COMPLETE! 🎉
+**Test Files:** 5 (Phase 2: 3, Phase 3: 2)
+**Tests:** 210 (Phase 2: 142, Phase 3: 68)
 
 **Phase 2 Complete:**
 - ✅ CreateCollectionDialog (51 tests) - Form validation, API integration, loading states, error handling
@@ -1263,4 +1281,838 @@ See [Type Utilities](#type-utilities-srccomponentsapptypests) above.
 ---
 
 **Last Updated:** 2025-12-05
-**Test Plan Reference:** `.ai/recipes_test_plan.md`, `.ai/collections_test_plan.md`
+**Test Plan Reference:** `.ai/recipes_test_plan.md`, `.ai/collections_test_plan.md`, `.ai/profile_test_plan.md`
+
+---
+
+## Profile Page Components (NEW - 2025-12-07)
+
+**Test Plan:** `.ai/profile_test_plan.md`
+**Status:** Phase 1 COMPLETE ✅ | Phase 2 IN PROGRESS (50% complete)
+**Total Estimated Tests:** ~385 tests
+**Completed Tests:** 203 tests (Phase 1: 123, Phase 2: 80)
+**Remaining Tests:** ~182 tests
+**Timeline:** 4 weeks (4 phases)
+
+### Phase 1: Core Hook & Layout (P0) - Week 1 ✅ COMPLETE
+
+#### **useProfileSettings** (`src/components/hooks/useProfileSettings.ts`) ✅ COMPLETE
+**Test File:** `src/components/hooks/__tests__/useProfileSettings.test.ts`
+**Actual Tests:** 82 tests (exceeded estimate of 70)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Initial State & Data Fetching (12 tests)
+- ✅ Initialize with null profile and empty allergen/disliked arrays
+- ✅ Initialize with all loading states set to true
+- ✅ Initialize with no error
+- ✅ Fetch all data in parallel on mount (GET /api/profile, /api/allergens, /api/profile/allergens, /api/profile/disliked-ingredients)
+- ✅ Handle successful responses for all endpoints
+- ✅ Parse profile data correctly (ProfileDTO)
+- ✅ Parse allergens data correctly (AllergenDTO[])
+- ✅ Parse user allergens correctly (UserAllergenDTO[])
+- ✅ Parse disliked ingredients correctly (DislikedIngredientDTO[])
+- ✅ Set all loading states to false after successful fetch
+- ✅ Handle partial API failures (some succeed, some fail)
+- ✅ Set error state when initial fetch fails
+
+##### Profile Updates - saveBasicInfo (10 tests)
+- ✅ Call PUT /api/profile with correct payload
+- ✅ Set isSavingBasicInfo to true during save
+- ✅ Update profile state optimistically
+- ✅ Toast success message on successful save
+- ✅ Set isSavingBasicInfo to false after save
+- ✅ Handle API errors (400, 500)
+- ✅ Rollback optimistic update on error
+- ✅ Show error toast on failure
+- ✅ Handle network errors
+- ✅ Handle malformed responses
+
+##### Profile Updates - saveDietaryPreferences (10 tests)
+- ✅ Call PUT /api/profile with correct payload
+- ✅ Set isSavingDietaryPreferences to true during save
+- ✅ Update profile state optimistically
+- ✅ Toast success message on successful save
+- ✅ Set isSavingDietaryPreferences to false after save
+- ✅ Handle API errors (400, 500)
+- ✅ Rollback optimistic update on error
+- ✅ Show error toast on failure
+- ✅ Handle network errors
+- ✅ Handle malformed responses
+
+##### Allergens Management - saveAllergens (14 tests)
+- ✅ Calculate diff (added and removed allergen IDs)
+- ✅ Call POST /api/profile/allergens for new allergens
+- ✅ Call DELETE /api/profile/allergens/:id for removed allergens
+- ✅ Make all API calls in parallel
+- ✅ Set isSavingAllergens to true during save
+- ✅ Update userAllergens state after successful save
+- ✅ Toast success message
+- ✅ Set isSavingAllergens to false after save
+- ✅ Skip API calls when no changes (optimization)
+- ✅ Handle POST errors
+- ✅ Handle DELETE errors
+- ✅ Handle partial failures (some POST/DELETE succeed, some fail)
+- ✅ Show appropriate error messages
+- ✅ Refetch user allergens on error
+
+##### Disliked Ingredients - addDislikedIngredient (12 tests)
+- ✅ Call POST /api/profile/disliked-ingredients with ingredient name
+- ✅ Set isAddingDislikedIngredient to true
+- ✅ Add ingredient to list optimistically
+- ✅ Toast success message
+- ✅ Set isAddingDislikedIngredient to false after save
+- ✅ Handle API errors (400 validation, 409 conflict, 500)
+- ✅ Remove optimistic ingredient on error
+- ✅ Show error toast with server message
+- ✅ Handle network errors
+- ✅ Handle malformed responses
+- ✅ Prevent duplicate submissions
+- ✅ Trim ingredient name before sending
+
+##### Disliked Ingredients - removeDislikedIngredient (12 tests)
+- ✅ Call DELETE /api/profile/disliked-ingredients/:id
+- ✅ Track removing state per ingredient (removingDislikedIngredientId)
+- ✅ Remove ingredient from list optimistically
+- ✅ Toast success message
+- ✅ Clear removing state after delete
+- ✅ Handle API errors (404, 500)
+- ✅ Re-add ingredient on error (rollback)
+- ✅ Show error toast
+- ✅ Handle network errors
+- ✅ Prevent double-clicking on remove
+- ✅ Handle 404 gracefully (ingredient already deleted)
+- ✅ Clear removing state on error
+
+##### Refetch Functionality (5 tests)
+- ✅ refetchAll() clears previous errors
+- ✅ refetchAll() fetches all data again
+- ✅ refetchAll() updates all state correctly
+- ✅ refetchAll() handles errors
+- ✅ refetchAll() sets loading states correctly
+
+##### Edge Cases (7 tests)
+- ✅ Handle empty profile response
+- ✅ Handle empty allergens list
+- ✅ Handle empty user allergens list
+- ✅ Handle empty disliked ingredients list
+- ✅ Handle very long ingredient names (100 chars)
+- ✅ Handle special characters in ingredient names
+- ✅ Component unmount cleanup (prevent state updates)
+
+**Coverage:**
+- Complete state management lifecycle
+- All CRUD operations for profile, allergens, and disliked ingredients
+- Optimistic UI updates with rollback
+- Diff-based syncing for allergens
+- Error handling for all API calls
+- Loading states for each section
+- Toast notifications
+- Concurrent operations handling
+- Polish error messages
+- Network error recovery
+- Edge case robustness
+
+---
+
+---
+
+#### **ProfileSettingsLayout** (`src/components/profile/ProfileSettingsLayout.tsx`) ✅ COMPLETE
+**Test File:** `src/components/profile/__tests__/ProfileSettingsLayout.test.tsx`
+**Actual Tests:** 41 tests (exceeded estimate of 40)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Rendering & Layout (8 tests)
+- ✅ Render desktop sidebar (SettingsSidebar)
+- ✅ Render mobile tabs (SettingsTabs)
+- ✅ Render page title (h1)
+- ✅ Render basic info section by default
+- ✅ Show loading skeletons when profile is loading
+- ✅ Show error alert when error exists
+- ✅ Show retry button on error
+- ✅ Render all 5 section buttons in sidebar
+
+##### Section Navigation (10 tests)
+- ✅ Default to 'basic-info' section
+- ✅ Switch to dietary-preferences section
+- ✅ Switch to allergens section
+- ✅ Switch to disliked-ingredients section
+- ✅ Switch to account section
+- ✅ Show only active section content
+- ✅ Sync navigation between sidebar and tabs
+- ✅ Update aria-current on active section
+- ✅ Maintain section state during navigation
+- ✅ Support navigation via tabs
+
+##### Data Propagation (12 tests)
+- ✅ Pass profile data to BasicInfoSection
+- ✅ Pass profile data to DietaryPreferencesSection
+- ✅ Pass allergens data to AllergensSection
+- ✅ Pass userAllergens to AllergensSection
+- ✅ Pass dislikedIngredients to DislikedIngredientsSection
+- ✅ Pass saveBasicInfo callback to BasicInfoSection
+- ✅ Pass saveDietaryPreferences callback to DietaryPreferencesSection
+- ✅ Pass saveAllergens callback to AllergensSection
+- ✅ Pass addDislikedIngredient callback to DislikedIngredientsSection
+- ✅ Pass removeDislikedIngredient callback to DislikedIngredientsSection
+- ✅ Pass loading states to all sections
+- ✅ Pass saving and loading states to AllergensSection
+
+##### Error Handling & Retry (5 tests)
+- ✅ Display error message from hook
+- ✅ Call refetchAll when retry button is clicked
+- ✅ Hide section content when error is present
+- ✅ Show error even when switching sections
+- ✅ Handle null profile gracefully
+
+##### Accessibility (5 tests)
+- ✅ Page has proper heading hierarchy (h1)
+- ✅ Sidebar buttons have aria-current attribute
+- ✅ Tabs have aria-selected attribute
+- ✅ Update aria-current when section changes via sidebar
+- ✅ Update aria-selected when section changes via tabs
+
+**Coverage:**
+- Complete main orchestrator component
+- Responsive navigation (desktop sidebar, mobile tabs)
+- Section switching and state management
+- Data and callback propagation to all child sections
+- Loading skeletons for initial load
+- Error recovery with retry functionality
+- Accessibility compliance (ARIA attributes, heading hierarchy)
+- Null profile handling
+
+---
+
+### Phase 2: Form Sections (P1) - Week 2 🔄 IN PROGRESS (50% complete)
+
+#### **BasicInfoSection** (`src/components/profile/sections/BasicInfoSection.tsx`) ✅ COMPLETE
+**Test File:** `src/components/profile/sections/__tests__/BasicInfoSection.test.tsx`
+**Actual Tests:** 43 tests (exceeded estimate of 40)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Rendering & Initial State (8 tests)
+- ✅ Render all form fields (weight, age, gender, activityLevel)
+- ✅ Render section heading and description
+- ✅ Render submit button
+- ✅ Pre-populate form with initial data
+- ✅ Display correct gender selected
+- ✅ Display correct activity level selected
+- ✅ Show loading spinner when isSaving is true
+- ✅ Disable submit button when isSaving is true
+
+##### Form Interaction (8 tests)
+- ✅ Update weight field on user input
+- ✅ Update age field on user input
+- ✅ Render gender select field
+- ✅ Render activity level select field
+- ✅ Clear error when field is corrected
+- ✅ Submit form on button click
+- ✅ Disable inputs during submission
+
+##### Client-Side Validation (14 tests)
+- ✅ Show error for empty weight
+- ✅ Have min and max attributes for weight input (40-200 kg)
+- ✅ Have step attribute for weight allowing decimals (0.1)
+- ✅ Show error for empty age
+- ✅ Have min and max attributes for age input (13-100 years)
+- ✅ Have step attribute for age ensuring integers (step=1)
+- ✅ Validate age is integer (no decimals)
+- ✅ Show error for empty gender
+- ✅ Show error for empty activity level
+- ✅ Prevent form submission when validation fails
+- ✅ Display all errors simultaneously
+- ✅ Clear error on field change
+- ✅ Accept weight at minimum boundary (40 kg)
+- ✅ Accept weight at maximum boundary (200 kg)
+- ✅ Accept age at minimum boundary (13)
+- ✅ Accept age at maximum boundary (100)
+
+##### Form Submission (9 tests)
+- ✅ Call onSave with correct data structure
+- ✅ Include all form fields in payload
+- ✅ Convert weight to number
+- ✅ Convert age to number
+- ✅ Not submit if form invalid
+- ✅ Handle onSave rejection gracefully
+- ✅ Handle decimal weight values
+- ✅ Update form when initialData changes
+
+##### Accessibility (4 tests)
+- ✅ Have labels for all inputs
+- ✅ Have aria-invalid on weight input when error exists
+- ✅ Have aria-describedby linking to error message
+- ✅ Have proper heading hierarchy (h2)
+
+**Coverage:**
+- Complete form rendering and pre-population
+- All input fields (weight, age, gender, activity level)
+- User interactions and input updates
+- Client-side validation with Polish error messages
+- Input constraints (min, max, step attributes)
+- Form submission flow with data type conversion
+- Loading and disabled states
+- Error display and clearing
+- Accessibility compliance (ARIA attributes, labels)
+- Form reset when initial data changes
+
+---
+
+#### **DietaryPreferencesSection** (`src/components/profile/sections/DietaryPreferencesSection.tsx`) ✅ COMPLETE
+**Test File:** `src/components/profile/sections/__tests__/DietaryPreferencesSection.test.tsx`
+**Actual Tests:** 37 tests (exceeded estimate of 35)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Rendering & Initial State (8 tests)
+- ✅ Render all form fields (dietType, targetGoal, targetValue)
+- ✅ Render section heading and description
+- ✅ Render submit button
+- ✅ Pre-populate form with initial data
+- ✅ Display correct diet type selected
+- ✅ Display correct target goal selected
+- ✅ Show loading spinner when isSaving is true
+- ✅ Disable submit button when isSaving is true
+
+##### Form Interaction (7 tests)
+- ✅ Render diet type select field
+- ✅ Render target goal select field
+- ✅ Update target value field on user input
+- ✅ Clear error when field is corrected
+- ✅ Submit form on button click
+- ✅ Disable select fields during submission
+
+##### Client-Side Validation (12 tests)
+- ✅ Show error for empty diet type
+- ✅ Show error for empty target goal
+- ✅ Allow empty target value (optional field)
+- ✅ Have min and max attributes for target value input (0.1-100 kg)
+- ✅ Have step attribute for target value allowing decimals (0.1)
+- ✅ Prevent form submission when validation fails
+- ✅ Display all errors simultaneously
+- ✅ Clear error on field change for target value
+- ✅ Validate all 6 diet type options exist
+- ✅ Validate all 3 target goal options exist
+- ✅ Handle decimal values correctly
+
+##### Form Submission (9 tests)
+- ✅ Call onSave with correct data structure
+- ✅ Include all form fields in payload
+- ✅ Send null for targetValue if empty
+- ✅ Not submit if form invalid
+- ✅ Handle onSave rejection gracefully
+- ✅ Convert target value to number
+- ✅ Update form when initialData changes
+
+##### Accessibility (5 tests)
+- ✅ Have labels for all inputs
+- ✅ Have aria-invalid on diet type select when error exists
+- ✅ Have aria-describedby linking to error message
+- ✅ Have proper heading hierarchy (h2)
+- ✅ Have placeholder for target value input
+
+**Coverage:**
+- Complete form rendering and pre-population
+- All select fields (6 diet types, 3 target goals)
+- Optional field handling (targetValue can be null)
+- User interactions and input updates
+- Client-side validation with Polish error messages
+- Input constraints (min, max, step attributes)
+- Form submission flow with data type conversion
+- Loading and disabled states
+- Error display and clearing
+- Accessibility compliance (ARIA attributes, labels, placeholders)
+- Form reset when initial data changes
+- Decimal value support for target weight
+
+---
+
+#### **AllergensSection** (`src/components/profile/sections/AllergensSection.tsx`) ✅ COMPLETE
+**Test File:** `src/components/profile/sections/__tests__/AllergensSection.test.tsx`
+**Actual Tests:** 33 tests (close to estimate of 35)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Rendering & Initial State (8 tests)
+- ✅ Render section heading and description
+- ✅ Render all allergen checkboxes
+- ✅ Check selected allergens based on selectedAllergenIds prop
+- ✅ Display selected count
+- ✅ Render save button
+- ✅ Show loading skeleton when isLoading is true (9 skeleton items)
+- ✅ Show empty state when allergens array is empty
+
+##### Grid Layout (4 tests)
+- ✅ Render checkboxes in responsive grid (gap-4, sm:grid-cols-2, lg:grid-cols-3)
+- ✅ Render 9 skeleton items during loading
+- ✅ Maintain layout with 1 allergen
+- ✅ Maintain layout with 10 allergens
+
+##### User Interaction (7 tests)
+- ✅ Check an allergen when clicked
+- ✅ Uncheck an allergen when clicked
+- ✅ Select multiple allergens
+- ✅ Deselect all allergens
+- ✅ Update selected count when selection changes
+- ✅ Toggle checkbox with keyboard (Space)
+
+##### Form Submission (6 tests)
+- ✅ Call onSave with selected allergen IDs (Set object)
+- ✅ Disable all checkboxes during save
+- ✅ Disable save button during save
+- ✅ Show loading spinner when isSaving is true
+- ✅ Maintain selection after successful save
+- ✅ Handle save error gracefully
+
+##### Accessibility (5 tests)
+- ✅ Have labels associated with checkboxes
+- ✅ Have aria-label on checkboxes
+- ✅ Have proper heading hierarchy (h2)
+- ✅ Be keyboard navigable (Tab, Space)
+- ✅ Announce selected count to screen readers
+
+##### State Synchronization (1 test)
+- ✅ Sync local state when selectedAllergenIds prop changes
+
+##### Edge Cases (4 tests)
+- ✅ Handle allergen with very long name
+- ✅ Handle allergen with special characters
+- ✅ Handle all allergens selected
+- ✅ Handle empty selected set
+
+**Coverage:**
+- Complete checkbox grid rendering with responsive layout (3/2/1 columns)
+- Multi-select behavior with local state management
+- Loading skeleton (9 items) and empty state
+- Selected count display with dynamic updates
+- Form submission with Set of allergen IDs
+- Loading states for all interactive elements
+- Keyboard navigation and accessibility compliance
+- State synchronization between props and local state
+- Edge cases (long names, special characters, all/none selected)
+
+---
+
+#### **DislikedIngredientsSection** (`src/components/profile/sections/DislikedIngredientsSection.tsx`) ✅ COMPLETE
+**Test File:** `src/components/profile/sections/__tests__/DislikedIngredientsSection.test.tsx`
+**Actual Tests:** 35 tests (matched estimate)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Rendering & Initial State (7 tests)
+- ✅ Render section heading and description
+- ✅ Render AddIngredientForm at top
+- ✅ Render all disliked ingredients as IngredientItem components
+- ✅ Display ingredient count
+- ✅ Show empty state when no ingredients
+- ✅ Render XCircle icon in empty state
+- ✅ Render ingredients in order
+
+##### User Interaction - Adding (6 tests)
+- ✅ Call onAdd when form submitted
+- ✅ Clear form after successful add
+- ✅ Show loading state during add (isAdding)
+- ✅ Disable form during add
+- ✅ Handle add errors gracefully (keep value for retry)
+
+##### User Interaction - Removing (6 tests)
+- ✅ Call onRemove with ingredient ID
+- ✅ Show loading spinner on ingredient being removed
+- ✅ Disable remove button during remove
+- ✅ Track removing state per ingredient (removingId)
+- ✅ Allow removing different ingredients when none are being removed
+- ✅ Handle remove errors gracefully
+
+##### Empty State (4 tests)
+- ✅ Show empty state when array is empty
+- ✅ Hide empty state when ingredients exist
+- ✅ Update count display (0 ingredients)
+- ✅ Have proper styling for empty state (dashed border)
+
+##### Accessibility (4 tests)
+- ✅ Have proper heading hierarchy (h2)
+- ✅ Have accessible labels for add form
+- ✅ Have aria-labels for remove buttons
+- ✅ Announce ingredient count to screen readers
+
+##### Integration with Sub-components (4 tests)
+- ✅ Pass onAdd callback to AddIngredientForm
+- ✅ Pass isAdding to AddIngredientForm
+- ✅ Pass onRemove callback to IngredientItem
+- ✅ Pass isRemoving to correct IngredientItem
+
+##### Edge Cases (5 tests)
+- ✅ Handle ingredient with very long name
+- ✅ Handle ingredient with special characters
+- ✅ Handle single ingredient
+- ✅ Handle many ingredients (10+)
+- ✅ Handle Polish characters in ingredient names
+
+**Coverage:**
+- Complete add/remove ingredient flows with optimistic updates
+- Integration with AddIngredientForm and IngredientItem sub-components
+- Empty state rendering and transitions
+- Ingredient count display with dynamic updates
+- Per-ingredient loading states (removingId tracking)
+- Form state management (isAdding, input clearing)
+- Error handling with value retention for retry
+- Accessibility compliance (headings, labels, ARIA)
+- Edge cases (long names, special chars, Polish characters, various counts)
+
+---
+
+### Phase 3: Sub-components (P2) - Week 3
+
+#### **IngredientItem** (`src/components/profile/IngredientItem.tsx`) ✅ COMPLETE
+**Test File:** `src/components/profile/__tests__/IngredientItem.test.tsx`
+**Actual Tests:** 27 tests (close to estimate of 25)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Rendering (8 tests)
+- ✅ Render ingredient name
+- ✅ Render remove button with X icon
+- ✅ Show loading spinner when isRemoving is true
+- ✅ Hide X icon when isRemoving is true
+- ✅ Disable remove button when isRemoving is true
+- ✅ Have correct button styling (text-gray-400, hover:text-red-600)
+- ✅ Handle very long ingredient names
+- ✅ Handle special characters in name
+
+##### User Interaction (7 tests)
+- ✅ Call onRemove with ingredient ID on button click
+- ✅ Not call onRemove when disabled
+- ✅ Prevent double-clicking (calls onRemove twice for dblClick)
+- ✅ Support keyboard interaction (Enter on button)
+- ✅ Support keyboard interaction (Space on button)
+- ✅ Show loading state immediately on click
+- ✅ Maintain disabled state during removal
+
+##### Loading State (5 tests)
+- ✅ Show Loader2 spinner when isRemoving
+- ✅ Spinner have correct size (h-4 w-4)
+- ✅ Spinner have animation class (animate-spin)
+- ✅ Hide remove icon during loading
+- ✅ Button remain clickable area (but disabled)
+
+##### Accessibility (3 tests)
+- ✅ Remove button have aria-label with ingredient name
+- ✅ Button have disabled state when isRemoving
+- ✅ Focus management work correctly
+
+##### Edge Cases (4 tests)
+- ✅ Handle ingredient with Polish characters
+- ✅ Handle ingredient with numbers
+- ✅ Handle ingredient with emoji
+- ✅ Handle single character name
+
+**Coverage:**
+- Complete ingredient item rendering with name display
+- Remove button with X icon and hover effects
+- Loading state with Loader2 spinner (h-4 w-4, animate-spin)
+- Disabled state management during removal
+- onRemove callback with ingredient ID
+- Keyboard interaction (Enter, Space)
+- Accessibility (aria-label with ingredient name, focus management)
+- Edge cases (long names, special chars, Polish chars, numbers, emoji, single char)
+
+---
+
+#### **AddIngredientForm** (`src/components/profile/AddIngredientForm.tsx`) ✅ COMPLETE
+**Test File:** `src/components/profile/__tests__/AddIngredientForm.test.tsx`
+**Actual Tests:** 36 tests (matched estimate of 35)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Rendering & Initial State (6 tests)
+- ✅ Render input field with placeholder
+- ✅ Render add button with Plus icon
+- ✅ Input be empty initially
+- ✅ Not show error initially
+- ✅ Add button disabled when empty (validation via disable state)
+- ✅ Have inline form layout (input + button)
+
+##### User Interaction (8 tests)
+- ✅ Update input value on typing
+- ✅ Call onAdd on button click
+- ✅ Call onAdd on Enter key press
+- ✅ Clear input after successful add
+- ✅ Enable button when user types valid input
+- ✅ Not clear input on add error (keep value for retry)
+- ✅ Focus remain on input after successful add
+- ✅ Disable button during submission (isAdding)
+
+##### Client-Side Validation (9 tests)
+- ✅ Disable button for empty input
+- ✅ Disable button for whitespace-only input
+- ✅ Enforce maxLength attribute preventing >100 chars
+- ✅ Trim whitespace before validation
+- ✅ Not submit when button is disabled
+- ✅ Allow valid 100-character input
+- ✅ Allow 1-character input
+- ✅ Handle special characters and Polish characters
+- ✅ Disable button for whitespace input preventing submission
+
+##### Loading State (5 tests)
+- ✅ Show loading spinner when isAdding (Loader2 with animate-spin)
+- ✅ Disable input when isAdding
+- ✅ Disable button when isAdding
+- ✅ Spinner replace Plus icon
+- ✅ Form cannot be submitted during loading
+
+##### Accessibility (3 tests)
+- ✅ Input have aria-invalid set to false when no error
+- ✅ Button have accessible name
+- ✅ Input have maxLength attribute
+
+##### Edge Cases (5 tests)
+- ✅ Handle rapid submissions
+- ✅ Handle numbers in ingredient name
+- ✅ Handle emoji in ingredient name
+- ✅ Button be disabled when input is empty
+- ✅ Button be enabled when input has text
+
+**Coverage:**
+- Complete form rendering with inline layout
+- Input field with placeholder and maxLength=100
+- Add button with Plus icon (switches to Loader2 during loading)
+- Validation via button disable state (prevents empty/whitespace submission)
+- onAdd callback on button click or Enter key
+- Input clearing after successful add (value kept on error for retry)
+- Loading states (isAdding) - disables input and button
+- Trimming whitespace before submission
+- maxLength enforcement at HTML level (prevents >100 chars)
+- Polish character support (Ś, Ź, Ł, etc.)
+- Accessibility (aria-invalid, accessible button name, maxLength)
+- Edge cases (rapid submissions, numbers, emoji, 1-100 character validation)
+
+---
+
+#### **SettingsSidebar** (`src/components/profile/SettingsSidebar.tsx`) ✅ COMPLETE
+**Test File:** `src/components/profile/__tests__/SettingsSidebar.test.tsx`
+**Actual Tests:** 23 tests (exceeded estimate of 20)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Rendering (5 tests)
+- ✅ Render all 5 section buttons with correct labels
+- ✅ Render navigation element with proper aria-label
+- ✅ Render all section buttons in correct order
+- ✅ Render icons for all sections (User, Utensils, AlertTriangle, XCircle, Settings)
+- ✅ Have proper width and layout classes (w-64, flex-shrink-0)
+
+##### Active State (5 tests)
+- ✅ Highlight active section with green background (bg-green-50, text-green-700)
+- ✅ Set aria-current='page' on active section
+- ✅ Not set aria-current on inactive sections
+- ✅ Apply inactive styling to non-active sections (text-gray-700)
+- ✅ Update active section when activeSection prop changes
+
+##### User Interaction (3 tests)
+- ✅ Call onSectionChange with correct section ID on button click
+- ✅ Call onSectionChange when clicking different sections
+- ✅ Allow clicking active section (callback still called)
+
+##### Keyboard Navigation (3 tests)
+- ✅ Activate button on Enter key press
+- ✅ Activate button on Space key press
+- ✅ Support Tab navigation between buttons
+
+##### Accessibility (4 tests)
+- ✅ Have semantic navigation element
+- ✅ Have descriptive aria-label on navigation ("Ustawienia profilu")
+- ✅ Have aria-hidden on icons
+- ✅ Have accessible button text (not icon-only)
+
+##### Edge Cases (3 tests)
+- ✅ Handle empty sections array
+- ✅ Handle single section
+- ✅ Handle active section not in sections array
+
+**Coverage:**
+- Complete desktop navigation sidebar rendering
+- All 5 section buttons with icons and labels
+- Active state highlighting with green accent (bg-green-50, text-green-700)
+- Section switching via onSectionChange callback
+- Keyboard navigation (Tab, Enter, Space)
+- Accessibility compliance (nav role, aria-current, aria-label, aria-hidden)
+- Active state styling and ARIA attributes
+- Edge cases (empty sections, single section, unknown active section)
+
+---
+
+### Phase 4: Navigation & Placeholders (P2-P3) - Week 4
+
+#### **SettingsTabs** (`src/components/profile/SettingsTabs.tsx`) ✅ COMPLETE
+**Test File:** `src/components/profile/__tests__/SettingsTabs.test.tsx`
+**Actual Tests:** 32 tests (exceeded estimate of 25)
+**Status:** ✅ All tests passing
+
+**What's Tested:**
+
+##### Rendering (7 tests)
+- ✅ Render Tabs component with tablist role
+- ✅ Render all 5 tab triggers
+- ✅ Render tab triggers with correct accessible names
+- ✅ Render icons for all tabs (User, Utensils, AlertTriangle, XCircle, Settings)
+- ✅ Render tabs in correct order
+- ✅ Have ScrollArea with horizontal scrolling (data-radix-scroll-area-viewport)
+- ✅ Render labels with responsive classes (hidden, sm:inline)
+
+##### Active State (5 tests)
+- ✅ Set aria-selected='true' on active tab
+- ✅ Set aria-selected='false' on inactive tabs
+- ✅ Apply active state styling (data-state="active")
+- ✅ Apply inactive state styling (data-state="inactive")
+- ✅ Update active tab when activeSection prop changes
+
+##### User Interaction (3 tests)
+- ✅ Call onSectionChange with correct section ID on tab click
+- ✅ Call onSectionChange when clicking different tabs
+- ✅ Not call onSectionChange when clicking already active tab (Shadcn behavior)
+
+##### Keyboard Navigation (5 tests)
+- ✅ Support keyboard navigation with Arrow Right
+- ✅ Support keyboard navigation with Arrow Left
+- ✅ Activate tab on Enter key press
+- ✅ Activate tab on Space key press
+- ✅ Support Tab key navigation between tabs
+
+##### Accessibility (5 tests)
+- ✅ Have tablist role
+- ✅ Have all tabs with role='tab'
+- ✅ Have aria-selected on all tabs
+- ✅ Have aria-hidden on icons
+- ✅ Have accessible tab names (icon + text)
+
+##### Responsive Behavior (3 tests)
+- ✅ Render labels with hidden class for mobile
+- ✅ Render labels with sm:inline class for larger screens
+- ✅ Have full width container (w-full)
+
+##### Edge Cases (4 tests)
+- ✅ Handle empty sections array
+- ✅ Handle single section
+- ✅ Handle active section not in sections array
+- ✅ Handle value synchronization with prop changes
+
+**Coverage:**
+- Complete mobile horizontal tab navigation with Shadcn Tabs component
+- All 5 tab triggers with icons and responsive labels (hidden on xs, sm:inline on sm+)
+- Active state management (aria-selected, data-state attributes)
+- Section switching via onValueChange callback
+- Keyboard navigation (Arrow Left/Right, Enter, Space, Tab)
+- ScrollArea integration for horizontal scrolling
+- Accessibility compliance (tablist role, tab role, aria-selected, aria-hidden)
+- Responsive label visibility (hidden class, sm:inline class)
+- Edge cases (empty sections, single section, unknown active section, value sync)
+
+---
+
+#### **AccountSection** (`src/components/profile/sections/AccountSection.tsx`) ⏭️ SKIPPED
+**Test File:** Not created (placeholder component)
+**Estimated Tests:** 25 (skipped)
+**Status:** ⏭️ Skipped - Low priority placeholder component
+
+**Reason for Skipping:**
+This is a P3 (low priority) placeholder component with no business logic or functionality. All buttons and inputs are disabled, displaying only static "coming soon" messaging. Testing this component would provide minimal value as:
+- No user interactions are functional
+- No API calls or state management
+- No form validation or submission logic
+- All features are disabled pending Supabase Auth integration
+
+**What Component Contains:**
+- Info alert with "coming soon" message
+- Disabled email input field (hardcoded placeholder)
+- Disabled "Change Password" button
+- Disabled "Logout" button
+- Disabled "Delete Account" button (destructive styling)
+- Static icons (Info, Lock, LogOut, Trash2)
+
+**Future Testing:**
+This component should be tested when Supabase Auth integration is added and the component becomes functional. At that time, tests should cover:
+- Email display from user session
+- Password change flow
+- Logout functionality
+- Account deletion with confirmation
+- All ARIA attributes and accessibility features
+
+---
+
+### Profile Page Testing Summary
+
+**Completed Components:** 10 components (389 tests) 🎉
+- ✅ useProfileSettings hook (82 tests) - P0
+- ✅ ProfileSettingsLayout (41 tests) - P0
+- ✅ BasicInfoSection (43 tests) - P1
+- ✅ DietaryPreferencesSection (37 tests) - P1
+- ✅ AllergensSection (33 tests) - P1
+- ✅ DislikedIngredientsSection (35 tests) - P1
+- ✅ IngredientItem (27 tests) - P2
+- ✅ AddIngredientForm (36 tests) - P2
+- ✅ SettingsSidebar (23 tests) - P2
+- ✅ SettingsTabs (32 tests) - P2
+
+**Skipped Components:** 1 component (25 estimated tests)
+- ⏭️ AccountSection (P3 - placeholder component with no functionality)
+
+**Progress by Phase:**
+- ✅ Phase 1 (P0): 100% complete (123/123 tests)
+- ✅ Phase 2 (P1): 100% complete (148/148 tests) 🎉
+- ✅ Phase 3 (P2): 100% complete (118/105 tests) 🎉 *exceeded estimate*
+- ⏭️ Phase 4 (P3): Skipped (0/25 tests - placeholder component)
+
+**Status: ALL MEDIUM & HIGH PRIORITY TESTING COMPLETE! ✅**
+
+All P0, P1, and P2 components have been comprehensively tested. The only remaining component (AccountSection) is a P3 placeholder with no functionality and has been appropriately skipped.
+
+**Key Achievements:**
+- Comprehensive form validation testing with Polish error messages
+- All input constraints verified (min, max, step attributes)
+- Loading and disabled states tested across all components
+- Accessibility compliance verified (ARIA attributes, labels, keyboard navigation)
+- Data propagation and callback testing between parent and child components
+- Optimistic updates with rollback mechanisms tested
+- Edge cases covered (null values, empty states, boundary values)
+
+---
+
+### Summary - Profile Page
+
+**Total Components:** 11
+- 1 Custom Hook (useProfileSettings)
+- 1 Main Layout (ProfileSettingsLayout)
+- 4 Form Sections (BasicInfo, DietaryPreferences, Allergens, DislikedIngredients)
+- 2 Sub-components (IngredientItem, AddIngredientForm)
+- 2 Navigation Components (SettingsSidebar, SettingsTabs)
+- 1 Placeholder Section (AccountSection)
+
+**Total Estimated Tests:** ~385 tests
+
+**Priority Breakdown:**
+- P0 (Critical): 110 tests (2 components)
+- P1 (High): 145 tests (4 components)
+- P2 (Medium): 105 tests (4 components)
+- P3 (Low): 25 tests (1 component)
+
+**Key Testing Focus:**
+- Custom hook state management and API integration
+- Form validation with Polish error messages
+- Optimistic UI updates with rollback
+- Diff-based syncing for allergens
+- Loading states per section
+- Accessibility compliance
+- Responsive design (desktop sidebar, mobile tabs)
+
+---

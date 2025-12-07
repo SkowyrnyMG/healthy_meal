@@ -1,0 +1,501 @@
+================================================================================
+PROFILE PAGE - COMPONENT STRUCTURE AND DEPENDENCIES
+================================================================================
+Starting point: src/pages/profile.astro
+Generated: 2025-12-05
+================================================================================
+
+src/pages/profile.astro
+│
+├── AppLayout (from @/layouts/AppLayout.astro)
+│   │
+│   ├── Imports:
+│   │   ├── @/styles/global.css
+│   │   ├── AppHeader (from @/components/app/AppHeader.astro)
+│   │   ├── Toaster (from sonner)
+│   │   └── @/components/app/types (UserInfo)
+│   │
+│   ├── Authentication:
+│   │   └── Astro.locals.user (from middleware)
+│   │
+│   ├── AppHeader (Astro component)
+│   │   │
+│   │   ├── Imports:
+│   │   │   ├── lucide-react (ChefHat, Plus)
+│   │   │   ├── UserMenu (from @/components/app/UserMenu)
+│   │   │   ├── MobileNav (from @/components/app/MobileNav)
+│   │   │   └── @/components/app/types (NavLink, UserInfo)
+│   │   │
+│   │   ├── UserMenu (React component, client:load)
+│   │   │   │
+│   │   │   ├── Imports:
+│   │   │   │   ├── lucide-react (LogOut, User)
+│   │   │   │   ├── @/components/ui/avatar (Avatar, AvatarFallback)
+│   │   │   │   ├── @/components/ui/dropdown-menu (all exports)
+│   │   │   │   ├── @/components/ui/button (Button)
+│   │   │   │   └── @/components/app/types (UserInfo, helpers)
+│   │   │   │
+│   │   │   ├── Features:
+│   │   │   │   ├── User avatar with initials
+│   │   │   │   ├── Dropdown menu
+│   │   │   │   ├── Profile navigation
+│   │   │   │   └── Logout functionality
+│   │   │   │
+│   │   │   └── API Calls:
+│   │   │       └── POST /api/auth/logout
+│   │   │
+│   │   └── MobileNav (React component, client:load)
+│   │       │
+│   │       ├── Imports:
+│   │       │   ├── react (useState)
+│   │       │   ├── lucide-react (Menu, LogOut, User, Plus)
+│   │       │   ├── @/components/ui/button (Button)
+│   │       │   ├── @/components/ui/sheet (all exports)
+│   │       │   ├── @/components/ui/avatar (Avatar, AvatarFallback)
+│   │       │   ├── @/components/ui/separator (Separator)
+│   │       │   └── @/components/app/types (NavLink, UserInfo, helpers)
+│   │       │
+│   │       ├── Features:
+│   │       │   ├── Hamburger menu (mobile)
+│   │       │   ├── User info display
+│   │       │   ├── Navigation links
+│   │       │   ├── New recipe button
+│   │       │   ├── Profile navigation
+│   │       │   └── Logout functionality
+│   │       │
+│   │       └── API Calls:
+│   │           └── POST /api/auth/logout
+│   │
+│   └── Toaster (from sonner, client:load)
+│       └── Toast notifications component
+│
+└── ProfileSettingsLayout (React component, client:load)
+    │
+    ├── Imports:
+    │   ├── react (useState)
+    │   ├── lucide-react (User, Utensils, AlertTriangle, XCircle, Settings)
+    │   ├── @/types (SettingsSection)
+    │   ├── useProfileSettings (custom hook)
+    │   ├── SettingsSidebar
+    │   ├── SettingsTabs
+    │   ├── BasicInfoSection
+    │   ├── DietaryPreferencesSection
+    │   ├── AllergensSection
+    │   ├── DislikedIngredientsSection
+    │   ├── AccountSection
+    │   ├── @/components/ui/skeleton (Skeleton)
+    │   ├── @/components/ui/alert (Alert, AlertDescription)
+    │   └── @/components/ui/button (Button)
+    │
+    ├── useProfileSettings (Custom Hook)
+    │   │
+    │   ├── Imports:
+    │   │   ├── react (useState, useEffect, useCallback)
+    │   │   ├── sonner (toast)
+    │   │   └── @/types (all DTOs and form types)
+    │   │
+    │   ├── State Management:
+    │   │   ├── profile: ProfileDTO | null
+    │   │   ├── allAllergens: AllergenDTO[]
+    │   │   ├── userAllergens: UserAllergenDTO[]
+    │   │   ├── dislikedIngredients: DislikedIngredientDTO[]
+    │   │   ├── Loading states (for each section)
+    │   │   ├── Saving states (for each section)
+    │   │   └── Error state
+    │   │
+    │   ├── API Endpoints:
+    │   │   ├── GET /api/profile
+    │   │   ├── PUT /api/profile
+    │   │   ├── GET /api/allergens
+    │   │   ├── GET /api/profile/allergens
+    │   │   ├── POST /api/profile/allergens
+    │   │   ├── DELETE /api/profile/allergens/:id
+    │   │   ├── GET /api/profile/disliked-ingredients
+    │   │   ├── POST /api/profile/disliked-ingredients
+    │   │   └── DELETE /api/profile/disliked-ingredients/:id
+    │   │
+    │   ├── Features:
+    │   │   ├── Parallel data fetching on mount
+    │   │   ├── Optimistic UI updates (disliked ingredients)
+    │   │   ├── Diff-based allergen syncing
+    │   │   ├── Toast notifications
+    │   │   └── Error handling with retry
+    │   │
+    │   └── Exported Functions:
+    │       ├── saveBasicInfo(data)
+    │       ├── saveDietaryPreferences(data)
+    │       ├── saveAllergens(selectedIds)
+    │       ├── addDislikedIngredient(name)
+    │       ├── removeDislikedIngredient(id)
+    │       └── refetchAll()
+    │
+    ├── SettingsSidebar (React component - Desktop)
+    │   │
+    │   ├── Imports:
+    │   │   ├── lucide-react (LucideIcon type)
+    │   │   ├── @/types (SettingsSection)
+    │   │   └── @/lib/utils (cn)
+    │   │
+    │   ├── Features:
+    │   │   ├── Vertical navigation list
+    │   │   ├── Icons with labels
+    │   │   ├── Active section highlighting
+    │   │   └── Keyboard accessible
+    │   │
+    │   └── Display: Desktop only (hidden on mobile)
+    │
+    ├── SettingsTabs (React component - Mobile)
+    │   │
+    │   ├── Imports:
+    │   │   ├── lucide-react (LucideIcon type)
+    │   │   ├── @/types (SettingsSection)
+    │   │   ├── @/components/ui/tabs (Tabs, TabsList, TabsTrigger)
+    │   │   └── @/components/ui/scroll-area (ScrollArea, ScrollBar)
+    │   │
+    │   ├── Features:
+    │   │   ├── Horizontal tab navigation
+    │   │   ├── Horizontally scrollable
+    │   │   ├── Icons with labels (labels hidden on small screens)
+    │   │   └── Active tab styling
+    │   │
+    │   └── Display: Mobile only (visible on small screens)
+    │
+    ├── BasicInfoSection (React component)
+    │   │
+    │   ├── Imports:
+    │   │   ├── react (useState, useEffect)
+    │   │   ├── @/types (BasicInfoFormData, BasicInfoFormErrors, Gender, ActivityLevel)
+    │   │   ├── @/components/ui/button (Button)
+    │   │   ├── @/components/ui/input (Input)
+    │   │   ├── @/components/ui/label (Label)
+    │   │   ├── @/components/ui/select (Select, SelectContent, SelectItem, SelectTrigger, SelectValue)
+    │   │   └── lucide-react (Loader2)
+    │   │
+    │   ├── Local State:
+    │   │   ├── formData: BasicInfoFormData
+    │   │   └── errors: BasicInfoFormErrors
+    │   │
+    │   ├── Form Fields:
+    │   │   ├── weight (number, 40-200 kg)
+    │   │   ├── age (integer, 13-100)
+    │   │   ├── gender (select: male/female)
+    │   │   └── activityLevel (select: 5 options)
+    │   │
+    │   ├── Validation:
+    │   │   ├── Required field validation
+    │   │   ├── Range validation
+    │   │   ├── Type validation
+    │   │   └── Polish error messages
+    │   │
+    │   └── Features:
+    │       ├── Client-side validation
+    │       ├── Real-time error clearing
+    │       ├── Loading state on submit
+    │       └── Responsive grid layout
+    │
+    ├── DietaryPreferencesSection (React component)
+    │   │
+    │   ├── Imports:
+    │   │   ├── react (useState, useEffect)
+    │   │   ├── @/types (DietaryPreferencesFormData, DietaryPreferencesFormErrors, DietType, TargetGoal)
+    │   │   ├── @/components/ui/button (Button)
+    │   │   ├── @/components/ui/input (Input)
+    │   │   ├── @/components/ui/label (Label)
+    │   │   ├── @/components/ui/select (Select components)
+    │   │   └── lucide-react (Loader2)
+    │   │
+    │   ├── Local State:
+    │   │   ├── formData: DietaryPreferencesFormData
+    │   │   └── errors: DietaryPreferencesFormErrors
+    │   │
+    │   ├── Form Fields:
+    │   │   ├── dietType (select: 6 options)
+    │   │   ├── targetGoal (select: 3 options)
+    │   │   └── targetValue (number, optional, 0.1-100 kg)
+    │   │
+    │   ├── Validation:
+    │   │   ├── Required field validation
+    │   │   ├── Range validation (target value)
+    │   │   └── Polish error messages
+    │   │
+    │   └── Features:
+    │       ├── Client-side validation
+    │       ├── Real-time error clearing
+    │       ├── Loading state on submit
+    │       └── Responsive grid layout
+    │
+    ├── AllergensSection (React component)
+    │   │
+    │   ├── Imports:
+    │   │   ├── react (useState, useEffect)
+    │   │   ├── @/types (AllergenDTO)
+    │   │   ├── @/components/ui/button (Button)
+    │   │   ├── @/components/ui/checkbox (Checkbox)
+    │   │   ├── @/components/ui/label (Label)
+    │   │   ├── @/components/ui/skeleton (Skeleton)
+    │   │   └── lucide-react (Loader2, AlertTriangle)
+    │   │
+    │   ├── Local State:
+    │   │   └── localSelected: Set<string>
+    │   │
+    │   ├── Features:
+    │   │   ├── Multi-select checkboxes
+    │   │   ├── Responsive grid (3 cols → 2 cols → 1 col)
+    │   │   ├── Loading skeleton
+    │   │   ├── Empty state message
+    │   │   ├── Selected count display
+    │   │   └── Diff-based save (only changes sent)
+    │   │
+    │   └── Display:
+    │       ├── Grid layout: lg:3 cols, sm:2 cols, mobile:1 col
+    │       └── Skeleton loading: 9 items
+    │
+    ├── DislikedIngredientsSection (React component)
+    │   │
+    │   ├── Imports:
+    │   │   ├── @/types (DislikedIngredientDTO)
+    │   │   ├── IngredientItem
+    │   │   ├── AddIngredientForm
+    │   │   └── lucide-react (XCircle)
+    │   │
+    │   ├── IngredientItem (Sub-component)
+    │   │   │
+    │   │   ├── Imports:
+    │   │   │   ├── @/types (DislikedIngredientDTO)
+    │   │   │   ├── @/components/ui/button (Button)
+    │   │   │   └── lucide-react (X, Loader2)
+    │   │   │
+    │   │   ├── Props:
+    │   │   │   ├── ingredient: DislikedIngredientDTO
+    │   │   │   ├── onRemove: (id: string) => void
+    │   │   │   └── isRemoving: boolean
+    │   │   │
+    │   │   └── Features:
+    │   │       ├── Ingredient name display
+    │   │       ├── Remove button
+    │   │       └── Loading state (spinner)
+    │   │
+    │   ├── AddIngredientForm (Sub-component)
+    │   │   │
+    │   │   ├── Imports:
+    │   │   │   ├── react (useState)
+    │   │   │   ├── @/components/ui/button (Button)
+    │   │   │   ├── @/components/ui/input (Input)
+    │   │   │   └── lucide-react (Plus, Loader2)
+    │   │   │
+    │   │   ├── Local State:
+    │   │   │   ├── inputValue: string
+    │   │   │   └── error: string | null
+    │   │   │
+    │   │   ├── Validation:
+    │   │   │   ├── Required (trimmed)
+    │   │   │   ├── Max length: 100 chars
+    │   │   │   └── Polish error messages
+    │   │   │
+    │   │   └── Features:
+    │   │       ├── Inline text input
+    │   │       ├── Add button with icon
+    │   │       ├── Submit on Enter
+    │   │       ├── Clears input on success
+    │   │       └── Loading state
+    │   │
+    │   └── Features:
+    │       ├── Dynamic list of ingredients
+    │       ├── Add form at top
+    │       ├── Empty state message
+    │       ├── Ingredient count display
+    │       └── Optimistic UI updates
+    │
+    └── AccountSection (React component - Placeholder)
+        │
+        ├── Imports:
+        │   ├── @/components/ui/alert (Alert, AlertDescription)
+        │   ├── @/components/ui/button (Button)
+        │   ├── @/components/ui/label (Label)
+        │   ├── @/components/ui/input (Input)
+        │   └── lucide-react (Info, Lock, LogOut, Trash2)
+        │
+        ├── Features:
+        │   ├── Info alert (coming soon)
+        │   ├── Email display (disabled)
+        │   ├── Change password (disabled)
+        │   ├── Logout button (disabled)
+        │   └── Delete account (disabled)
+        │
+        └── Status: Placeholder for future Supabase Auth integration
+
+================================================================================
+SHADCN/UI COMPONENTS USED
+================================================================================
+
+From @/components/ui/:
+├── alert (Alert, AlertDescription)
+├── avatar (Avatar, AvatarFallback)
+├── button (Button)
+├── checkbox (Checkbox)
+├── dropdown-menu (DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+│                  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger)
+├── input (Input)
+├── label (Label)
+├── scroll-area (ScrollArea, ScrollBar)
+├── select (Select, SelectContent, SelectItem, SelectTrigger, SelectValue)
+├── separator (Separator)
+├── sheet (Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger)
+├── skeleton (Skeleton)
+└── tabs (Tabs, TabsList, TabsTrigger)
+
+================================================================================
+EXTERNAL LIBRARIES
+================================================================================
+
+├── react (useState, useEffect, useCallback)
+├── lucide-react (30+ icons)
+├── sonner (toast, Toaster)
+└── @/lib/utils (cn - classname utility)
+
+================================================================================
+TYPE DEFINITIONS (from @/types.ts)
+================================================================================
+
+Entities:
+├── ProfileDTO
+├── AllergenDTO
+├── UserAllergenDTO
+└── DislikedIngredientDTO
+
+Form Data:
+├── BasicInfoFormData
+├── BasicInfoFormErrors
+├── DietaryPreferencesFormData
+├── DietaryPreferencesFormErrors
+└── ProfileSettingsState
+
+Enums:
+├── Gender: "male" | "female"
+├── ActivityLevel: "sedentary" | "lightly_active" | "moderately_active" | "very_active" | "extremely_active"
+├── DietType: "high_protein" | "keto" | "vegetarian" | "weight_gain" | "weight_loss" | "balanced"
+├── TargetGoal: "lose_weight" | "gain_weight" | "maintain_weight"
+└── SettingsSection: "basic-info" | "dietary-preferences" | "allergens" | "disliked-ingredients" | "account"
+
+Commands:
+└── UpdateProfileCommand
+
+App Types:
+├── NavLink
+└── UserInfo
+
+================================================================================
+API ENDPOINTS
+================================================================================
+
+Profile:
+├── GET    /api/profile
+└── PUT    /api/profile
+
+Allergens:
+├── GET    /api/allergens
+├── GET    /api/profile/allergens
+├── POST   /api/profile/allergens
+└── DELETE /api/profile/allergens/:id
+
+Disliked Ingredients:
+├── GET    /api/profile/disliked-ingredients
+├── POST   /api/profile/disliked-ingredients
+└── DELETE /api/profile/disliked-ingredients/:id
+
+Authentication:
+└── POST   /api/auth/logout
+
+================================================================================
+KEY FEATURES & PATTERNS
+================================================================================
+
+Architecture:
+├── Astro pages with server-side rendering
+├── React components for interactivity (client:load)
+├── Custom hooks for state management
+├── Optimistic UI updates
+└── Diff-based syncing (allergens)
+
+State Management:
+├── Local component state (useState)
+├── Custom hooks for shared logic
+├── Parent → Child data flow
+└── Callback props for actions
+
+Data Flow:
+├── useProfileSettings hook → ProfileSettingsLayout
+├── ProfileSettingsLayout → Section components
+├── Section components → Form controls
+└── API calls → State updates → UI re-render
+
+Error Handling:
+├── Try-catch in async operations
+├── Toast notifications (sonner)
+├── Form validation (client-side)
+├── Error states in UI
+└── Rollback on failed optimistic updates
+
+Responsive Design:
+├── Desktop: Sidebar navigation
+├── Mobile: Tab navigation
+├── Responsive grids (Tailwind breakpoints)
+└── Mobile menu (Sheet component)
+
+Accessibility:
+├── ARIA labels and descriptions
+├── Keyboard navigation
+├── Semantic HTML
+├── Error associations (aria-describedby)
+└── Loading states announced
+
+================================================================================
+FILE LOCATIONS
+================================================================================
+
+Pages:
+└── src/pages/profile.astro
+
+Layouts:
+└── src/layouts/AppLayout.astro
+
+React Components:
+├── src/components/profile/
+│   ├── ProfileSettingsLayout.tsx
+│   ├── SettingsSidebar.tsx
+│   ├── SettingsTabs.tsx
+│   ├── IngredientItem.tsx
+│   ├── AddIngredientForm.tsx
+│   └── sections/
+│       ├── BasicInfoSection.tsx
+│       ├── DietaryPreferencesSection.tsx
+│       ├── AllergensSection.tsx
+│       ├── DislikedIngredientsSection.tsx
+│       └── AccountSection.tsx
+│
+└── src/components/app/
+    ├── AppHeader.astro
+    ├── UserMenu.tsx
+    ├── MobileNav.tsx
+    └── types.ts
+
+Hooks:
+└── src/components/hooks/
+    └── useProfileSettings.ts
+
+Shadcn UI:
+└── src/components/ui/
+    └── [13 component files]
+
+Utilities:
+└── src/lib/utils.ts
+
+Types:
+└── src/types.ts
+
+Styles:
+└── src/styles/global.css
+
+================================================================================
+END OF STRUCTURE
+================================================================================

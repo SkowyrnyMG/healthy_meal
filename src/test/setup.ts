@@ -14,5 +14,12 @@ vi.stubGlobal("import.meta.env", {
   OPENROUTER_API_KEY: "test-openrouter-key",
 });
 
+// Mock ResizeObserver for Radix UI components
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 // Extend expect matchers (jest-dom is already imported above)
 export { expect };
