@@ -331,12 +331,7 @@ describe("CollectionGrid", () => {
   describe("edge cases", () => {
     it("handles empty array (returns null, no render)", () => {
       const { container } = render(
-        <CollectionGrid
-          collections={[]}
-          onCardClick={mockOnCardClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionGrid collections={[]} onCardClick={mockOnCardClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       expect(container.firstChild).toBeNull();

@@ -254,7 +254,6 @@ describe("AddIngredientForm", () => {
       expect(onAdd).not.toHaveBeenCalled();
     });
 
-
     it("should allow valid 100-character input", async () => {
       const user = userEvent.setup();
       const onAdd = vi.fn().mockResolvedValue(undefined);

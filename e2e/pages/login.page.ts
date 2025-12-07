@@ -1,4 +1,4 @@
-import { type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator } from "@playwright/test";
 
 /**
  * Page Object Model for the Login Page
@@ -19,21 +19,19 @@ export class LoginPage {
     this.page = page;
 
     // Define locators using accessible selectors
-    this.emailInput = page.getByRole('textbox', { name: /email/i });
+    this.emailInput = page.getByRole("textbox", { name: /email/i });
     this.passwordInput = page.getByLabel(/password|hasło/i);
-    this.loginButton = page.getByRole('button', { name: /log in|zaloguj/i });
-    this.errorMessage = page.getByRole('alert').or(
-      page.locator('[role="alert"]')
-    );
-    this.forgotPasswordLink = page.getByRole('link', { name: /forgot password|zapomniałeś hasła/i });
-    this.registerLink = page.getByRole('link', { name: /sign up|zarejestruj/i });
+    this.loginButton = page.getByRole("button", { name: /log in|zaloguj/i });
+    this.errorMessage = page.getByRole("alert").or(page.locator('[role="alert"]'));
+    this.forgotPasswordLink = page.getByRole("link", { name: /forgot password|zapomniałeś hasła/i });
+    this.registerLink = page.getByRole("link", { name: /sign up|zarejestruj/i });
   }
 
   /**
    * Navigate to the login page
    */
   async goto() {
-    await this.page.goto('/login');
+    await this.page.goto("/login");
   }
 
   /**
@@ -68,7 +66,7 @@ export class LoginPage {
    */
   async hasErrorMessage(): Promise<boolean> {
     try {
-      await this.errorMessage.waitFor({ state: 'visible', timeout: 3000 });
+      await this.errorMessage.waitFor({ state: "visible", timeout: 3000 });
       return true;
     } catch {
       return false;
@@ -79,7 +77,7 @@ export class LoginPage {
    * Get the error message text
    */
   async getErrorMessageText(): Promise<string> {
-    return await this.errorMessage.textContent() || '';
+    return (await this.errorMessage.textContent()) || "";
   }
 
   /**

@@ -258,8 +258,8 @@ const RegisterForm = () => {
           {/* Instructions Alert */}
           <Alert className="bg-blue-50 border-blue-200">
             <AlertDescription className="text-sm text-gray-700">
-              <strong>Ważne:</strong> Aby ukończyć rejestrację, kliknij link potwierdzający w wiadomości e-mail.
-              Jeśli nie widzisz wiadomości, sprawdź folder SPAM.
+              <strong>Ważne:</strong> Aby ukończyć rejestrację, kliknij link potwierdzający w wiadomości e-mail. Jeśli
+              nie widzisz wiadomości, sprawdź folder SPAM.
             </AlertDescription>
           </Alert>
 

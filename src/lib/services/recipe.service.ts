@@ -477,12 +477,12 @@ export async function createRecipe(
     user_id: userId,
     title: command.title,
     description: command.description || null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     ingredients: command.ingredients as any, // JSONB field - type assertion required for Supabase
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     steps: command.steps as any, // JSONB field - type assertion required for Supabase
     servings: command.servings,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     nutrition_per_serving: command.nutritionPerServing as any, // JSONB field - type assertion required for Supabase
     prep_time_minutes: command.prepTimeMinutes || null,
     is_public: command.isPublic ?? false,
@@ -596,12 +596,12 @@ export async function updateRecipe(
   const recipeUpdate: DbRecipeUpdate = {
     title: command.title,
     description: command.description || null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     ingredients: command.ingredients as any, // JSONB field - type assertion required for Supabase
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     steps: command.steps as any, // JSONB field - type assertion required for Supabase
     servings: command.servings,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     nutrition_per_serving: command.nutritionPerServing as any, // JSONB field - type assertion required for Supabase
     prep_time_minutes: command.prepTimeMinutes || null,
     is_public: command.isPublic ?? false,

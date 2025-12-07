@@ -36,9 +36,7 @@ describe("DislikedIngredientsSection", () => {
       );
 
       expect(screen.getByRole("heading", { name: /niechciane składniki/i })).toBeInTheDocument();
-      expect(
-        screen.getByText(/dodaj składniki, które chcesz wykluczyć z przepisów/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/dodaj składniki, które chcesz wykluczyć z przepisów/i)).toBeInTheDocument();
     });
 
     it("should render AddIngredientForm at top", () => {

@@ -63,10 +63,7 @@ const MobileMenu = ({ isAuthenticated = false }: MobileMenuProps) => {
           {/* Auth Buttons / Dashboard Button */}
           <div className="flex flex-col gap-3">
             {isAuthenticated ? (
-              <Button
-                onClick={() => handleAuthClick("/dashboard")}
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
+              <Button onClick={() => handleAuthClick("/dashboard")} className="w-full bg-green-600 hover:bg-green-700">
                 Przejdź do panelu
               </Button>
             ) : (

@@ -83,7 +83,7 @@ describe("SettingsTabs - Rendering", () => {
     );
 
     // ScrollArea creates specific viewport structure
-    const viewport = container.querySelector('[data-radix-scroll-area-viewport]');
+    const viewport = container.querySelector("[data-radix-scroll-area-viewport]");
     expect(viewport).toBeInTheDocument();
   });
 
@@ -226,7 +226,9 @@ describe("SettingsTabs - Keyboard Navigation", () => {
   it("should support keyboard navigation with Arrow Left", async () => {
     const user = userEvent.setup();
     const onSectionChange = vi.fn();
-    render(<SettingsTabs sections={mockSections} activeSection="dietary-preferences" onSectionChange={onSectionChange} />);
+    render(
+      <SettingsTabs sections={mockSections} activeSection="dietary-preferences" onSectionChange={onSectionChange} />
+    );
 
     const tabs = screen.getAllByRole("tab");
     tabs[1].focus();

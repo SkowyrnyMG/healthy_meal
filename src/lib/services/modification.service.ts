@@ -99,7 +99,7 @@ export async function createModification(
     original_recipe_id: recipe.id,
     user_id: userId,
     modification_type: command.modificationType,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     modified_data: modifiedData as any, // JSONB field - type assertion required for Supabase
   };
 

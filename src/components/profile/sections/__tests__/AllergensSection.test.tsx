@@ -38,9 +38,7 @@ describe("AllergensSection", () => {
       );
 
       expect(screen.getByRole("heading", { name: /alergeny/i })).toBeInTheDocument();
-      expect(
-        screen.getByText(/zaznacz alergeny, które chcesz wykluczyć z przepisów/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/zaznacz alergeny, które chcesz wykluczyć z przepisów/i)).toBeInTheDocument();
     });
 
     it("should render all allergen checkboxes", () => {
@@ -642,9 +640,7 @@ describe("AllergensSection", () => {
       );
 
       expect(
-        screen.getByLabelText(
-          "Very Long Allergen Name That Exceeds Normal Length Expectations"
-        )
+        screen.getByLabelText("Very Long Allergen Name That Exceeds Normal Length Expectations")
       ).toBeInTheDocument();
     });
 

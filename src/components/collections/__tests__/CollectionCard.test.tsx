@@ -38,12 +38,7 @@ describe("CollectionCard", () => {
   describe("rendering", () => {
     it("displays collection name", () => {
       render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       expect(screen.getByText("Test Collection")).toBeInTheDocument();
@@ -51,12 +46,7 @@ describe("CollectionCard", () => {
 
     it("displays recipe count badge with proper formatting", () => {
       render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       expect(screen.getByText("5 przepisów")).toBeInTheDocument();
@@ -64,12 +54,7 @@ describe("CollectionCard", () => {
 
     it("displays created date with relative time", () => {
       render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Created just now should show "Dziś"
@@ -78,12 +63,7 @@ describe("CollectionCard", () => {
 
     it("renders 2x2 grid of colored placeholders", () => {
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Check for grid container
@@ -97,12 +77,7 @@ describe("CollectionCard", () => {
 
     it("uses correct thumbnail colors (4 green shades)", () => {
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Check for specific green color classes
@@ -121,12 +96,7 @@ describe("CollectionCard", () => {
     it("calls onClick with collection ID when card clicked", async () => {
       const user = userEvent.setup();
       render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Click on the card (but not on action buttons)
@@ -140,12 +110,7 @@ describe("CollectionCard", () => {
     it("does NOT call onClick when edit button clicked (desktop)", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Find edit button with data-action="edit"
@@ -163,12 +128,7 @@ describe("CollectionCard", () => {
     it("does NOT call onClick when delete button clicked (desktop)", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Find delete button with data-action="delete"
@@ -186,12 +146,7 @@ describe("CollectionCard", () => {
     it("does NOT call onClick when dropdown trigger clicked (mobile)", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Find dropdown trigger button (has MoreVertical icon)
@@ -213,12 +168,7 @@ describe("CollectionCard", () => {
   describe("desktop actions (hover overlay)", () => {
     it("shows Edit button with Pencil icon", () => {
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       const editButton = container.querySelector('[data-action="edit"]');
@@ -227,12 +177,7 @@ describe("CollectionCard", () => {
 
     it("shows Delete button with Trash2 icon", () => {
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       const deleteButton = container.querySelector('[data-action="delete"]');
@@ -242,12 +187,7 @@ describe("CollectionCard", () => {
     it("calls onEdit with collection when edit button clicked", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       const editButton = container.querySelector('[data-action="edit"]');
@@ -262,12 +202,7 @@ describe("CollectionCard", () => {
     it("calls onDelete with collection when delete button clicked", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       const deleteButton = container.querySelector('[data-action="delete"]');
@@ -282,12 +217,7 @@ describe("CollectionCard", () => {
     it("prevents card navigation when action buttons clicked", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Click edit button
@@ -311,12 +241,7 @@ describe("CollectionCard", () => {
   describe("mobile actions (dropdown menu)", () => {
     it("shows MoreVertical icon trigger", () => {
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Dropdown trigger in .lg:hidden container
@@ -327,12 +252,7 @@ describe("CollectionCard", () => {
     it("opens dropdown menu when trigger clicked", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       const dropdownTrigger = container.querySelector(".lg\\:hidden button");
@@ -349,12 +269,7 @@ describe("CollectionCard", () => {
     it("shows 'Edytuj' menu item with Pencil icon", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Open dropdown
@@ -395,12 +310,7 @@ describe("CollectionCard", () => {
     it("stopPropagation works correctly for edit action", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Click edit button
@@ -420,12 +330,7 @@ describe("CollectionCard", () => {
     it("stopPropagation works correctly for delete action", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Click delete button
@@ -445,12 +350,7 @@ describe("CollectionCard", () => {
     it("dropdown trigger click doesn't navigate", async () => {
       const user = userEvent.setup();
       render(
-        <CollectionCard
-          collection={mockCollection}
-          onClick={mockOnClick}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-        />
+        <CollectionCard collection={mockCollection} onClick={mockOnClick} onEdit={mockOnEdit} onDelete={mockOnDelete} />
       );
 
       // Click dropdown trigger

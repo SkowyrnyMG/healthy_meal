@@ -8,7 +8,6 @@ import { useFavoriteToggle } from "../useFavoriteToggle";
 
 // Mock sonner toast - must be defined before vi.mock due to hoisting
 vi.mock("sonner", () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockToastFn: any = vi.fn((message: any, options?: any) => {
     // Store the undo callback for testing
     if (options?.action?.onClick) {
@@ -27,7 +26,7 @@ vi.mock("sonner", () => {
 
 // Import after mock to get the mocked version
 import { toast } from "sonner";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const mockToast = toast as any;
 
 // Mock fetch globally
@@ -40,7 +39,7 @@ global.fetch = vi.fn();
 /**
  * Create a mock fetch response
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const createMockResponse = (ok: boolean, data?: any): Response => {
   return {
     ok,
@@ -54,7 +53,6 @@ const createMockResponse = (ok: boolean, data?: any): Response => {
  * Mock successful API response
  */
 const mockSuccessfulFetch = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global.fetch as any).mockResolvedValue(createMockResponse(true));
 };
 
@@ -62,7 +60,6 @@ const mockSuccessfulFetch = () => {
  * Mock failed API response
  */
 const mockFailedFetch = (message = "API Error") => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global.fetch as any).mockResolvedValue(createMockResponse(false, { message }));
 };
 
@@ -70,7 +67,6 @@ const mockFailedFetch = (message = "API Error") => {
  * Mock network error
  */
 const mockNetworkError = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global.fetch as any).mockRejectedValue(new Error("Network Error"));
 };
 
@@ -185,7 +181,6 @@ describe("useFavoriteToggle", () => {
         await result.current.toggleFavorite("recipe-123");
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const callArgs = (global.fetch as any).mock.calls[0];
       const body = JSON.parse(callArgs[1].body);
 
@@ -366,7 +361,6 @@ describe("useFavoriteToggle", () => {
     });
 
     it("should show default error message when API returns no message", async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (global.fetch as any).mockResolvedValue(createMockResponse(false, {}));
       const { result } = renderHook(() =>
         useFavoriteToggle({
@@ -384,7 +378,6 @@ describe("useFavoriteToggle", () => {
     });
 
     it("should handle JSON parsing errors in API response", async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (global.fetch as any).mockResolvedValue({
         ok: false,
         json: async () => {
@@ -428,7 +421,7 @@ describe("useFavoriteToggle", () => {
       expect(result.current.favorites.has("recipe-1")).toBe(false);
 
       // Get undo callback from toast mock
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       const undoCallback = (mockToast as any).lastUndoCallback;
       expect(undoCallback).toBeDefined();
 
@@ -459,7 +452,6 @@ describe("useFavoriteToggle", () => {
         await result.current.toggleFavorite("recipe-1");
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const undoCallback = (mockToast as any).lastUndoCallback;
 
       // Clear mocks to verify undo call
@@ -497,7 +489,6 @@ describe("useFavoriteToggle", () => {
 
       expect(result.current.favorites.has("recipe-1")).toBe(false);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const undoCallback = (mockToast as any).lastUndoCallback;
       vi.clearAllMocks();
       mockSuccessfulFetch();
@@ -524,7 +515,6 @@ describe("useFavoriteToggle", () => {
         await result.current.toggleFavorite("recipe-1");
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const undoCallback = (mockToast as any).lastUndoCallback;
 
       // Mock undo failure
@@ -556,7 +546,6 @@ describe("useFavoriteToggle", () => {
         await result.current.toggleFavorite("recipe-1");
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const undoCallback = (mockToast as any).lastUndoCallback;
       vi.clearAllMocks();
       mockSuccessfulFetch();
@@ -655,7 +644,6 @@ describe("useFavoriteToggle", () => {
       // Verify it was removed
       expect(result.current.favorites.has("recipe-1")).toBe(false);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const undoCallback = (mockToast as any).lastUndoCallback;
       vi.clearAllMocks();
       mockSuccessfulFetch();

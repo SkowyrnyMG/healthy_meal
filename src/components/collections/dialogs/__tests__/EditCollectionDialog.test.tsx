@@ -1246,12 +1246,7 @@ describe("EditCollectionDialog", () => {
   describe("null/undefined handling", () => {
     it("handles null collection gracefully", () => {
       render(
-        <EditCollectionDialog
-          open={true}
-          collection={null}
-          onOpenChange={mockOnOpenChange}
-          onSuccess={mockOnSuccess}
-        />
+        <EditCollectionDialog open={true} collection={null} onOpenChange={mockOnOpenChange} onSuccess={mockOnSuccess} />
       );
 
       const input = screen.getByLabelText("Nazwa kolekcji") as HTMLInputElement;
@@ -1276,12 +1271,7 @@ describe("EditCollectionDialog", () => {
       const user = userEvent.setup();
 
       render(
-        <EditCollectionDialog
-          open={true}
-          collection={null}
-          onOpenChange={mockOnOpenChange}
-          onSuccess={mockOnSuccess}
-        />
+        <EditCollectionDialog open={true} collection={null} onOpenChange={mockOnOpenChange} onSuccess={mockOnSuccess} />
       );
 
       const input = screen.getByLabelText("Nazwa kolekcji");

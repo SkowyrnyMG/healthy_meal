@@ -1,4 +1,4 @@
-import { type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator } from "@playwright/test";
 
 /**
  * Page Object Model for the Landing Page
@@ -18,20 +18,20 @@ export class LandingPage {
     this.page = page;
 
     // Define locators using resilient selectors
-    this.heading = page.getByRole('heading', { level: 1 });
-    this.getStartedButton = page.getByRole('link', { name: /get started|rozpocznij/i });
-    this.loginButton = page.getByRole('link', { name: /log in|zaloguj/i });
-    this.registerButton = page.getByRole('link', { name: /sign up|zarejestruj/i });
-    this.featuresSection = page.locator('[data-testid="features-section"]').or(
-      page.getByRole('region', { name: /features|funkcje/i })
-    );
+    this.heading = page.getByRole("heading", { level: 1 });
+    this.getStartedButton = page.getByRole("link", { name: /get started|rozpocznij/i });
+    this.loginButton = page.getByRole("link", { name: /log in|zaloguj/i });
+    this.registerButton = page.getByRole("link", { name: /sign up|zarejestruj/i });
+    this.featuresSection = page
+      .locator('[data-testid="features-section"]')
+      .or(page.getByRole("region", { name: /features|funkcje/i }));
   }
 
   /**
    * Navigate to the landing page
    */
   async goto() {
-    await this.page.goto('/');
+    await this.page.goto("/");
   }
 
   /**
@@ -60,7 +60,7 @@ export class LandingPage {
    */
   async isLoaded(): Promise<boolean> {
     try {
-      await this.heading.waitFor({ state: 'visible', timeout: 5000 });
+      await this.heading.waitFor({ state: "visible", timeout: 5000 });
       return true;
     } catch {
       return false;
@@ -71,7 +71,7 @@ export class LandingPage {
    * Get the main heading text
    */
   async getHeadingText(): Promise<string> {
-    return await this.heading.textContent() || '';
+    return (await this.heading.textContent()) || "";
   }
 
   /**
@@ -79,7 +79,7 @@ export class LandingPage {
    */
   async hasFeaturesSection(): Promise<boolean> {
     try {
-      await this.featuresSection.waitFor({ state: 'visible', timeout: 3000 });
+      await this.featuresSection.waitFor({ state: "visible", timeout: 3000 });
       return true;
     } catch {
       return false;

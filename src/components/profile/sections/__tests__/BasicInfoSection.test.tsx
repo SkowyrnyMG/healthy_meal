@@ -337,7 +337,9 @@ describe("BasicInfoSection", () => {
     it("should accept weight at minimum boundary (40 kg)", async () => {
       const user = userEvent.setup();
       mockOnSave.mockResolvedValue(undefined);
-      render(<BasicInfoSection initialData={{ ...mockInitialData, weight: 40 }} onSave={mockOnSave} isSaving={false} />);
+      render(
+        <BasicInfoSection initialData={{ ...mockInitialData, weight: 40 }} onSave={mockOnSave} isSaving={false} />
+      );
 
       const submitButton = screen.getByRole("button", { name: /zapisz/i });
       await user.click(submitButton);

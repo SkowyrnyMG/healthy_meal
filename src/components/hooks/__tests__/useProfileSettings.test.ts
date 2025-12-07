@@ -1,12 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { useProfileSettings } from "../useProfileSettings";
-import type {
-  ProfileDTO,
-  AllergenDTO,
-  UserAllergenDTO,
-  DislikedIngredientDTO,
-} from "@/types";
+import type { ProfileDTO, AllergenDTO, UserAllergenDTO, DislikedIngredientDTO } from "@/types";
 
 // ============================================================================
 // MOCKS
@@ -1506,9 +1501,7 @@ describe("useProfileSettings", () => {
       });
 
       // Find the added ingredient (either optimistic temp ID or real ID from server)
-      const addedIngredient = result.current.state.dislikedIngredients.find(
-        (ing) => ing.ingredientName === "Czosnek"
-      );
+      const addedIngredient = result.current.state.dislikedIngredients.find((ing) => ing.ingredientName === "Czosnek");
       expect(addedIngredient).toBeDefined();
       expect(addedIngredient?.ingredientName).toBe("Czosnek");
 
@@ -1563,9 +1556,7 @@ describe("useProfileSettings", () => {
         expect(result.current.state.isLoadingDislikedIngredients).toBe(false);
       });
 
-      await expect(result.current.addDislikedIngredient("Czosnek")).rejects.toThrow(
-        "Ten składnik już jest na liście"
-      );
+      await expect(result.current.addDislikedIngredient("Czosnek")).rejects.toThrow("Ten składnik już jest na liście");
 
       expect(toast.error).toHaveBeenCalled();
     });
@@ -1914,9 +1905,7 @@ describe("useProfileSettings", () => {
         expect(result.current.state.dislikedIngredients.length).toBe(originalCount);
       });
 
-      const restoredIngredient = result.current.state.dislikedIngredients.find(
-        (ing) => ing.id === "ingredient-1"
-      );
+      const restoredIngredient = result.current.state.dislikedIngredients.find((ing) => ing.id === "ingredient-1");
       expect(restoredIngredient?.ingredientName).toBe("Cebula");
     });
 
@@ -1963,9 +1952,7 @@ describe("useProfileSettings", () => {
         expect(result.current.state.dislikedIngredients.length).toBe(2);
       });
 
-      await expect(result.current.removeDislikedIngredient("ingredient-1")).rejects.toThrow(
-        "Network error"
-      );
+      await expect(result.current.removeDislikedIngredient("ingredient-1")).rejects.toThrow("Network error");
     });
 
     it("should prevent double-clicking on remove", async () => {
@@ -2186,8 +2173,8 @@ describe("useProfileSettings", () => {
     });
 
     it("should set loading states correctly during refetchAll()", async () => {
-      let resolveFetches: any[] = [];
-      let fetchCount = 0;
+      const resolveFetches: any[] = [];
+      const fetchCount = 0;
 
       (global.fetch as any).mockImplementation(() =>
         Promise.resolve({

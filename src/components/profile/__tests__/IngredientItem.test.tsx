@@ -25,9 +25,7 @@ describe("IngredientItem", () => {
 
   describe("Rendering", () => {
     it("should render ingredient name", () => {
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       expect(screen.getByText("Cebula")).toBeInTheDocument();
     });
@@ -46,9 +44,7 @@ describe("IngredientItem", () => {
     });
 
     it("should show loading spinner when isRemoving is true", () => {
-      const { container } = render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      const { container } = render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       // Check for Loader2 spinner with animation
       const spinner = container.querySelector(".animate-spin");
@@ -56,9 +52,7 @@ describe("IngredientItem", () => {
     });
 
     it("should hide X icon when isRemoving is true", () => {
-      const { container } = render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      const { container } = render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       // When removing, only spinner should be visible (no X icon)
       // Loader2 uses animate-spin, X does not
@@ -67,18 +61,14 @@ describe("IngredientItem", () => {
     });
 
     it("should disable remove button when isRemoving is true", () => {
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       expect(button).toBeDisabled();
     });
 
     it("should have correct button styling", () => {
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       expect(button).toHaveClass("text-gray-400");
@@ -92,13 +82,9 @@ describe("IngredientItem", () => {
         userId: "user-1",
       };
 
-      render(
-        <IngredientItem ingredient={longIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={longIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
-      expect(
-        screen.getByText("Very Long Ingredient Name That Exceeds Normal Length Expectations")
-      ).toBeInTheDocument();
+      expect(screen.getByText("Very Long Ingredient Name That Exceeds Normal Length Expectations")).toBeInTheDocument();
     });
 
     it("should handle special characters in name", () => {
@@ -108,9 +94,7 @@ describe("IngredientItem", () => {
         userId: "user-1",
       };
 
-      render(
-        <IngredientItem ingredient={specialIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={specialIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       expect(screen.getByText("Ingredient (Special) & Characters!")).toBeInTheDocument();
     });
@@ -125,9 +109,7 @@ describe("IngredientItem", () => {
       const user = userEvent.setup();
       const onRemove = vi.fn();
 
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={false} />);
 
       await user.click(screen.getByRole("button", { name: /usuń cebula/i }));
 
@@ -139,9 +121,7 @@ describe("IngredientItem", () => {
       const user = userEvent.setup();
       const onRemove = vi.fn();
 
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={true} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={true} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
 
@@ -155,9 +135,7 @@ describe("IngredientItem", () => {
       const user = userEvent.setup();
       const onRemove = vi.fn();
 
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={false} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       await user.dblClick(button);
@@ -170,9 +148,7 @@ describe("IngredientItem", () => {
       const user = userEvent.setup();
       const onRemove = vi.fn();
 
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={false} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       button.focus();
@@ -185,9 +161,7 @@ describe("IngredientItem", () => {
       const user = userEvent.setup();
       const onRemove = vi.fn();
 
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={onRemove} isRemoving={false} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       button.focus();
@@ -197,18 +171,14 @@ describe("IngredientItem", () => {
     });
 
     it("should show loading state immediately on click", () => {
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       expect(button).toBeDisabled();
     });
 
     it("should maintain disabled state during removal", () => {
-      const { rerender } = render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      const { rerender } = render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       expect(button).not.toBeDisabled();
@@ -224,36 +194,28 @@ describe("IngredientItem", () => {
 
   describe("Loading State", () => {
     it("should show Loader2 spinner when isRemoving", () => {
-      const { container } = render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      const { container } = render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       const spinner = container.querySelector(".animate-spin");
       expect(spinner).toBeInTheDocument();
     });
 
     it("should spinner have correct size", () => {
-      const { container } = render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      const { container } = render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       const spinner = container.querySelector(".h-4.w-4");
       expect(spinner).toBeInTheDocument();
     });
 
     it("should spinner have animation class", () => {
-      const { container } = render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      const { container } = render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       const spinner = container.querySelector(".animate-spin");
       expect(spinner).toBeInTheDocument();
     });
 
     it("should hide remove icon during loading", () => {
-      const { container } = render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      const { container } = render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       // Only one SVG (spinner) should be present
       const svgs = container.querySelectorAll("svg");
@@ -262,9 +224,7 @@ describe("IngredientItem", () => {
     });
 
     it("should button remain clickable area (but disabled)", () => {
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       expect(button).toBeInTheDocument();
@@ -278,18 +238,14 @@ describe("IngredientItem", () => {
 
   describe("Accessibility", () => {
     it("should remove button have aria-label with ingredient name", () => {
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       expect(button).toHaveAttribute("aria-label", "Usuń Cebula");
     });
 
     it("should button have disabled state when isRemoving", () => {
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={true} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
       expect(button).toBeDisabled();
@@ -298,9 +254,7 @@ describe("IngredientItem", () => {
     it("should focus management work correctly", async () => {
       const user = userEvent.setup();
 
-      render(
-        <IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={mockIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       const button = screen.getByRole("button", { name: /usuń cebula/i });
 
@@ -321,9 +275,7 @@ describe("IngredientItem", () => {
         userId: "user-1",
       };
 
-      render(
-        <IngredientItem ingredient={polishIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={polishIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       expect(screen.getByText("Śledź")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /usuń śledź/i })).toBeInTheDocument();
@@ -336,9 +288,7 @@ describe("IngredientItem", () => {
         userId: "user-1",
       };
 
-      render(
-        <IngredientItem ingredient={numberIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={numberIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       expect(screen.getByText("Ingredient 123")).toBeInTheDocument();
     });
@@ -350,9 +300,7 @@ describe("IngredientItem", () => {
         userId: "user-1",
       };
 
-      render(
-        <IngredientItem ingredient={emojiIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={emojiIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       expect(screen.getByText("Ingredient 🥕")).toBeInTheDocument();
     });
@@ -364,9 +312,7 @@ describe("IngredientItem", () => {
         userId: "user-1",
       };
 
-      render(
-        <IngredientItem ingredient={singleCharIngredient} onRemove={vi.fn()} isRemoving={false} />
-      );
+      render(<IngredientItem ingredient={singleCharIngredient} onRemove={vi.fn()} isRemoving={false} />);
 
       expect(screen.getByText("A")).toBeInTheDocument();
     });

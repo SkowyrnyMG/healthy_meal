@@ -29,9 +29,9 @@ vi.mock("@/components/RecipeCard", () => ({
 }));
 
 // Mock window.location.href
-//eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 delete (window as any).location;
-//eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 window.location = { href: "" } as any;
 
 // ============================================================================
@@ -234,7 +234,7 @@ describe("RecipeSectionRow", () => {
 
       // Mock scrollBy method
       const scrollBySpy = vi.fn();
-      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       (scrollContainer as any).scrollBy = scrollBySpy;
 
       //eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -252,7 +252,7 @@ describe("RecipeSectionRow", () => {
 
       // Mock scrollBy method
       const scrollBySpy = vi.fn();
-      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       (scrollContainer as any).scrollBy = scrollBySpy;
 
       //eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -270,7 +270,7 @@ describe("RecipeSectionRow", () => {
 
       // Mock scrollBy method
       const scrollBySpy = vi.fn();
-      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       (scrollContainer as any).scrollBy = scrollBySpy;
 
       //eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -287,7 +287,7 @@ describe("RecipeSectionRow", () => {
       const scrollContainer = container.querySelector('[role="region"][aria-label*="przewiń poziomo"]');
 
       // Mock scrollBy method to prevent actual scrolling errors
-      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       (scrollContainer as any).scrollBy = vi.fn();
 
       const event = new KeyboardEvent("keydown", { key: "ArrowRight" });
@@ -332,7 +332,6 @@ describe("RecipeSectionRow", () => {
 
       const scrollContainer = container.querySelector('[role="region"][aria-label*="przewiń poziomo"]') as HTMLElement;
 
-      //eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((scrollContainer.style as any).WebkitOverflowScrolling).toBe("touch");
     });
 
