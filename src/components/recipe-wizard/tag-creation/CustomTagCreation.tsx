@@ -132,6 +132,7 @@ const CustomTagCreation = ({ isOpen, onClose, onTagCreated }: CustomTagCreationP
                 onChange={(e) => setTagName(e.target.value)}
                 disabled={isSubmitting}
                 maxLength={100}
+                // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
               />
               <p className="text-xs text-gray-500">{tagName.length}/100</p>

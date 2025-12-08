@@ -174,6 +174,7 @@ const RecipeSectionRow = ({
           }}
           role="region"
           aria-label={`${title} - przewiń poziomo aby zobaczyć więcej przepisów`}
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
           tabIndex={0}
         >
           {recipes.map((recipe) => (

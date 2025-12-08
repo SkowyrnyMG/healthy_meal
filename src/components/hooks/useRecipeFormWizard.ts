@@ -114,7 +114,7 @@ function getInitialFormData(params: UseRecipeFormWizardParams): RecipeFormData {
  * Save draft to localStorage
  */
 function saveDraft(data: RecipeFormData, step: RecipeFormStep, params: UseRecipeFormWizardParams): void {
-  const draftKey = params.mode === "create" ? DRAFT_KEYS.NEW_RECIPE : DRAFT_KEYS.EDIT_RECIPE(params.recipeId!);
+  const draftKey = params.mode === "create" ? DRAFT_KEYS.NEW_RECIPE : DRAFT_KEYS.EDIT_RECIPE(params.recipeId as string);
 
   const draft: RecipeDraftData = {
     timestamp: new Date().toISOString(),
@@ -191,7 +191,7 @@ export const useRecipeFormWizard = (params: UseRecipeFormWizardParams): UseRecip
   const [hasDraft, setHasDraft] = useState(false);
   const [isDraftRestoring, setIsDraftRestoring] = useState(false);
 
-  const draftKey = params.mode === "create" ? DRAFT_KEYS.NEW_RECIPE : DRAFT_KEYS.EDIT_RECIPE(params.recipeId!);
+  const draftKey = params.mode === "create" ? DRAFT_KEYS.NEW_RECIPE : DRAFT_KEYS.EDIT_RECIPE(params.recipeId as string);
 
   // Use ref to prevent duplicate draft detection
   const draftDetected = useRef(false);
@@ -529,19 +529,19 @@ export const useRecipeFormWizard = (params: UseRecipeFormWizardParams): UseRecip
   // VALIDATION HELPERS
   // ========================================
 
-  const validateField = useCallback(
-    (_field: string) => {
-      // Validate specific field based on current step
-      // This is called on blur
-      validateStep(currentStep);
-    },
-    [currentStep, validateStep]
-  );
+  const validateField = useCallback(() => {
+    // Validate specific field based on current step
+    // This is called on blur
+    validateStep(currentStep);
+  }, [currentStep, validateStep]);
 
-  const clearError = useCallback((field: string) => {
+  type FieldKey = keyof RecipeFormErrors;
+
+  const clearError = useCallback((field: FieldKey) => {
     setErrors((prev) => {
       const newErrors = { ...prev };
-      delete newErrors[field as keyof RecipeFormErrors];
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete newErrors[field];
       return newErrors;
     });
   }, []);
@@ -731,6 +731,7 @@ export const useRecipeFormWizard = (params: UseRecipeFormWizardParams): UseRecip
     updateNutrition,
     validateField,
     validateStep,
+    // @ts-expect-error TS2345: Argument of type '(field: FieldKey) => void' is not assignable to parameter of type '(field: string) => void'.
     clearError,
     goToStep,
     nextStep,

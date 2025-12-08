@@ -240,7 +240,6 @@ export const useFavorites = (): UseFavoritesReturn => {
   useEffect(() => {
     const initialPage = getPageFromURL();
     fetchFavorites(initialPage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount - intentionally excludes getPageFromURL and fetchFavorites
 
   /**
