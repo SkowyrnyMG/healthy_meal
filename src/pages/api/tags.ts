@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { getAllTags } from "../../lib/services/tag.service";
-import type { CreateTagCommand } from "../../types";
 
 export const prerender = false;
 
@@ -21,21 +20,6 @@ const CreateTagCommandSchema = z.object({
     .max(100, "Slug must be 100 characters or less")
     .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
 });
-
-type ValidatedCreateTagCommand = z.infer<typeof CreateTagCommandSchema>;
-
-/**
- * Helper function to generate slug from tag name
- */
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "") // Remove special chars
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
-    .replace(/-+/g, "-") // Collapse multiple hyphens
-    .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
-}
 
 // ============================================================================
 // API ROUTE HANDLERS

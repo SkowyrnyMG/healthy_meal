@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ProfileSettingsLayout from "../ProfileSettingsLayout";
 import * as useProfileSettingsModule from "@/components/hooks/useProfileSettings";
@@ -34,6 +34,7 @@ vi.mock("../SettingsTabs", () => ({
         <button
           key={section.id}
           data-testid={`tab-${section.id}`}
+          role="tab"
           aria-selected={activeSection === section.id}
           onClick={() => onSectionChange(section.id)}
         >

@@ -53,7 +53,9 @@ describe("DeleteCollectionDialog", () => {
     vi.mocked(toast.error).mockClear();
 
     // Mock console methods
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {
+      // Mock implementation
+    });
   });
 
   afterEach(() => {

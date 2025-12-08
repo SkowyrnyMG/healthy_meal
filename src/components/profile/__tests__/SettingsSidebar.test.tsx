@@ -67,9 +67,7 @@ describe("SettingsSidebar - Rendering", () => {
 
   it("should have proper width and layout classes", () => {
     const onSectionChange = vi.fn();
-    const { container } = render(
-      <SettingsSidebar sections={mockSections} activeSection="basic-info" onSectionChange={onSectionChange} />
-    );
+    render(<SettingsSidebar sections={mockSections} activeSection="basic-info" onSectionChange={onSectionChange} />);
 
     const nav = screen.getByRole("navigation");
     expect(nav).toHaveClass("w-64", "flex-shrink-0");

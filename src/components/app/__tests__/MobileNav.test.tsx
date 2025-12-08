@@ -56,8 +56,12 @@ describe("MobileNav", () => {
     window.location.href = "";
 
     // Mock console methods
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {
+      // Mock implementation
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {
+      // Mock implementation
+    });
   });
 
   afterEach(() => {

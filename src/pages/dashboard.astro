@@ -65,7 +65,7 @@ let userName: string | null = null;
 
 if (profileResult.status === "fulfilled" && profileResult.value.ok) {
   try {
-    const profile = await profileResult.value.json();
+    await profileResult.value.json();
     // Note: ProfileDTO doesn't have a name field, so we'll use null for now
     // In production, you might get the name from Supabase auth metadata
     userName = null;
@@ -149,7 +149,6 @@ const favoriteRecipeIds = favoriteRecipes.map((f) => f.recipeId);
 // ============================================================================
 
 const title = "Dashboard - HealthyMeal";
-const description = "Przeglądaj swoje przepisy, ulubione i inspiracje kulinarne";
 ---
 
 <AppLayout title={title}>

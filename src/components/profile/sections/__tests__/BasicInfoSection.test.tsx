@@ -251,7 +251,6 @@ describe("BasicInfoSection", () => {
     });
 
     it("should validate age is integer (no decimals)", async () => {
-      const user = userEvent.setup();
       render(<BasicInfoSection initialData={mockInitialData} onSave={mockOnSave} isSaving={false} />);
 
       const ageInput = screen.getByLabelText(/wiek/i);

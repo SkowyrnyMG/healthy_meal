@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CollectionGrid from "../CollectionGrid";
 import type { CollectionDTO } from "@/types";
@@ -368,7 +368,7 @@ describe("CollectionGrid", () => {
       ];
 
       // React will warn about duplicate keys, but should still render
-      const { container } = render(
+      render(
         <CollectionGrid
           collections={collectionsWithDuplicates}
           onCardClick={mockOnCardClick}
@@ -442,7 +442,7 @@ describe("CollectionGrid", () => {
       const user = userEvent.setup();
       const collections = createMockCollections(2);
 
-      const { container } = render(
+      render(
         <CollectionGrid
           collections={collections}
           onCardClick={mockOnCardClick}

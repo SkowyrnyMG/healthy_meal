@@ -44,8 +44,8 @@ const ForgotPasswordForm = () => {
   });
 
   const [errors, setErrors] = useState<ForgotPasswordFormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading] = useState(false);
+  const [isSuccess] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: ForgotPasswordFormErrors = {};
@@ -153,7 +153,6 @@ const ForgotPasswordForm = () => {
               aria-describedby={errors.email ? "email-error" : undefined}
               className={errors.email ? "border-red-500" : ""}
               autoComplete="email"
-              autoFocus
             />
             {errors.email && (
               <p id="email-error" className="text-sm text-red-600" role="alert">

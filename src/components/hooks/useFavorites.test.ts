@@ -81,8 +81,12 @@ describe("useFavorites", () => {
     window.history.replaceState = vi.fn();
 
     // Mock console methods to avoid noise in tests
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {
+      // Mock implementation
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {
+      // Mock implementation
+    });
   });
 
   afterEach(() => {
@@ -121,7 +125,7 @@ describe("useFavorites", () => {
       json: async () => mockApiResponse,
     });
 
-    const { result } = renderHook(() => useFavorites());
+    renderHook(() => useFavorites());
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith("/api/favorites?page=2&limit=20", expect.any(Object));
@@ -183,7 +187,7 @@ describe("useFavorites", () => {
       json: async () => mockApiResponse,
     });
 
-    const { result } = renderHook(() => useFavorites());
+    renderHook(() => useFavorites());
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledTimes(1);

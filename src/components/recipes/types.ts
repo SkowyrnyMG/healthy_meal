@@ -1,4 +1,4 @@
-import type { RecipeDetailDTO, RecipeStepDTO, NutritionDTO, ModificationDTO, CreateModificationCommand } from "@/types";
+import type { RecipeDetailDTO, NutritionDTO, ModificationDTO, CreateModificationCommand } from "@/types";
 
 // ============================================================================
 // VIEW STATE TYPES

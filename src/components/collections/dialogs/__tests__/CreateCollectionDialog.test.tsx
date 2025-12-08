@@ -48,7 +48,9 @@ describe("CreateCollectionDialog", () => {
     vi.mocked(toast.error).mockClear();
 
     // Mock console methods
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {
+      // Mock implementation
+    });
   });
 
   afterEach(() => {
@@ -743,7 +745,6 @@ describe("CreateCollectionDialog", () => {
     });
 
     it("max length enforced by input (maxLength={100})", async () => {
-      const user = userEvent.setup();
       render(<CreateCollectionDialog open={true} onOpenChange={mockOnOpenChange} onSuccess={mockOnSuccess} />);
 
       const input = screen.getByLabelText("Nazwa kolekcji");
@@ -903,7 +904,7 @@ describe("CreateCollectionDialog", () => {
 
     it("multiple rapid submissions (prevented by loading state)", async () => {
       const user = userEvent.setup();
-      let resolvePromise: (value: unknown) => void;
+      let resolvePromise: ((value: unknown) => void) | undefined;
       const slowPromise = new Promise((resolve) => {
         resolvePromise = resolve;
       });
@@ -926,10 +927,12 @@ describe("CreateCollectionDialog", () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
 
       // Resolve the promise
-      resolvePromise!({
-        ok: true,
-        json: async () => ({ collection: mockCollection }),
-      });
+      if (resolvePromise) {
+        resolvePromise({
+          ok: true,
+          json: async () => ({ collection: mockCollection }),
+        });
+      }
 
       await waitFor(() => {
         expect(mockOnSuccess).toHaveBeenCalled();

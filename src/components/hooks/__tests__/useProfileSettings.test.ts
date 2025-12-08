@@ -294,7 +294,7 @@ describe("useProfileSettings", () => {
     });
 
     it("should set all loading states to false after successful fetch", async () => {
-      (global.fetch as any).mockImplementation((url: string) => {
+      (global.fetch as any).mockImplementation(() => {
         return Promise.resolve({
           ok: true,
           json: async () => ({ allergens: [], dislikedIngredients: [] }),
@@ -566,7 +566,7 @@ describe("useProfileSettings", () => {
           gender: "male",
           activityLevel: "very_active",
         });
-      } catch (error) {
+      } catch {
         // Error expected
       }
 
@@ -603,7 +603,7 @@ describe("useProfileSettings", () => {
           gender: "male",
           activityLevel: "very_active",
         });
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -665,7 +665,7 @@ describe("useProfileSettings", () => {
           gender: "male",
           activityLevel: "very_active",
         });
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -886,7 +886,7 @@ describe("useProfileSettings", () => {
           targetGoal: "lose_weight",
           targetValue: 5,
         });
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -922,7 +922,7 @@ describe("useProfileSettings", () => {
           targetGoal: "lose_weight",
           targetValue: 5,
         });
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -982,7 +982,7 @@ describe("useProfileSettings", () => {
           targetGoal: "lose_weight",
           targetValue: 5,
         });
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -1355,7 +1355,7 @@ describe("useProfileSettings", () => {
 
       try {
         await result.current.saveAllergens(new Set(["allergen-2"]));
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -1385,7 +1385,7 @@ describe("useProfileSettings", () => {
 
       try {
         await result.current.saveAllergens(new Set(["allergen-2"]));
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -1586,7 +1586,7 @@ describe("useProfileSettings", () => {
 
       try {
         await result.current.addDislikedIngredient("Czosnek");
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -1618,7 +1618,7 @@ describe("useProfileSettings", () => {
 
       try {
         await result.current.addDislikedIngredient("Czosnek");
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -1897,7 +1897,7 @@ describe("useProfileSettings", () => {
 
       try {
         await result.current.removeDislikedIngredient("ingredient-1");
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -1928,7 +1928,7 @@ describe("useProfileSettings", () => {
 
       try {
         await result.current.removeDislikedIngredient("ingredient-1");
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -2037,7 +2037,7 @@ describe("useProfileSettings", () => {
 
       try {
         await result.current.removeDislikedIngredient("ingredient-1");
-      } catch (error) {
+      } catch {
         // Expected
       }
 
@@ -2080,7 +2080,7 @@ describe("useProfileSettings", () => {
     });
 
     it("should fetch all data again when refetchAll() is called", async () => {
-      (global.fetch as any).mockImplementation((url: string) => {
+      (global.fetch as any).mockImplementation(() => {
         return Promise.resolve({
           ok: true,
           json: async () => ({ allergens: [], dislikedIngredients: [] }),
@@ -2174,7 +2174,6 @@ describe("useProfileSettings", () => {
 
     it("should set loading states correctly during refetchAll()", async () => {
       const resolveFetches: any[] = [];
-      const fetchCount = 0;
 
       (global.fetch as any).mockImplementation(() =>
         Promise.resolve({

@@ -7,7 +7,6 @@ import type {
   RecipeDraftData,
   RecipeDetailDTO,
   RecipeIngredientDTO,
-  RecipeStepDTO,
   NutritionDTO,
   CreateRecipeCommand,
 } from "@/types";

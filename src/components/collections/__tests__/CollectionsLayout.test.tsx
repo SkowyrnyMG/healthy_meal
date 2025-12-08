@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CollectionsLayout from "../CollectionsLayout";
 import type { CollectionDTO } from "@/types";
@@ -241,13 +241,13 @@ describe("CollectionsLayout", () => {
     });
 
     it("transitions from empty state to grid with initial data", () => {
-      const { rerender } = render(<CollectionsLayout initialCollections={[]} />);
+      render(<CollectionsLayout initialCollections={[]} />);
 
       // Initially empty
       expect(screen.getByText(/nie masz jeszcze kolekcji/i)).toBeInTheDocument();
 
       // Render with different initial data (simulates page reload after create)
-      const { container } = render(<CollectionsLayout initialCollections={createMockCollections(1)} />);
+      render(<CollectionsLayout initialCollections={createMockCollections(1)} />);
 
       expect(screen.getByText("Collection 1")).toBeInTheDocument();
       expect(screen.getByText("1 kolekcja")).toBeInTheDocument();

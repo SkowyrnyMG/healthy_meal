@@ -388,8 +388,6 @@ describe("AllergensSection", () => {
     });
 
     it("should disable all checkboxes during save", async () => {
-      const user = userEvent.setup();
-
       render(
         <AllergensSection
           allAllergens={mockAllergens}

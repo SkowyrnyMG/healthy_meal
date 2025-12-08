@@ -16,9 +16,15 @@ vi.stubGlobal("import.meta.env", {
 
 // Mock ResizeObserver for Radix UI components
 global.ResizeObserver = class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe() {
+    // Mock implementation
+  }
+  unobserve() {
+    // Mock implementation
+  }
+  disconnect() {
+    // Mock implementation
+  }
 };
 
 // Extend expect matchers (jest-dom is already imported above)

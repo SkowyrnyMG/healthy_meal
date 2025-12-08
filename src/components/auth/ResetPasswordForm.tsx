@@ -127,8 +127,8 @@ const ResetPasswordForm = ({ token }: ResetPasswordFormProps) => {
   const [errors, setErrors] = useState<ResetPasswordFormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading] = useState(false);
+  const [isSuccess] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState(3);
 
   const passwordStrength = useMemo(() => getPasswordStrength(formData.password), [formData.password]);
@@ -280,7 +280,6 @@ const ResetPasswordForm = ({ token }: ResetPasswordFormProps) => {
                 aria-describedby={errors.password ? "password-error password-strength" : "password-strength"}
                 className={errors.password ? "border-red-500 pr-10" : "pr-10"}
                 autoComplete="new-password"
-                autoFocus
               />
               <button
                 type="button"
