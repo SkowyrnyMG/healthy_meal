@@ -12,7 +12,7 @@
 -- =============================================
 
 create table recipes (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(user_id) on delete cascade,
   title varchar(255) not null,
   description text,
@@ -172,7 +172,7 @@ create policy recipe_tags_delete on recipe_tags
 -- =============================================
 
 create table recipe_modifications (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   original_recipe_id uuid not null references recipes(id) on delete cascade,
   user_id uuid not null references profiles(user_id) on delete cascade,
   modification_type varchar(50) not null check (modification_type in (
@@ -223,7 +223,7 @@ create policy recipe_modifications_delete on recipe_modifications
 -- =============================================
 
 create table ingredient_substitutions (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   original_ingredient varchar(100) not null,
   substitute_ingredient varchar(100) not null,
   -- nutrition comparison: {"original": {...}, "substitute": {...}}

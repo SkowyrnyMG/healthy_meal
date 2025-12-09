@@ -9,8 +9,8 @@
 -- Extensions
 -- =============================================
 
--- enable uuid generation for primary keys
-create extension if not exists "uuid-ossp";
+-- Note: Using gen_random_uuid() instead of uuid_generate_v4()
+-- gen_random_uuid() is built-in to PostgreSQL 13+ and doesn't require uuid-ossp extension
 
 -- enable unaccent extension for polish language support
 -- this handles polish diacritics (ą, ć, ę, ł, ń, ó, ś, ź, ż) in full-text search
@@ -91,7 +91,7 @@ create policy profiles_delete_own on profiles
 -- =============================================
 
 create table allergens (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name_pl varchar(100) not null unique,
   created_at timestamptz not null default now()
 );
@@ -159,7 +159,7 @@ create policy user_allergens_delete on user_allergens
 -- =============================================
 
 create table user_disliked_ingredients (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(user_id) on delete cascade,
   ingredient_name varchar(100) not null,
   created_at timestamptz not null default now(),
@@ -201,7 +201,7 @@ create policy user_disliked_ingredients_delete on user_disliked_ingredients
 -- =============================================
 
 create table tags (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name varchar(100) not null unique,
   slug varchar(100) not null unique,
   created_at timestamptz not null default now()

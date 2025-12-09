@@ -54,7 +54,7 @@ create policy favorites_delete on favorites
 -- =============================================
 
 create table collections (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(user_id) on delete cascade,
   name varchar(100) not null,
   created_at timestamptz not null default now(),
@@ -168,7 +168,7 @@ create policy collection_recipes_delete on collection_recipes
 -- =============================================
 
 create table recipe_ratings (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(user_id) on delete cascade,
   recipe_id uuid not null references recipes(id) on delete cascade,
   rating integer not null check (rating >= 1 and rating <= 5),
@@ -220,7 +220,7 @@ create policy recipe_ratings_delete on recipe_ratings
 -- =============================================
 
 create table meal_plans (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(user_id) on delete cascade,
   recipe_id uuid not null references recipes(id) on delete cascade,
   planned_date date not null,

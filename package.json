@@ -6,6 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "preview:cloudflare": "wrangler pages dev dist",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=healthy-meal",
     "astro": "astro",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -19,7 +21,7 @@
     "test:e2e:codegen": "playwright codegen http://localhost:3000"
   },
   "dependencies": {
-    "@astrojs/node": "^9.4.3",
+    "@astrojs/cloudflare": "^12.1.0",
     "@astrojs/react": "^4.3.1",
     "@astrojs/sitemap": "^3.5.1",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -80,7 +82,8 @@
     "lint-staged": "15.5.0",
     "prettier-plugin-astro": "0.14.1",
     "typescript-eslint": "8.28.0",
-    "vitest": "^4.0.14"
+    "vitest": "^4.0.14",
+    "wrangler": "^3.109.0"
   },
   "lint-staged": {
     "*.{ts,tsx,astro}": [
