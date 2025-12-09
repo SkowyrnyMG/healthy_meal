@@ -111,24 +111,29 @@ src/
 
 Required environment variables (see .env.example):
 
-- `PUBLIC_SUPABASE_URL` - Supabase project URL
-- `PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_KEY` - Supabase anonymous key
 - `OPENROUTER_API_KEY` - OpenRouter API key for AI integration
 
 ### Cloudflare Configuration
 
-Environment variables must be configured in Cloudflare Pages dashboard or via Wrangler CLI:
+**Runtime environment variables** must be configured in Cloudflare Pages dashboard:
 
-```bash
-# Using Wrangler CLI
-wrangler pages secret put PUBLIC_SUPABASE_URL
-wrangler pages secret put PUBLIC_SUPABASE_ANON_KEY
-wrangler pages secret put OPENROUTER_API_KEY
-```
+1. Go to Workers & Pages → healthy-meal → **Settings** → **Environment variables**
+2. Add for **Production** environment:
+   - `SUPABASE_URL` = Your Supabase project URL
+   - `SUPABASE_KEY` = Your Supabase anonymous key
+   - `OPENROUTER_API_KEY` = Your OpenRouter API key
+3. Click **Save** and redeploy
+
+**Important:** Never use `wrangler secret put` or add sensitive values to `wrangler.toml`. Always manage secrets via the Cloudflare dashboard.
 
 For CI/CD, these variables should be set as GitHub Secrets:
 - `CLOUDFLARE_API_TOKEN` - Cloudflare API token with Pages write access
 - `CLOUDFLARE_ACCOUNT_ID` - Your Cloudflare account ID
+- `SUPABASE_URL` - For build-time access (optional)
+- `SUPABASE_KEY` - For build-time access (optional)
+- `OPENROUTER_API_KEY` - For build-time access (optional)
 
 ## Deployment
 

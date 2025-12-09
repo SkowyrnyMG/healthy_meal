@@ -6,11 +6,6 @@ pages_build_output_dir = "./dist"
 # Node.js compatibility for Astro SSR
 compatibility_flags = ["nodejs_compat"]
 
-# Environment variables (non-sensitive only)
-# Sensitive variables should be set via Cloudflare Pages dashboard or wrangler secret
-[vars]
-NODE_VERSION = "22.14.0"
-
 # Production environment
 [env.production]
 name = "healthy-meal-production"
