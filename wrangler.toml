@@ -1,17 +1,6 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "healthy-meal"
 compatibility_date = "2025-12-09"
-pages_build_output_dir = "./dist"
-
-# Cloudflare Pages configuration
-[site]
-bucket = "./dist/client"
-
-[build]
-command = "npm run build"
-
-[observability]
-enabled = true
 
 # Node.js compatibility for Astro SSR
 compatibility_flags = ["nodejs_compat"]
@@ -25,6 +14,6 @@ NODE_VERSION = "22.14.0"
 [env.production]
 name = "healthy-meal-production"
 
-# Staging environment
-[env.staging]
-name = "healthy-meal-staging"
+# Preview environment (for PR previews and testing)
+[env.preview]
+name = "healthy-meal-preview"
