@@ -1,4 +1,0 @@
-name = "healthy-meal"
-main = "dist/_worker.js/index.js"
-compatibility_date = "2025-12-09"
-compatibility_flags = ["nodejs_compat"]
